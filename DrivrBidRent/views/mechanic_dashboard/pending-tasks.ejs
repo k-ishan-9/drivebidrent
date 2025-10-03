@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pending Tasks</title>
+    <%- include('partials/styles') %>
+    <style>
+      /* Main Page Styles */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff;
+        color: #333;
+      }
+
+      main {
+        padding: 20px;
+      }
+
+      h1 {
+        color: #ff6600;
+      }
+
+      /* Vehicle List Styles */
+      .vehicle-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 20px;
+      }
+
+      .vehicle-card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .vehicle-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .car-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 8px;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+
+      .car-image:hover {
+        opacity: 0.8;
+        transform: scale(1.05);
+      }
+
+      .vehicle-card h3 {
+        margin: 15px 0 10px;
+        font-size: 20px;
+        color: #333;
+      }
+
+      .vehicle-card p {
+        margin: 5px 0;
+        font-size: 14px;
+        color: #666;
+      }
+
+      /* Button Styles */
+      .vehicle-card button {
+        margin: 10px 5px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+      }
+
+      .vehicle-card button:hover {
+        transform: scale(1.05);
+      }
+
+      .vehicle-card .accept {
+        background-color: #4caf50; /* Green for accept */
+        color: #fff;
+      }
+
+      .vehicle-card .accept:hover {
+        background-color: #45a049; /* Darker green on hover */
+      }
+
+      .vehicle-card .decline {
+        background-color: #f44336; /* Red for decline */
+        color: #fff;
+      }
+
+      .vehicle-card .decline:hover {
+        background-color: #e53935; /* Darker red on hover */
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/header') %>
+
+    <main>
+      <h1>Pending Tasks</h1>
+      <div class="vehicle-list">
+        <!-- Vehicle Card 1 -->
+        <div class="vehicle-card" id="vehicle1">
+          <img
+          src="https://imgd.aeplcdn.com/1920x1080/n/cw/ec/192443/camry-exterior-right-front-three-quarter-2.jpeg?isig=0&q=80&q=80
+          alt="Vehicle Image" class="car-image" />
+          <h3>Toyota Camry</h3>
+          <p><strong>Owner:</strong> Mahesh</p>
+          <p><strong>Mileage:</strong> 30,688 km</p>
+          <button class="accept" onclick="acceptVehicle('vehicle1')">
+            Accept
+          </button>
+          <button class="decline" onclick="declineVehicle('vehicle1')">
+            Decline
+          </button>
+        </div>
+        <!-- Vehicle Card 2 -->
+        <div class="vehicle-card" id="vehicle2">
+          <img
+            src="https://www.fmdt.info/vehicle/honda/2020/civic-lx-32-white.png"
+            alt="Vehicle Image"
+            class="car-image"
+          />
+          <h3>Honda Civic</h3>
+          <p><strong>Owner:</strong> Jane Foster</p>
+          <p><strong>Mileage:</strong> 60,000 km</p>
+          <button class="accept" onclick="acceptVehicle('vehicle2')">
+            Accept
+          </button>
+          <button class="decline" onclick="declineVehicle('vehicle2')">
+            Decline
+          </button>
+        </div>
+        <!-- Vehicle Card 3 -->
+        <div class="vehicle-card" id="vehicle3">
+          <img
+          src="https://imgd.aeplcdn.com/664x374/cw/ec/23766/Ford-Mustang-Exterior-126883.jpg?wm=0&q=80
+          alt="Vehicle Image" class="car-image" />
+          <h3>Ford Mustang</h3>
+          <p><strong>Owner:</strong> Manish</p>
+          <p><strong>Mileage:</strong> 30,051 km</p>
+          <button class="accept" onclick="acceptVehicle('vehicle3')">
+            Accept
+          </button>
+          <button class="decline" onclick="declineVehicle('vehicle3')">
+            Decline
+          </button>
+        </div>
+        <!-- Vehicle Card 4 -->
+        <div class="vehicle-card" id="vehicle4">
+          <img
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQBhUXFlaLxgSmV92uTA_pd6Vw-xVgWW_gKw&s
+          alt="Vehicle Image" class="car-image" />
+          <h3>Chevrolet Camaro</h3>
+          <p><strong>Owner:</strong> Saurav</p>
+          <p><strong>Mileage:</strong> 25,801 km</p>
+          <button class="accept" onclick="acceptVehicle('vehicle4')">
+            Accept
+          </button>
+          <button class="decline" onclick="declineVehicle('vehicle4')">
+            Decline
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+      // Function to accept a vehicle
+      function acceptVehicle(vehicleId) {
+        const vehicle = document.getElementById(vehicleId);
+        vehicle.style.display = "none"; // Hide the vehicle
+        alert("Vehicle Accepted!");
+      }
+
+      // Function to decline a vehicle
+      function declineVehicle(vehicleId) {
+        const vehicle = document.getElementById(vehicleId);
+        vehicle.style.display = "none"; // Hide the vehicle
+        alert("Vehicle Declined!");
+      }
+    </script>
+  </body>
+</html>

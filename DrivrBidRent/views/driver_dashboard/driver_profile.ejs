@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - DriveBidRent</title>
+    <style>
+        /* Profile Page Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f9;
+    color: #333;
+}
+
+/* Top Header */
+.top-header {
+    background: #ff8500;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: fixed; /* Make the header sticky */
+    top: 0; /* Stick to the top */
+    left: 0; /* Align to the left */
+    right: 0; /* Align to the right */
+    z-index: 1000; /* Ensure it stays above other content */
+}
+
+.header-left .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
+
+.header-right .profile-link {
+    font-size: 1rem;
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 25px;
+    background: #4CAF50; /* Green color for contrast */
+    transition: background 0.3s ease;
+}
+
+.header-right .profile-link:hover {
+    background: #45a049; /* Darker green on hover */
+}
+
+/* Profile Container */
+.profile-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 70px auto 0; /* Account for the fixed header */
+}
+
+.profile-container h1 {
+    color: #ff8500;
+    margin-bottom: 20px;
+}
+
+.profile-details, .edit-profile {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.profile-details h2, .edit-profile h2 {
+    color: #ff8500;
+    margin-bottom: 15px;
+}
+
+.details p {
+    margin: 10px 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.details strong {
+    color: #555;
+}
+
+.edit-profile form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.edit-profile label {
+    font-weight: bold;
+    color: #333;
+}
+
+.edit-profile input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    background: #f4f4f9;
+}
+
+.edit-profile input:focus {
+    border-color: #ff8500;
+    outline: none;
+}
+
+.btn-primary {
+    background: #ff8500;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #e67600;
+}
+
+/* Change Password Section */
+.change-password {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.change-password h2 {
+    color: #ff8500;
+    margin-bottom: 15px;
+}
+
+.change-password form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.change-password label {
+    font-weight: bold;
+    color: #333;
+}
+
+.change-password input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    background: #f4f4f9;
+}
+
+.change-password input:focus {
+    border-color: #ff8500;
+    outline: none;
+}
+
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="top-header">
+        <div class="header-left">
+            <a href="/driver_dashboard/driverdashboard" class="logo">DriveBidRent</a> <!-- Link to dashboard -->
+        </div>
+        <div class="header-right">
+            <a href="/driver_dashboard/driver_profile" class="profile-link">My Profile</a>
+        </div>
+    </header>
+
+    <!-- Profile Section -->
+    <main class="profile-container">
+        <h1>My Profile</h1>
+        <div class="profile-details card">
+            <h2>Driver Details</h2>
+            <div class="details">
+                <p><strong>Name:</strong> <span id="driver-name">John Doe</span></p>
+                <p><strong>Email:</strong> <span id="driver-email">john.doe@example.com</span></p>
+                <p><strong>Phone:</strong> <span id="driver-phone">+1234567890</span></p>
+                <p><strong>Address:</strong> <span id="driver-address">123 Main St, City, Country</span></p>
+            </div>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="edit-profile card">
+            <h2>Edit Profile</h2>
+            <form id="profile-form">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" placeholder="Enter your address" required>
+
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </form>
+        </div>
+
+        <!-- Change Password Section -->
+        <div class="change-password card">
+            <h2>Change Password</h2>
+            <form id="change-password-form">
+                <label for="old-password">Old Password:</label>
+                <input type="password" id="old-password" name="old-password" placeholder="Enter your old password" required>
+
+                <label for="new-password">New Password:</label>
+                <input type="password" id="new-password" name="new-password" placeholder="Enter your new password" required>
+
+                <label for="re-enter-password">Re-enter New Password:</label>
+                <input type="password" id="re-enter-password" name="re-enter-password" placeholder="Re-enter your new password" required>
+
+                <button type="submit" class="btn-primary">Change Password</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // My Profile Page Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved details from localStorage (if any)
+    const savedProfile = JSON.parse(localStorage.getItem('driverProfile')) || {
+        name: "John Doe",
+        email: "john.doe@example.com",
+        phone: "+1234567890",
+        address: "123 Main St, City, Country",
+        password: "oldPassword123" // Default old password
+    };
+
+    // Display saved details
+    document.getElementById('driver-name').textContent = savedProfile.name;
+    document.getElementById('driver-email').textContent = savedProfile.email;
+    document.getElementById('driver-phone').textContent = savedProfile.phone;
+    document.getElementById('driver-address').textContent = savedProfile.address;
+
+    // Populate form with saved details
+    document.getElementById('name').value = savedProfile.name;
+    document.getElementById('email').value = savedProfile.email;
+    document.getElementById('phone').value = savedProfile.phone;
+    document.getElementById('address').value = savedProfile.address;
+
+    // Save updated profile details
+    document.getElementById('profile-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Update displayed details
+        savedProfile.name = document.getElementById('name').value;
+        savedProfile.email = document.getElementById('email').value;
+        savedProfile.phone = document.getElementById('phone').value;
+        savedProfile.address = document.getElementById('address').value;
+
+        // Save to localStorage
+        localStorage.setItem('driverProfile', JSON.stringify(savedProfile));
+
+        alert("Profile updated successfully!");
+    });
+
+    // Change Password Functionality
+    document.getElementById('change-password-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const oldPassword = document.getElementById('old-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const reEnterPassword = document.getElementById('re-enter-password').value;
+
+        // Validate old password
+        if (oldPassword !== savedProfile.password) {
+            alert("Old password is incorrect.");
+            return;
+        }
+
+        // Validate new passwords match
+        if (newPassword !== reEnterPassword) {
+            alert("New passwords do not match.");
+            return;
+        }
+
+        // Update password
+        savedProfile.password = newPassword;
+        localStorage.setItem('driverProfile', JSON.stringify(savedProfile));
+
+        alert("Password changed successfully!");
+
+        // Clear password fields
+        document.getElementById('old-password').value = "";
+        document.getElementById('new-password').value = "";
+        document.getElementById('re-enter-password').value = "";
+    });
+});
+    </script> 
+</body>
+</html>

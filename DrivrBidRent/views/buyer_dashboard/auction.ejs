@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveBidRent - Place Bid on <%= auction.vehicleName %></title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Auction Details Section */
+        .auction-details {
+            background-color: #fff;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .auction-details img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .auction-details h1 {
+            color: #ff6b00;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .auction-details p {
+            margin-bottom: 0.75rem;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .current-bid {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin: 1.5rem 0;
+        }
+
+        /* Bid Form Section */
+        .bid-form {
+            background-color: #fff;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .bid-form h2 {
+            color: #ff6b00;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .error-message, .success-message {
+            display: none;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .error-message {
+            background-color: #ffe6e6;
+            color: #d32f2f;
+            border: 1px solid #d32f2f;
+        }
+
+        .success-message {
+            background-color: #e6ffed;
+            color: #2e7d32;
+            border: 1px solid #2e7d32;
+        }
+
+        .bid-btn {
+            background-color: #ff6b00;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .bid-btn:hover {
+            background-color: #e65c00;
+        }
+
+        .bid-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .auction-details img {
+                height: 200px;
+            }
+
+            .auction-details h1 {
+                font-size: 1.5rem;
+            }
+
+            .current-bid {
+                font-size: 1.2rem;
+            }
+
+            .bid-form h2 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation Bar -->
+    <%- include('partials/navbar') %>
+
+    <div class="container">
+        <!-- Auction Details Section -->
+        <div class="auction-details">
+            <img src="<%= auction.vehicleImage %>" alt="<%= auction.vehicleName %>">
+            <h1><%= auction.vehicleName %></h1>
+            <p><strong>Year:</strong> <%= auction.year %></p>
+            <p><strong>Condition:</strong> <%= auction.condition.charAt(0).toUpperCase() + auction.condition.slice(1) %></p>
+            <p><strong>Starting Bid:</strong> ₹<%= auction.startingBid.toLocaleString() %></p>
+            <p><strong>Auction Date:</strong> <%= new Date(auction.auctionDate).toLocaleDateString('en-IN', { 
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+            <p class="current-bid">
+                <strong>Current Bid:</strong> 
+                <% if (currentBid) { %>
+                    ₹<%= currentBid.bidAmount.toLocaleString() %>
+                <% } else { %>
+                    No bids yet
+                <% } %>
+            </p>
+        </div>
+
+        <!-- Bid Form Section -->
+        <div class="bid-form">
+            <h2>Place Your Bid</h2>
+            <% if (!isLoggedIn) { %>
+                <p class="error-message" style="display: block;">
+                    Please <a href="/login">log in</a> to place a bid.
+                </p>
+            <% } else if (isCurrentBidder) { %>
+                <p class="error-message" style="display: block;">
+                    You already have the current bid for this auction.
+                </p>
+            <% } else if (auction.auction_stopped) { %>
+                <p class="error-message" style="display: block;">
+                    This auction has been stopped. Please check the auction details page.
+                </p>
+            <% } else { %>
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+                <form id="bidForm" method="POST" action="/auction/place-bid">
+                    <input type="hidden" name="auctionId" value="<%= auction._id %>">
+                    <div class="form-group">
+                        <label for="bidAmount">Your Bid Amount (₹)</label>
+                        <input type="number" id="bidAmount" name="bidAmount" required min="0" step="1">
+                    </div>
+                    <button type="submit" class="bid-btn">Place Bid</button>
+                </form>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <%- include('partials/footer') %>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bidForm = document.getElementById('bidForm');
+            const bidInput = document.getElementById('bidAmount');
+            const bidButton = document.querySelector('.bid-btn');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+
+            if (!bidForm) return;
+
+            // Calculate minimum bid
+            const currentBid = <%= currentBid ? currentBid.bidAmount : 'null' %>;
+            const startingBid = <%= auction.startingBid %>;
+            let minBid = currentBid ? currentBid + 2000 : startingBid;
+
+            // Client-side validation
+            bidInput.addEventListener('input', function() {
+                const bidValue = parseFloat(bidInput.value);
+                bidButton.disabled = false;
+                errorMessage.style.display = 'none';
+
+                if (isNaN(bidValue) || bidValue <= 0) {
+                    errorMessage.textContent = 'Please enter a valid bid amount.';
+                    errorMessage.style.display = 'block';
+                    bidButton.disabled = true;
+                } else if (bidValue < minBid) {
+                    errorMessage.textContent = `Your bid must be at least ₹${minBid.toLocaleString()}.`;
+                    errorMessage.style.display = 'block';
+                    bidButton.disabled = true;
+                }
+            });
+
+            // Form submission
+            bidForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+
+                const bidValue = parseFloat(bidInput.value);
+
+                // Additional validation
+                if (bidValue < minBid) {
+                    errorMessage.textContent = `Your bid must be at least ₹${minBid.toLocaleString()}.`;
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/auction/place-bid', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            auctionId: '<%= auction._id %>',
+                            bidAmount: bidValue
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        successMessage.textContent = 'Your bid has been placed successfully!';
+                        successMessage.style.display = 'block';
+                        bidForm.reset();
+                        // Update current bid display
+                        document.querySelector('.current-bid').innerHTML = `<strong>Current Bid:</strong> ₹${bidValue.toLocaleString()}`;
+                        // Update minBid for next bid
+                        minBid = bidValue + 2000;
+                    } else {
+                        errorMessage.textContent = data.message || 'Failed to place bid. Please try again.';
+                        errorMessage.style.display = 'block';
+                    }
+                } catch (error) {
+                    errorMessage.textContent = 'An error occurred. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hire Driver - DriveBidRent</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "montserrat", sans-serif;
+}
+
+body {
+    background-color: #ffffff;
+    color: #333333;
+}
+
+/* Driver Hiring Page Styles */
+.hire-driver-details {
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.hire-driver-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.driver-image img {
+    width: 100%;
+    border-radius: 1rem;
+}
+
+.driver-info h1 {
+    color: #ff6b00;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.cost-per-day {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.driver-specs {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.driver-specs p {
+    margin-bottom: 0.5rem;
+    color: #333333;
+}
+
+.hire-form {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.hire-form h2 {
+    color: #ff6b00;
+    margin-bottom: 1rem;
+}
+
+.hire-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #333333;
+}
+
+.hire-form input, .hire-form select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.3rem;
+}
+
+.hire-btn {
+    background: linear-gradient(135deg, #ff6b00, #ff9a44);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.hire-btn:hover {
+    background: linear-gradient(135deg, #ff9a44, #ff6b00);
+}
+
+.hire-summary {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 2rem;
+}
+
+.hire-summary h2 {
+    color: #ff6b00;
+    margin-bottom: 1rem;
+}
+
+.hire-summary p {
+    margin-bottom: 0.5rem;
+    color: #333333;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hire-driver-container {
+        grid-template-columns: 1fr;
+    }
+}
+    </style>
+</head>
+<body>
+<!-- Include Navigation Bar -->
+<%- include('partials/navbar') %>
+
+    <!-- Driver Hiring Page Content -->
+    <section class="hire-driver-details">
+        <div class="hire-driver-container">
+            <!-- Driver Image and Basic Details -->
+            <div class="driver-image">
+                <img src="<%= image %>" alt="<%= name %>">
+            </div>
+            <div class="driver-info">
+                <h1><%= name %></h1>
+                <p class="cost-per-day">Cost/day: <strong><%= cost %></strong></p>
+                <div class="driver-specs">
+                    <p><strong>No. of days Available:</strong> <%= a_days %></p>
+                    <p><strong>Available:</strong> <%= available %></p>
+                    <p><strong>Automatic Car:</strong> <%= auto %></p>
+                    <p><strong>Rating:</strong> <%= rating %></p>
+                </div>
+            </div>
+
+            <!-- Hiring Form -->
+            <div class="hire-form">
+                <h2>Hiring Details</h2>
+                <form id="hire-form">
+                    <label for="start-date">Start Date:</label>
+                    <input type="date" id="start-date" name="start-date" required>
+
+                    <label for="end-date">End Date:</label>
+                    <input type="date" id="end-date" name="end-date" required>
+
+                    <label for="car-type">Car Type:</label>
+                    <select id="car-type" name="car-type">
+                        <option value="manual">Manual</option>
+                        <option value="automatic">Automatic</option>
+                    </select>
+
+                    <button type="submit" class="hire-btn">Confirm Hiring</button>
+                </form>
+            </div>
+
+            <!-- Hiring Summary -->
+            <div class="hire-summary">
+                <h2>Hiring Summary</h2>
+                <p><strong>Driver:</strong> Pant</p>
+                <p><strong>Cost/day:</strong> ₹1,500</p>
+                <p><strong>Start Date:</strong> <span id="summary-start-date">-</span></p>
+                <p><strong>End Date:</strong> <span id="summary-end-date">-</span></p>
+                <p><strong>Car Type:</strong> <span id="summary-car-type">-</span></p>
+                <p><strong>Total Cost:</strong> <span id="total-cost">-</span></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Include Footer -->
+    <%- include('partials/footer') %>
+
+    <!-- Link to the driver-specific JavaScript -->
+    <script>
+        // Hiring Form Submission
+const hireForm = document.getElementById('hire-form');
+const summaryStartDate = document.getElementById('summary-start-date');
+const summaryEndDate = document.getElementById('summary-end-date');
+const summaryCarType = document.getElementById('summary-car-type');
+const totalCost = document.getElementById('total-cost');
+
+hireForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Get form values
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+    const carType = document.getElementById('car-type').value;
+
+    // Calculate total cost (example: ₹1,500/day * 5 days)
+    const costPerDay = 1500;
+    const days = 5; // Example duration
+    const total = costPerDay * days;
+
+    // Update summary
+    summaryStartDate.textContent = startDate;
+    summaryEndDate.textContent = endDate;
+    summaryCarType.textContent = carType;
+    totalCost.textContent = `₹${total}`;
+
+    alert('Driver hiring confirmed! Thank you for choosing DriveBidRent.');
+});
+    </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!-- Footer -->
+<style>
+    /* Footer */
+    footer {
+      background: linear-gradient(135deg, #ff6b00, #ff9a44);
+      padding: 4rem 2rem 2rem;
+      margin-top: 4rem;
+      color: white;
+    }
+    
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-around;
+      gap: 3rem;
+    }
+    
+    .footer-section h3 {
+      color: white;
+      margin-bottom: 1.5rem;
+      font-size: 1.2rem;
+    }
+    
+    .footer-section ul {
+      list-style: none;
+    }
+    
+    .footer-section ul li {
+      margin-bottom: 0.8rem;
+    }
+    
+    .footer-section a {
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    
+    .footer-section a:hover {
+      color: #f0f0f0;
+    }
+    
+    .social-icons {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .social-icons img {
+      width: 30px;
+      height: 30px;
+      filter: brightness(0) invert(1);
+      transition: transform 0.3s ease;
+    }
+    
+    .social-icons img:hover {
+      transform: scale(1.2);
+    }
+    
+    .copyright {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+    
+    @media (max-width: 768px) {
+      .footer-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+    }
+    </style>
+    
+    <footer>
+      <div class="footer-container">
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="/seller_dashboard/seller">Dashboard</a></li>
+            <li><a href="/seller_dashboard/add-auction">Add Auction</a></li>
+            <li><a href="/seller_dashboard/add-rental">Add Rental</a></li>
+            <li><a href="/seller_dashboard/view-earnings">Earnings</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Contact Us</h3>
+          <p>
+            <strong>Email:</strong>
+            <a href="mailto:jeevanvankadara@gmail.com">jeevanvankadara@gmail.com</a>
+          </p>
+          <p><strong>Phone:</strong> <a href="tel:9876543210">9876543210</a></p>
+          <p><strong>Address:</strong> sb-2, sagar colony, hyderabad</p>
+        </div>
+        <div class="footer-section">
+          <h3>Follow Us</h3>
+          <div class="social-icons">
+            <a href="#instagram">
+              <img src="../../public/images/instagram.png" alt="Instagram" />
+            </a>
+            <a href="#facebook">
+              <img src="../../public/images/facebook.png" alt="Facebook" />
+            </a>
+            <a href="#twitter">
+              <img src="../../public/images/X.png" alt="X" />
+            </a>
+          </div>
+        </div>
+      </div>
+      <p class="copyright">© 2025 DriveBidRent | All rights reserved.</p>
+    </footer>

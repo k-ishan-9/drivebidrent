@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AutoMarket - Buy, Sell, Rent & Auction</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      body {
+        background-color: #ffffff;
+        color: #333333;
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 15px 50px;
+        box-shadow: 0px 2px 20px rgba(255, 107, 0, 0.2);
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+      }
+
+      .logo {
+        font-size: 2rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #ff6b00;
+      }
+
+      .navbar ul {
+        list-style: none;
+        display: flex;
+        gap: 35px;
+      }
+
+      .navbar ul li {
+        display: inline;
+      }
+
+      .navbar ul li a {
+        text-decoration: none;
+        color: #333333;
+        font-size: 1.3rem;
+        font-weight: 500;
+        transition: color 0.3s ease, transform 0.3s ease;
+      }
+
+      .navbar ul li a:not(.settings-btn):hover {
+        color: #ff6b00;
+        transform: scale(1.1);
+      }
+
+      .auth-buttons {
+        display: flex;
+        gap: 10px;
+        position: relative;
+      }
+
+      .auth-buttons button {
+        padding: 8px 15px;
+        border: 1px solid #ff6b00;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        border-radius: 5px;
+      }
+
+      .login {
+        background: white;
+        color: #ff6b00;
+      }
+
+      .signup {
+        background: #ff6b00;
+        color: white;
+      }
+
+      .login:hover {
+        background: #ff6b00;
+        color: white;
+      }
+
+      .signup:hover {
+        background: white;
+        color: #ff6b00;
+      }
+
+      .hero {
+        position: relative;
+        height: 500px;
+        text-align: left;
+        margin-top: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding-left: 50px;
+      }
+
+      .hero-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1;
+      }
+
+      .hero-content {
+        color: #333333;
+        max-width: 600px;
+      }
+
+      .hero-content h1 {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #ff6b00;
+      }
+
+      .hero-content p {
+        font-size: 1.5rem;
+        margin-top: 10px;
+        color: #333333;
+      }
+
+      .cta-btn {
+        padding: 12px 24px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        background: #ff6b00;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.3s ease;
+        margin-top: 20px;
+      }
+
+      .cta-btn:hover {
+        background: #e65c00;
+        transform: scale(1.05);
+      }
+
+      .about {
+        text-align: center;
+        padding: 50px;
+      }
+
+      .about h2 {
+        font-size: 28px;
+        margin-bottom: 15px;
+        color: #ff6b00;
+      }
+
+      .about p {
+        font-size: 18px;
+        color: #666666;
+        max-width: 800px;
+        margin: auto;
+      }
+
+      .join-us {
+        text-align: center;
+        padding: 50px;
+        background: #f8f8f8;
+      }
+
+      .join-us h2 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #ff6b00;
+      }
+
+      .join-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        max-width: 900px;
+        margin: auto;
+        justify-items: center;
+      }
+
+      .join-box {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: center;
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .join-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(255, 107, 0, 0.2);
+      }
+
+      .join-box h3 {
+        font-size: 1.4rem;
+        margin: 10px 0;
+        color: #ff6b00;
+      }
+
+      .join-box p {
+        font-size: 1rem;
+        color: #666666;
+        margin: 10px 0;
+      }
+
+      .join-btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        color: white;
+        background: #ff6b00;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        margin-top: 10px;
+      }
+
+      .join-btn:hover {
+        background: #e65c00;
+      }
+
+      .top-rentals {
+        text-align: center;
+        padding: 50px;
+        background: #f8f8f8;
+      }
+
+      .top-rentals h2 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #ff6b00;
+      }
+
+      .rental-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        max-width: 1200px;
+        margin: auto;
+      }
+
+      .rental-box {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: center;
+      }
+
+      .rental-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(255, 107, 0, 0.2);
+      }
+
+      .rental-box img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 5px;
+      }
+
+      .rental-box h3 {
+        font-size: 1.4rem;
+        margin: 10px 0;
+        color: #ff6b00;
+      }
+
+      .rental-box p {
+        font-size: 1.2rem;
+        color: #333333;
+        font-weight: bold;
+      }
+
+      .rent-btn {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        color: white;
+        background: #ff6b00;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .rent-btn:hover {
+        background: #e65c00;
+      }
+
+      .top-auctions {
+        text-align: center;
+        padding: 50px;
+        background: #f8f8f8;
+      }
+
+      .top-auctions h2 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #ff6b00;
+      }
+
+      .auction-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        max-width: 1200px;
+        margin: auto;
+      }
+
+      .auction-box {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: center;
+      }
+
+      .auction-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(255, 107, 0, 0.2);
+      }
+
+      .auction-box img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 5px;
+      }
+
+      .auction-box h3 {
+        font-size: 1.4rem;
+        margin: 10px 0;
+        color: #ff6b00;
+      }
+
+      .auction-box p {
+        font-size: 1.2rem;
+        color: #333333;
+        font-weight: bold;
+      }
+
+      .bid-btn {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        color: white;
+        background: #ff6b00;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .bid-btn:hover {
+        background: #e65c00;
+      }
+
+      .see-more-container {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .see-more-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        color: white;
+        background: #ff6b00;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background 0.3s ease;
+      }
+
+      .see-more-btn:hover {
+        background: #e65c00;
+      }
+
+      .vehicle-types {
+        text-align: center;
+        padding: 50px;
+        background: #f8f8f8;
+      }
+
+      .vehicle-types h2 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #ff6b00;
+      }
+
+      .vehicle-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        max-width: 1200px;
+        margin: auto;
+      }
+
+      .vehicle-box {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: center;
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .vehicle-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(255, 107, 0, 0.2);
+      }
+
+      .vehicle-box img {
+        width: 100%;
+        height: 120px;
+        object-fit: contain;
+        object-position: center;
+        border-radius: 5px;
+        background-color: white;
+      }
+
+      .vehicle-box h3 {
+        font-size: 1.4rem;
+        margin: 10px 0;
+        color: #ff6b00;
+      }
+
+      footer {
+        margin-top: 80px;
+        color: white;
+        padding: 30px 10px;
+        text-align: center;
+        border-top: 3px solid #ff6b00;
+        background-color: #333333;
+      }
+
+      .footerbox {
+        display: flex;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+        padding: 20px;
+      }
+
+      .footercontainer {
+        width: 30%;
+        min-width: 250px;
+        text-align: left;
+        padding: 10px;
+      }
+
+      .footercontainer h3 {
+        border-bottom: 3px solid #ff6b00;
+        display: inline-block;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+      }
+
+      .footercontainer ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .footercontainer ul li {
+        margin: 8px 0;
+      }
+
+      .footercontainer ul li a {
+        color: white;
+        text-decoration: none;
+        transition: 0.3s;
+      }
+
+      .footercontainer ul li a:hover {
+        color: #ff6b00;
+        text-decoration: underline;
+      }
+
+      .footercontainer p {
+        margin: 8px 0;
+      }
+
+      .footercontainer a {
+        color: white;
+        text-decoration: none;
+      }
+
+      .footercontainer a:hover {
+        color: #ff6b00;
+      }
+
+      .soc-med-img {
+        width: 35px;
+        height: auto;
+        margin: 0 8px;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .soc-med-img:hover {
+        transform: scale(1.2);
+      }
+
+      .social-icons {
+        display: flex;
+        gap: 15px;
+        justify-content: left;
+        margin-top: 10px;
+      }
+
+      .footer-copy {
+        margin-top: 20px;
+        font-size: 14px;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="logo">DriveBidRent</div>
+      <nav>
+        <ul>
+          <li><a href="#auctions">Buy</a></li>
+          <li><a href="#join-us">Sell</a></li>
+          <li><a href="#rentals">Rent</a></li>
+          <li><a href="#auctions">Auction</a></li>
+        </ul>
+      </nav>
+      <div class="auth-buttons">
+        <button class="login" onclick="location.href='/login'">Login</button>
+        <button class="signup" onclick="location.href='/signup'">
+          Sign Up
+        </button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <img
+        src="https://media-hosting.imagekit.io/088624ca219c454e/Screenshot%202025-05-06%20215014.jpg?Expires=1841157469&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=jZdoCMlvB02NIwcBo8MgpN9MC~aSkBPBwGxZOHrBkVqN44R6TPg3hLmDZi9Tl-iXZX3MLd9DgnJ8v5MPYvjzBqrsgsO1RKsE0QkSmMlDZHYuBl6O-TQHRq8j49SjUkII94lWu1W3On61bK1j~hyvbNjgcIWNydSjovTLSYvYFaZp2T6rawTKbKQPMUTmvguWqLZ7DUQUQtLoOt0OsTh8XdMIDsybvsn41qUUty~w~9cMEs3THH-xS1YyaYD7-t5GbzYbTbHqwZYZ326dJpqTpi5wXXhecZwuQaO2yyFANqt3NyhDeP7-Dcmi4-MPWO3zJVsFiDNAjWMIEdAc-1cuvg__"
+        alt="Car Banner"
+        class="hero-img"
+      />
+      <div class="hero-content">
+        <h1>Find the Perfect Car for You</h1>
+        <p>Buy, Sell, Rent, and Auction vehicles with ease.</p>
+      </div>
+    </section>
+
+    <section class="about">
+      <h2>Welcome to DriveBidRent</h2>
+      <p>
+        This online platform is designed for the automotive market, enabling
+        users to buy, sell, and auction vehicles with ease. It offers instant
+        purchase options, live auctions, and a comprehensive car rental
+        service—with the option for a professional driver.
+      </p>
+      <button class="cta-btn" onclick="location.href='/login'">
+        Explore Now
+      </button>
+    </section>
+
+    <section class="vehicle-types">
+      <h2>Vehicle Types</h2>
+      <div class="vehicle-container">
+        <div class="vehicle-box">
+          <img src="css/photos/images (1).jpeg" alt="Cars" />
+          <h3>Cars</h3>
+        </div>
+        <div class="vehicle-box">
+          <img src="css/photos/images (2).jpeg" alt="Bikes" />
+          <h3>Bikes</h3>
+        </div>
+        <div class="vehicle-box">
+          <img
+            src="https://www.bluebirdtravels.in/wp-content/uploads/2017/01/Tempo_Traveller_PI-1200x900-cropped.png"
+            alt="Tempos"
+          />
+          <h3>Tempos</h3>
+        </div>
+      </div>
+    </section>
+
+    <section class="top-auctions" id="auctions">
+      <h2>Top Auctions</h2>
+      <% if (topAuctions && topAuctions.length > 0) { %>
+        <div class="auction-container">
+          <% topAuctions.forEach(auction => { %>
+            <div class="auction-box">
+              <img src="<%= auction.vehicleImage %>" alt="<%= auction.vehicleName %>" />
+              <h3><%= auction.vehicleName %> (<%= auction.year %>)</h3>
+              <p>Starting Bid: ₹<%= auction.startingBid.toLocaleString('en-IN') %></p>
+              <button class="bid-btn" onclick="location.href='/login'">
+                Place Bid
+              </button>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <p>No active auctions available at the moment.</p>
+      <% } %>
+      <div class="see-more-container">
+        <a href="#" class="see-more-btn" onclick="location.href='/login'"
+          >See More Auctions</a>
+      </div>
+    </section>
+
+    <section class="top-rentals" id="rentals">
+      <h2>Top Rentals</h2>
+      <% if (topRentals && topRentals.length > 0) { %>
+        <div class="rental-container">
+          <% topRentals.forEach(rental => { %>
+            <div class="rental-box">
+              <img src="<%= rental.vehicleImage %>" alt="<%= rental.vehicleName %>" />
+              <h3><%= rental.vehicleName %> (<%= rental.year %>)</h3>
+              <p>₹<%= rental.costPerDay.toLocaleString('en-IN') %>/day</p>
+              <button class="rent-btn" onclick="location.href='/login'">
+                Rent Now
+              </button>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <p>No rentals available at the moment.</p>
+      <% } %>
+      <div class="see-more-container">
+        <a href="#" class="see-more-btn" onclick="location.href='/login'"
+          >See More Rentals</a>
+      </div>
+    </section>
+
+    <section class="join-us" id="join-us">
+      <h2>Join Us Today</h2>
+      <div class="join-container">
+        <div class="join-box">
+          <h3>Buyers</h3>
+          <p>Find the best deals on vehicles tailored to your needs.</p>
+          <button class="join-btn" onclick="location.href='/signup'">
+            Join as Buyer
+          </button>
+        </div>
+        <div class="join-box">
+          <h3>Sellers</h3>
+          <p>Sell your vehicles to a wide audience effortlessly.</p>
+          <button class="join-btn" onclick="location.href='/signup'">
+            Join as Seller
+          </button>
+        </div>
+        <div class="join-box">
+          <h3>Mechanics</h3>
+          <p>Offer your expertise to ensure vehicles are in top condition.</p>
+          <button class="join-btn" onclick="location.href='/signup'">
+            Join as Mechanic
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="footerbox">
+        <div class="footercontainer">
+          <h3>Quick links</h3>
+          <ul>
+            <li><a href="#Mypurchases">My purchases</a></li>
+            <li><a href="#Wishlist">Wishlist</a></li>
+            <li><a href="#Notifications">Notifications</a></li>
+            <li><a href="#Aboutus">About Us</a></li>
+          </ul>
+        </div>
+        <div class="footercontainer">
+          <h3>Contact us</h3>
+          <p>
+            <strong>email :</strong
+            ><a href="mailto:jeevanvankadara@gmail.com"
+              >jeevanvankadara@gmail.com</a
+            >
+          </p>
+          <p>
+            <strong>Phone no :</strong><a href="tel:9876543210">9876543210</a>
+          </p>
+          <p><strong>Address :</strong>sb-2,sagar colony,hyderabad</p>
+        </div>
+        <div class="footercontainer">
+          <h3>Follow us</h3>
+          <br /><br />
+          <a href="#instagram"
+            ><img
+              src="css/photos/instagram.png"
+              alt="instagram"
+              class="soc-med-img"
+          /></a>
+          <a href="#facebook"
+            ><img
+              src="css/photos/facebook.png"
+              alt="facebook"
+              class="soc-med-img"
+          /></a>
+          <a href="#X"
+            ><img src="css/photos/X.png" alt="X" class="soc-med-img"
+          /></a>
+        </div>
+      </div>
+      <p class="footer-copy">© 2025 DriveBidRent | All rights reserved.</p>
+    </footer>
+  </body>
+</html>

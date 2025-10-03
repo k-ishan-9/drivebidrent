@@ -1,0 +1,74 @@
+<div class="header">
+    <div class="logo"><a href="/auctionmanager/home1">DRIVBIDRENT</a></div>
+    <div class="nav-links">
+      <a href="/auctionmanager/requests">REQUESTS</a>
+      <a href="/auctionmanager/pending">PENDINGCARS</a>
+      <a href="/auctionmanager/approvedcars">APPROVEDCARS</a>
+      <a href="/logout" class="logout-btn">LOGOUT</a>
+    </div>
+  </div>
+  
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+  
+    .header {
+      background-color: #ff6b00;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 80px;
+      font-family: "Montserrat", sans-serif;
+    }
+  
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+  
+    .logo a {
+      color: white;
+      text-decoration: none;
+    }
+  
+    .nav-links {
+      display: flex;
+      align-items: center;
+    }
+  
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+      transition: opacity 0.3s ease;
+    }
+  
+    .nav-links a:hover {
+      opacity: 0.8;
+    }
+  
+    .logout-btn {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+      transition: opacity 0.3s ease;
+    }
+  
+    .logout-btn:hover {
+      opacity: 0.8;
+    }
+  
+    @media (max-width: 480px) {
+      .nav-links {
+        flex-direction: column;
+        align-items: flex-end;
+      }
+  
+      .nav-links a {
+        margin: 5px 0;
+      }
+    }
+  </style>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seller Profile - DriveBidRent</title>
+    <style>
+        /* Seller Profile Page Styles */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "montserrat", sans-serif;
+}
+
+body {
+    background-color: #ffffff;
+    color: #333333;
+}
+
+.seller-profile-content {
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.seller-profile-content h1 {
+    color: #ff6b00;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.profile-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.seller-info, .listings-overview, .earnings-summary, .preferences {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.seller-info h2, .listings-overview h2, .earnings-summary h2, .preferences h2 {
+    color: #ff6b00;
+    margin-bottom: 1.5rem;
+}
+
+form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #333333;
+}
+
+form input, form select, form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.3rem;
+}
+
+.save-btn {
+    background: linear-gradient(135deg, #ff6b00, #ff9a44);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.save-btn:hover {
+    background: linear-gradient(135deg, #ff9a44, #ff6b00);
+}
+
+.listings-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.summary-card {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.summary-card h3 {
+    color: #ff6b00;
+    margin-bottom: 0.5rem;
+}
+
+.summary-card p {
+    margin-bottom: 1rem;
+    color: #666666;
+}
+
+.details-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff6b00, #ff9a44);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.3rem;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.details-btn:hover {
+    background: linear-gradient(135deg, #ff9a44, #ff6b00);
+}
+
+.earnings-card {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+.earnings-card p {
+    margin-bottom: 0.5rem;
+    color: #666666;
+}
+
+.earnings-card ul {
+    list-style: none;
+    margin-bottom: 1rem;
+}
+
+.earnings-card ul li {
+    margin-bottom: 0.5rem;
+    color: #333333;
+}
+
+/* Password Fields */
+#old-password, #new-password, #confirm-password {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.3rem;
+}
+
+/* Alert Messages */
+.alert {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+    }
+}
+    </style>
+  </head>
+  <body>
+    <!-- Include Navbar Partial -->
+    <%- include('partials/navbar', { currentPage: 'profile' }) %>
+
+    <!-- Seller Profile Page Content -->
+    <section class="seller-profile-content">
+      <h1>Seller Profile</h1>
+      
+      <!-- Display success/error messages if any -->
+      <% if (typeof success !== 'undefined') { %>
+        <div class="alert alert-success"><%= success %></div>
+      <% } %>
+      
+      <% if (typeof error !== 'undefined') { %>
+        <div class="alert alert-danger"><%= error %></div>
+      <% } %>
+
+      <div class="profile-container">
+        <!-- Seller Information Section -->
+        <div class="seller-info">
+          <h2>Personal Information</h2>
+          <div id="profileUpdateAlert" class="alert alert-success" style="display: none;"></div>
+          <div id="profileUpdateError" class="alert alert-danger" style="display: none;"></div>
+          <form id="seller-profile-form">
+            <label for="firstName">First Name:</label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              value="<%= user.firstName %>"
+              required
+            />
+
+            <label for="lastName">Last Name:</label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value="<%= user.lastName %>"
+              required
+            />
+
+            <label for="email">Email:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value="<%= user.email %>"
+              required
+            />
+
+            <label for="phone">Phone Number:</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value="<%= user.phone || '' %>"
+              pattern="[0-9]{10}"
+              title="Please enter a valid 10-digit phone number"
+              required
+            />
+
+            <label for="address">Address:</label>
+            <textarea id="address" name="address">
+<%= user.doorNo || '' %> <%= user.street || '' %>
+<%= user.city || '' %>, <%= user.state || '' %></textarea>
+
+            <button type="submit" class="save-btn">Save Changes</button>
+          </form>
+        </div>
+
+        <!-- Listings Overview Section -->
+        <div class="listings-overview">
+          <h2>Listings Overview</h2>
+          <div class="listings-summary">
+            <div class="summary-card">
+              <h3>Active Auctions</h3>
+              <p><strong>Total:</strong> <%= typeof auctionsCount !== 'undefined' ? auctionsCount : 0 %></p>
+              <a href="/seller_dashboard/view-auctions" class="details-btn"
+                >View Auctions</a
+              >
+            </div>
+            <div class="summary-card">
+              <h3>Active Rentals</h3>
+              <p><strong>Total:</strong> <%= typeof rentalsCount !== 'undefined' ? rentalsCount : 0 %></p>
+              <a href="/seller_dashboard/view-rentals" class="details-btn">View Rentals</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Earnings Summary Section -->
+        <div class="earnings-summary">
+          <h2>Earnings Summary</h2>
+          <div class="earnings-card">
+            <p><strong>Total Earnings:</strong> ₹<%= typeof totalEarnings !== 'undefined' ? totalEarnings.toLocaleString('en-IN') : '0' %></p>
+            <p><strong>Recent Transactions (Completed):</strong></p>
+            <% if (typeof recentTransactions !== 'undefined' && recentTransactions.length > 0) { %>
+              <ul>
+                <% recentTransactions.forEach(transaction => { %>
+                  <li>
+                    ₹<%= transaction.amount.toLocaleString('en-IN') %> - <%= transaction.description %> 
+                    ( <%= new Date(transaction.createdAt).toLocaleDateString('en-US', { 
+                      day: '2-digit', 
+                      month: '2-digit', 
+                      year: 'numeric' 
+                    }) %> )
+                  </li>
+                <% }); %>
+              </ul>
+            <% } else { %>
+              <ul>
+                <li>No recent completed transactions</li>
+              </ul>
+            <% } %>
+            <a href="/seller_dashboard/view-earnings" class="details-btn"
+              >View All Earnings</a
+            >
+          </div>
+        </div>
+
+        <!-- Preferences section -->
+        <div class="preferences">
+          <h2>Preferences</h2>
+          <div id="preferencesUpdateAlert" class="alert alert-success" style="display: none;"></div>
+          <div id="preferencesUpdateError" class="alert alert-danger" style="display: none;"></div>
+          <form id="preferences-form">
+            <label for="notifications">Notification Preferences:</label>
+            <select id="notifications" name="notifications">
+              <option value="all" <%= user.notificationPreference === 'all' ? 'selected' : '' %>>All Notifications</option>
+              <option value="important" <%= user.notificationPreference === 'important' ? 'selected' : '' %>>Only Important</option>
+              <option value="none" <%= user.notificationPreference === 'none' ? 'selected' : '' %>>None</option>
+            </select>
+
+            <h3 style="margin-top: 20px; color: #ff6b00;">Change Password</h3>
+            <label for="old-password">Old Password:</label>
+            <input
+              type="password"
+              id="old-password"
+              name="oldPassword"
+              placeholder="Enter Old Password"
+            />
+
+            <label for="new-password">New Password:</label>
+            <input
+              type="password"
+              id="new-password"
+              name="newPassword"
+              placeholder="Enter New Password"
+            />
+
+            <label for="confirm-password">Confirm New Password:</label>
+            <input
+              type="password"
+              id="confirm-password"
+              name="confirmPassword"
+              placeholder="Confirm New Password"
+            />
+
+            <button type="submit" class="save-btn">Save Preferences</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Include Footer Partial -->
+    <%- include('partials/footer') %>
+
+    <script>
+      // Phone number input validation
+      document.getElementById('phone').addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+      });
+
+      // Save Seller Profile Information
+      document.getElementById('seller-profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Phone number validation
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput.value && !/^\d{10}$/.test(phoneInput.value)) {
+          document.getElementById('profileUpdateError').textContent = 'Please enter a valid 10-digit phone number';
+          document.getElementById('profileUpdateError').style.display = 'block';
+          document.getElementById('profileUpdateAlert').style.display = 'none';
+          return;
+        }
+        
+        const formData = {
+          firstName: document.getElementById('firstName').value,
+          lastName: document.getElementById('lastName').value,
+          email: document.getElementById('email').value,
+          phone: document.getElementById('phone').value
+        };
+        
+        // Parse address
+        const addressText = document.getElementById('address').value;
+        const addressLines = addressText.trim().split('\n');
+        
+        if (addressLines.length >= 1) {
+          const firstLine = addressLines[0].trim().split(' ');
+          formData.doorNo = firstLine[0] || '';
+          formData.street = firstLine.slice(1).join(' ') || '';
+        }
+        
+        if (addressLines.length >= 2) {
+          const secondLine = addressLines[1].trim().split(',');
+          formData.city = secondLine[0] || '';
+          formData.state = secondLine[1] ? secondLine[1].trim() : '';
+        }
+        
+        try {
+          const response = await fetch('/seller_dashboard/update-profile', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            document.getElementById('profileUpdateAlert').textContent = 'Profile updated successfully!';
+            document.getElementById('profileUpdateAlert').style.display = 'block';
+            document.getElementById('profileUpdateError').style.display = 'none';
+            
+            // Update displayed values after short delay
+            setTimeout(() => {
+              location.reload();
+            }, 1500);
+          } else {
+            document.getElementById('profileUpdateError').textContent = 'Error: ' + result.message;
+            document.getElementById('profileUpdateError').style.display = 'block';
+            document.getElementById('profileUpdateAlert').style.display = 'none';
+          }
+        } catch (error) {
+          console.error('Error updating profile:', error);
+          document.getElementById('profileUpdateError').textContent = 'An error occurred while updating your profile.';
+          document.getElementById('profileUpdateError').style.display = 'block';
+          document.getElementById('profileUpdateAlert').style.display = 'none';
+        }
+      });
+
+      // Save Preferences and Change Password
+      document.getElementById('preferences-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const oldPassword = document.getElementById('old-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        const notifications = document.getElementById('notifications').value;
+        
+        // Password validation
+        if (oldPassword || newPassword || confirmPassword) {
+          if (!oldPassword || !newPassword || !confirmPassword) {
+            document.getElementById('preferencesUpdateError').textContent = 'Please fill in all password fields to change your password.';
+            document.getElementById('preferencesUpdateError').style.display = 'block';
+            document.getElementById('preferencesUpdateAlert').style.display = 'none';
+            return;
+          }
+          
+          if (newPassword !== confirmPassword) {
+            document.getElementById('preferencesUpdateError').textContent = 'New password and confirmation do not match. Please try again.';
+            document.getElementById('preferencesUpdateError').style.display = 'block';
+            document.getElementById('preferencesUpdateAlert').style.display = 'none';
+            return;
+          }
+          
+          if (newPassword.length < 8) {
+            document.getElementById('preferencesUpdateError').textContent = 'New password must be at least 8 characters long.';
+            document.getElementById('preferencesUpdateError').style.display = 'block';
+            document.getElementById('preferencesUpdateAlert').style.display = 'none';
+            return;
+          }
+        }
+        
+        try {
+          // First update notification preferences
+          const prefResponse = await fetch('/seller_dashboard/update-preferences', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ notificationPreference: notifications })
+          });
+          
+          const prefResult = await prefResponse.json();
+          
+          // Then update password if provided
+          if (oldPassword && newPassword) {
+            const pwResponse = await fetch('/seller_dashboard/change-password', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                oldPassword,
+                newPassword,
+                confirmPassword
+              })
+            });
+            
+            const pwResult = await pwResponse.json();
+            
+            if (pwResult.success) {
+              if (prefResult.success) {
+                document.getElementById('preferencesUpdateAlert').textContent = 'Preferences and password updated successfully!';
+                document.getElementById('preferencesUpdateAlert').style.display = 'block';
+                document.getElementById('preferencesUpdateError').style.display = 'none';
+              } else {
+                document.getElementById('preferencesUpdateAlert').textContent = 'Password updated successfully, but preferences update failed: ' + prefResult.message;
+                document.getElementById('preferencesUpdateAlert').style.display = 'block';
+                document.getElementById('preferencesUpdateError').style.display = 'none';
+              }
+            } else {
+              document.getElementById('preferencesUpdateError').textContent = 'Password update failed: ' + pwResult.message;
+              document.getElementById('preferencesUpdateError').style.display = 'block';
+              document.getElementById('preferencesUpdateAlert').style.display = 'none';
+            }
+          } else if (prefResult.success) {
+            document.getElementById('preferencesUpdateAlert').textContent = 'Preferences updated successfully!';
+            document.getElementById('preferencesUpdateAlert').style.display = 'block';
+            document.getElementById('preferencesUpdateError').style.display = 'none';
+          } else {
+            document.getElementById('preferencesUpdateError').textContent = 'Error: ' + prefResult.message;
+            document.getElementById('preferencesUpdateError').style.display = 'block';
+            document.getElementById('preferencesUpdateAlert').style.display = 'none';
+          }
+          
+          // Clear password fields regardless of success
+          document.getElementById('old-password').value = '';
+          document.getElementById('new-password').value = '';
+          document.getElementById('confirm-password').value = '';
+          
+        } catch (error) {
+          console.error('Error updating preferences:', error);
+          document.getElementById('preferencesUpdateError').textContent = 'An error occurred while updating your preferences.';
+          document.getElementById('preferencesUpdateError').style.display = 'block';
+          document.getElementById('preferencesUpdateAlert').style.display = 'none';
+        }
+      });
+    </script>
+  </body>
+</html>

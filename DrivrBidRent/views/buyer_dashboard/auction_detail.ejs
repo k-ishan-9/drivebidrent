@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveBidRent - <%= auction.vehicleName %> Details</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Car Details Section */
+        .car-details-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .car-images {
+            background-color: #fff;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .main-image {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+        }
+
+        .car-info {
+            background-color: #fff;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .car-name {
+            color: #ff6b00;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .car-status {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            align-self: flex-start;
+        }
+
+        .car-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .car-auction-date {
+            margin-bottom: 1rem;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .view-bids-btn {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 1.5rem;
+            align-self: flex-start;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .view-bids-btn:hover {
+            background-color: #e65c00;
+        }
+
+        /* Specifications Section */
+        .section {
+            background-color: #fff;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            color: #ff6b00;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: #ff6b00;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .spec-item {
+            background-color: #f9f9f9;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .spec-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: #ff6b00;
+            font-size: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .spec-info h4 {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 0.25rem;
+        }
+
+        .spec-info p {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Seller Details Section */
+        .seller-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .seller-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #f1f1f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #ff6b00;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .seller-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .seller-info p {
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        .contact-seller-btn {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .contact-seller-btn:hover {
+            background-color: #e65c00;
+        }
+
+        /* Mechanic's Review Section */
+        .section {
+            background-color: #fff;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            color: #ff6b00;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: #ff6b00;
+        }
+
+        /* Pending Review Message */
+        .pending-review {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #666;
+            font-size: 1.1rem;
+            background-color: #f9f9f9;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            border: 1px dashed #ddd;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .car-details-container {
+                grid-template-columns: 1fr;
+            }
+
+            .specs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .review-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .specs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .seller-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .seller-avatar {
+                margin: 0 auto;
+            }
+
+            .contact-seller-btn {
+                display: block;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation Bar -->
+    <%- include('partials/navbar') %>
+
+    <div class="container">
+        <!-- Car Details Section -->
+        <div class="car-details-container">
+            <div class="car-images">
+                <img src="<%= auction.vehicleImage %>" alt="<%= auction.vehicleName %>" class="main-image">
+            </div>
+
+            <div class="car-info">
+                <h1 class="car-name"><%= auction.vehicleName %></h1>
+                <span class="car-status">Auction</span>
+                
+                <p class="car-price">Starting Bid: ₹<%= auction.startingBid.toLocaleString() %></p>
+                <p class="car-auction-date">Auction Date: <strong><%= new Date(auction.auctionDate).toLocaleDateString('en-IN', { 
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }) %></strong></p>
+                
+                <a href="/auction?id=<%= auction._id %>" class="view-bids-btn">View Auction & Place Bid</a>
+            </div>
+        </div>
+
+        <!-- Specifications Section -->
+        <div class="section">
+            <h2 class="section-title">Vehicle Specifications</h2>
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <div class="spec-icon">Y</div>
+                    <div class="spec-info">
+                        <h4>Year</h4>
+                        <p><%= auction.year %></p>
+                    </div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-icon">M</div>
+                    <div class="spec-info">
+                        <h4>Mileage</h4>
+                        <p><%= auction.mileage %> km</p>
+                    </div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-icon">F</div>
+                    <div class="spec-info">
+                        <h4>Fuel Type</h4>
+                        <p><%= auction.fuelType.charAt(0).toUpperCase() + auction.fuelType.slice(1) %></p>
+                    </div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-icon">T</div>
+                    <div class="spec-info">
+                        <h4>Transmission</h4>
+                        <p><%= auction.transmission.charAt(0).toUpperCase() + auction.transmission.slice(1) %></p>
+                    </div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-icon">C</div>
+                    <div class="spec-info">
+                        <h4>Condition</h4>
+                        <p><%= auction.condition.charAt(0).toUpperCase() + auction.condition.slice(1) %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Updated Mechanic Review Section -->
+        <div class="section">
+            <h2 class="section-title">Mechanic's Review</h2>
+            
+            <% if (auction.mechanicReview) { %>
+                <div class="review-grid">
+                    <div class="review-column">
+                        <div class="review-item">
+                            <h4>Mechanical Condition</h4>
+                            <p><%= auction.mechanicReview.mechanicalCondition %></p>
+                        </div>
+                        <div class="review-item">
+                            <h4>Body Condition</h4>
+                            <p><%= auction.mechanicReview.bodyCondition %></p>
+                        </div>
+                    </div>
+                    <div class="review-column">
+                        <div class="review-item">
+                            <h4>Recommendations</h4>
+                            <p><%= auction.mechanicReview.recommendations %></p>
+                            
+                            <div class="rating-container">
+                                <p class="rating-label">Overall Condition Rating:</p>
+                                <div class="rating-stars">
+                                    <% for (let i = 1; i <= 5; i++) { %>
+                                        <% if (i <= auction.mechanicReview.conditionRating) { %>
+                                            <span class="star">★</span>
+                                        <% } else { %>
+                                            <span class="star" style="color: #ccc;">★</span>
+                                        <% } %>
+                                    <% } %>
+                                    <span class="rating-value"><%= auction.mechanicReview.conditionRating %>/5</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="mechanic-name">- Reviewed by <%= auction.mechanicName || 'Our Certified Mechanic' %></p>
+                <p class="review-date">
+                    <%= new Date(auction.mechanicReview.submittedAt).toLocaleDateString('en-IN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    }) %>
+                </p>
+            <% } else { %>
+                <div class="pending-review">
+                    <i class="fa fa-clock-o" style="font-size: 2rem; color: #ff6b00; margin-bottom: 1rem; display: block;"></i>
+                    <p>Mechanic review is pending. The vehicle will be inspected before the auction starts.</p>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Seller Details Section -->
+        <div class="section">
+            <h2 class="section-title">Seller Information</h2>
+            <div class="seller-grid">
+                <div class="seller-avatar">
+                    <% const initials = seller.firstName.charAt(0) + seller.lastName.charAt(0); %>
+                    <%= initials %>
+                </div>
+                <div class="seller-info">
+                    <h3><%= seller.firstName %> <%= seller.lastName %></h3>
+                    <p><strong>Email:</strong> <%= seller.email %></p>
+                    <p><strong>Phone:</strong> <%= seller.phone %></p>
+                    <% if (seller.city && seller.state) { %>
+                        <p><strong>Location:</strong> <%= seller.city %>, <%= seller.state %></p>
+                    <% } %>
+                    
+                    <a href="tel:<%= seller.phone.replace(/[^0-9+]/g, '') %>" class="contact-seller-btn">Contact Seller</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <%- include('partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Earnings - DriveBidRent</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      body {
+        background-color: #f4f4f4;
+        color: #333333;
+      }
+
+      section {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        color: #ff6b00;
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .stats-container {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .stat-card {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        flex: 1;
+        text-align: center;
+        min-width: 200px;
+      }
+
+      .stat-card h3 {
+        color: #ff6b00;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-card p {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333333;
+      }
+
+      .transactions-container {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .transactions-container h2 {
+        color: #ff6b00;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .transactions-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .transactions-table th,
+      .transactions-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .transactions-table th {
+        background-color: #ff6b00;
+        color: white;
+        font-weight: 600;
+      }
+
+      .transactions-table tr:hover {
+        background-color: #f9f9f9;
+      }
+
+      .transactions-table td {
+        color: #333333;
+      }
+
+      .error-message {
+        color: #c62828;
+        text-align: center;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Include the navbar partial -->
+    <%- include('partials/navbar', { currentPage: 'manage-earnings' }) %>
+
+    <!-- Manage Earnings Content -->
+    <section>
+      <h1>Manage Earnings</h1>
+
+      <% if (error) { %>
+        <p class="error-message"><%= error %></p>
+      <% } %>
+
+      <!-- Earnings Stats -->
+      <div class="stats-container">
+        <div class="stat-card">
+          <h3>Total Revenue</h3>
+          <p>₹<%= totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></p>
+        </div>
+        <div class="stat-card">
+          <h3>Revenue from Auctions</h3>
+          <p>₹<%= totalAuctionRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></p>
+        </div>
+        <div class="stat-card">
+          <h3>Revenue from Rentals</h3>
+          <p>₹<%= totalRentalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></p>
+        </div>
+      </div>
+
+      <!-- Previous Transactions -->
+      <div class="transactions-container">
+        <h2>Previous Transactions</h2>
+        <% if (transactions.length > 0) { %>
+          <table class="transactions-table">
+            <thead>
+              <tr>
+                <th>UTR Number</th>
+                <th>User Name</th>
+                <th>Type of Revenue</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% transactions.forEach(transaction => { %>
+                <tr>
+                  <td><%= transaction.utrNumber || 'N/A' %></td>
+                  <td><%= transaction.userName %></td>
+                  <td><%= transaction.type %></td>
+                  <td>₹<%= transaction.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <p>No transactions available.</p>
+        <% } %>
+      </div>
+    </section>
+
+    <!-- Include the footer partial -->
+    <%- include('partials/footer') %>
+  </body>
+</html>

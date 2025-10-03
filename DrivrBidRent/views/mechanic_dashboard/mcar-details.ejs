@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= vehicle.vehicleName %> Details</title>
+    <%- include('partials/styles') %>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+
+      main {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      .vehicle-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .vehicle-image {
+        max-width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+
+      .details-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+
+      .detail-card {
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 8px;
+      }
+
+      h1, h2 {
+        color: #ff6600;
+      }
+
+      .detail-item {
+        margin: 15px 0;
+        display: flex;
+      }
+
+      .detail-label {
+        font-weight: bold;
+        min-width: 150px;
+        color: #555;
+      }
+
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        min-height: 100px;
+        margin-bottom: 15px;
+      }
+
+      .submit-btn {
+        background: #ff6600;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .submit-btn:hover {
+        background: #e65c00;
+      }
+
+      .submit-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .review-submitted {
+        color: #28a745;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/header') %>
+
+    <main>
+      <div class="vehicle-header">
+        <img src="<%= vehicle.vehicleImage %>" alt="<%= vehicle.vehicleName %>" class="vehicle-image" />
+        <h1><%= vehicle.vehicleName %></h1>
+      </div>
+
+      <div class="details-container">
+        <div class="detail-card">
+          <h2>Vehicle Specifications</h2>
+          
+          <div class="detail-item">
+            <span class="detail-label">Year:</span>
+            <span><%= vehicle.year %></span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Mileage:</span>
+            <span><%= vehicle.mileage.toLocaleString() %> km</span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Condition:</span>
+            <span><%= vehicle.condition.charAt(0).toUpperCase() + vehicle.condition.slice(1) %></span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Fuel Type:</span>
+            <span><%= vehicle.fuelType.charAt(0).toUpperCase() + vehicle.fuelType.slice(1) %></span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Transmission:</span>
+            <span><%= vehicle.transmission.charAt(0).toUpperCase() + vehicle.transmission.slice(1) %></span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Auction Date:</span>
+            <span><%= vehicle.auctionDate.toLocaleDateString() %></span>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <h2>Seller Information</h2>
+          
+          <div class="detail-item">
+            <span class="detail-label">Name:</span>
+            <span><%= seller.firstName %> <%= seller.lastName %></span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Contact:</span>
+            <span><%= seller.phone %></span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Address:</span>
+            <span>
+              <%= seller.doorNo %>, <%= seller.street %>, 
+              <%= seller.city %>, <%= seller.state %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-card" style="margin-top: 30px; grid-column: 1 / -1;">
+        <h2>Mechanic's Review</h2>
+        
+        <% if (vehicle.reviewStatus === 'completed') { %>
+          <p class="review-submitted">Review already submitted for this vehicle.</p>
+          <div>
+            <h3>Submitted Review</h3>
+            <div class="detail-item">
+              <span class="detail-label">Condition Rating:</span>
+              <span><%= vehicle.mechanicReview.conditionRating %> Stars</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Mechanical Condition:</span>
+              <span><%= vehicle.mechanicReview.mechanicalCondition %></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Body & Interior Condition:</span>
+              <span><%= vehicle.mechanicReview.bodyCondition %></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Recommendations:</span>
+              <span><%= vehicle.mechanicReview.recommendations %></span>
+            </div>
+          </div>
+        <% } else { %>
+          <form action="/mechanic_dashboard/submit-review/<%= vehicle._id %>" method="POST">
+            <h3>Submit Vehicle Review</h3>
+            
+            <div>
+              <label>Condition Rating:</label>
+              <select name="conditionRating" required>
+                <option value="">Select rating</option>
+                <option value="1">1 Star</option>
+                <option value="2">2 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="5">5 Stars</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Mechanical Condition:</label>
+              <textarea name="mechanicalCondition" required></textarea>
+            </div>
+
+            <div>
+              <label>Body & Interior Condition:</label>
+              <textarea name="bodyCondition" required></textarea>
+            </div>
+
+            <div>
+              <label>Recommendations:</label>
+              <textarea name="recommendations" required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Review</button>
+          </form>
+        <% } %>
+      </div>
+    </main>
+
+    <%- include('partials/footer') %>
+  </body>
+</html>

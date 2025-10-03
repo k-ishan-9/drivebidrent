@@ -1,0 +1,334 @@
+<!-- This file should be saved as views/buyer_dashboard/rental_details.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveBidRent - Rental Details</title>
+    <style>
+        /* Rental Details Page Specific Styles */
+        .rental-details-container {
+            max-width: 900px;
+            margin: 150px auto 50px auto;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(255, 107, 0, 0.2);
+            overflow: hidden;
+            border: 2px solid #ff6b00;
+        }
+
+        .rental-hero {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .rental-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .rental-hero-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            padding: 20px;
+            color: white;
+        }
+
+        .rental-hero-overlay h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .rental-status {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .rental-content {
+            padding: 30px;
+        }
+
+        .rental-dates {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .date-card {
+            text-align: center;
+            flex: 1;
+        }
+
+        .date-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .date-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ff6b00;
+        }
+
+        .rental-divider {
+            height: 50px;
+            border-left: 2px dashed #ddd;
+            margin: 0 20px;
+        }
+
+        .rental-cost {
+            text-align: center;
+            background-color: #fff9f5;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ffece0;
+            margin-bottom: 30px;
+        }
+
+        .rental-cost h3 {
+            color: #ff6b00;
+            margin-bottom: 10px;
+        }
+
+        .total-cost {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ff6b00;
+        }
+
+        .cost-breakdown {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .details-section {
+            margin-bottom: 30px;
+        }
+
+        .details-section h3 {
+            color: #ff6b00;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #ffece0;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            min-width: 120px;
+            color: #333;
+        }
+
+        .detail-value {
+            color: #666;
+        }
+
+        .seller-section {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .seller-info {
+            margin-top: 15px;
+        }
+
+        .contact-btn {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .contact-btn:hover {
+            background-color: #e65c00;
+        }
+
+        .back-btn {
+            display: inline-block;
+            color: #ff6b00;
+            font-weight: 500;
+            margin-top: 20px;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .rental-details-container {
+                margin: 100px 20px 40px 20px;
+            }
+            
+            .rental-hero {
+                height: 200px;
+            }
+            
+            .rental-hero-overlay h1 {
+                font-size: 1.8rem;
+            }
+            
+            .rental-dates {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .rental-divider {
+                height: 2px;
+                width: 100%;
+                border-left: none;
+                border-top: 2px dashed #ddd;
+                margin: 10px 0;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation Bar -->
+    <%- include('partials/navbar') %>
+
+    <div class="rental-details-container">
+        <div class="rental-hero">
+            <img src="<%= rental.vehicleImage %>" alt="<%= rental.vehicleName %>">
+            <div class="rental-hero-overlay">
+                <h1><%= rental.vehicleName %></h1>
+                <span class="rental-status">Rented</span>
+            </div>
+        </div>
+
+        <div class="rental-content">
+            <div class="rental-dates">
+                <div class="date-card">
+                    <div class="date-label">Pickup Date</div>
+                    <div class="date-value"><%= new Date(rental.pickupDate).toLocaleDateString() %></div>
+                </div>
+                
+                <div class="rental-divider"></div>
+                
+                <div class="date-card">
+                    <div class="date-label">Return Date</div>
+                    <div class="date-value"><%= new Date(rental.dropDate).toLocaleDateString() %></div>
+                </div>
+            </div>
+
+            <div class="rental-cost">
+                <h3>Rental Cost</h3>
+                <div class="total-cost">₹<%= rental.totalCost.toLocaleString('en-IN') %></div>
+                <div class="cost-breakdown">
+                    ₹<%= rental.costPerDay.toLocaleString('en-IN') %> per day × 
+                    <%= Math.round((new Date(rental.dropDate) - new Date(rental.pickupDate)) / (1000 * 60 * 60 * 24)) %> days
+                    <% if (rental.driverAvailable && rental.driverRate) { %>
+                    + Driver charges (₹<%= rental.driverRate.toLocaleString('en-IN') %> per day)
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="details-section">
+                <h3>Vehicle Details</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Year:</div>
+                        <div class="detail-value"><%= rental.year %></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Condition:</div>
+                        <div class="detail-value"><%= rental.condition.charAt(0).toUpperCase() + rental.condition.slice(1) %></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">AC:</div>
+                        <div class="detail-value"><%= rental.AC === 'available' ? 'Yes' : 'No' %></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Capacity:</div>
+                        <div class="detail-value"><%= rental.capacity %> Persons</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Fuel Type:</div>
+                        <div class="detail-value"><%= rental.fuelType.charAt(0).toUpperCase() + rental.fuelType.slice(1) %></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Transmission:</div>
+                        <div class="detail-value"><%= rental.transmission.charAt(0).toUpperCase() + rental.transmission.slice(1) %></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Driver:</div>
+                        <div class="detail-value">
+                            <% if (rental.driverAvailable) { %>
+                                Available (₹<%= rental.driverRate %> per day)
+                            <% } else { %>
+                                Not Available
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="seller-section">
+                <h3>Seller Information</h3>
+                <div class="seller-info">
+                    <div class="detail-item">
+                        <div class="detail-label">Name:</div>
+                        <div class="detail-value"><%= rental.seller.name %></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Email:</div>
+                        <div class="detail-value"><%= rental.seller.email %></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Phone:</div>
+                        <div class="detail-value"><%= rental.seller.phone %></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Address:</div>
+                        <div class="detail-value"><%= rental.seller.address %></div>
+                    </div>
+                </div>
+                <a href="tel:<%= rental.seller.phone %>" class="contact-btn">Contact Seller</a>
+            </div>
+
+            <a href="/purchase" class="back-btn">← Back to My Purchases</a>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <%- include('partials/footer') %>
+</body>
+</html>

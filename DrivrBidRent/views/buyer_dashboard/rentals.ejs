@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Rentals - DriveBidRent</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #333333;
+        }
+
+        /* Search and Filter Section - Adjusted Spacing */
+        .search-filter {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin: 0 auto 2rem auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+        }
+
+        .search-filter form {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        .search-filter .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-filter label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .search-filter input,
+        .search-filter select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .search-filter button {
+            background: linear-gradient(135deg, #ff6b00, #ff9a44);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+            height: fit-content;
+            align-self: end;
+        }
+
+        .search-filter button:hover {
+            background: linear-gradient(135deg, #ff9a44, #ff6b00);
+        }
+
+        /* Results Count */
+        .results-count {
+            text-align: right;
+            margin: 0 auto 1rem auto;
+            color: #666;
+            font-style: italic;
+            max-width: 1200px;
+        }
+
+        /* Car Cards - Fixed Size and 3 per row */
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .car-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #ff6b00;
+            height: 550px; /* Fixed height */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .car-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(255, 107, 0, 0.3);
+        }
+
+        .new-tag {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: #ff6b00;
+            color: white;
+            padding: 2px 15px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .heart-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .heart-btn[data-liked="true"] {
+            color: #ff6b00;
+        }
+
+        .car-card img {
+            width: 100%;
+            height: 180px; /* Fixed image height */
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .car-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #ff6b00;
+        }
+
+        .rental-cost {
+            color: #666666;
+            margin-bottom: 1rem;
+        }
+
+        .car-details {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            flex-grow: 1; /* Makes details section fill space */
+            overflow: hidden; /* Prevents content from overflowing */
+        }
+
+        .car-details p {
+            margin-bottom: 0.5rem;
+            color: #333333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto; /* Pushes buttons to bottom */
+        }
+
+        .details-btn {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.3rem;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            flex: 1;
+            margin-right: 0.5rem;
+        }
+
+        .placebid-btn {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.3rem;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            flex: 1;
+            margin-left: 0.5rem;
+        }
+
+        .placebid-btn:hover,
+        .details-btn:hover {
+            background-color: #e65c00;
+        }
+
+        /* No Results */
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .card-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .search-filter form {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-filter form {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .details-btn,
+            .placebid-btn {
+                margin: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation Bar -->
+    <%- include('partials/navbar') %>
+
+    <section class="rentals">
+        <h2 style="text-align: center; margin-bottom: 1.5rem;">Available Rentals</h2>
+        
+        <!-- Search and Filter Section -->
+        <div class="search-filter">
+            <form action="/buyer_dashboard" method="GET">
+                <input type="hidden" name="page" value="rentals">
+                
+                <!-- Search Input -->
+                <div class="form-group">
+                    <label for="search">Search</label>
+                    <input type="text" id="search" name="search" placeholder="Vehicle name..." 
+                           value="<%= searchQuery || '' %>">
+                </div>
+                
+                <!-- Fuel Type Filter -->
+                <div class="form-group">
+                    <label for="fuelType">Fuel Type</label>
+                    <select id="fuelType" name="fuelType">
+                        <option value="">All Types</option>
+                        <option value="petrol" <%= fuelType === 'petrol' ? 'selected' : '' %>>Petrol</option>
+                        <option value="diesel" <%= fuelType === 'diesel' ? 'selected' : '' %>>Diesel</option>
+                    </select>
+                </div>
+                
+                <!-- Transmission Filter -->
+                <div class="form-group">
+                    <label for="transmission">Transmission</label>
+                    <select id="transmission" name="transmission">
+                        <option value="">All Types</option>
+                        <option value="automatic" <%= transmission === 'automatic' ? 'selected' : '' %>>Automatic</option>
+                        <option value="manual" <%= transmission === 'manual' ? 'selected' : '' %>>Manual</option>
+                    </select>
+                </div>
+                
+                <!-- Capacity Filter -->
+                <div class="form-group">
+                    <label for="capacity">Min Capacity (passengers)</label>
+                    <input type="number" id="capacity" name="capacity" placeholder="e.g., 4" 
+                           min="1" value="<%= capacity || '' %>">
+                </div>
+                
+                <!-- City Filter -->
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <select id="city" name="city">
+                        <option value="">All Cities</option>
+                        <% uniqueCities.forEach(cityOption => { %>
+                            <option value="<%= cityOption %>" <%= city && city.toLowerCase() === cityOption.toLowerCase() ? 'selected' : '' %>>
+                                <%= cityOption %>
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit">Apply Filters</button>
+            </form>
+        </div>
+
+        <!-- Results Count -->
+        <div class="results-count">
+            <%= rentals.length %> <%= rentals.length === 1 ? 'vehicle' : 'vehicles' %> found
+        </div>
+
+        <!-- Rentals Grid -->
+        <div class="card-container">
+            <% if (rentals && rentals.length > 0) { %>
+                <% rentals.forEach(rental => { %>
+                    <div class="car-card">
+                        <% if (new Date() - rental.createdAt < 7 * 24 * 60 * 60 * 1000) { %>
+                            <span class="new-tag">New</span>
+                        <% } %>
+                        <button class="heart-btn" data-liked="false" data-rental-id="<%= rental._id %>">❤</button>
+                        <img src="<%= rental.vehicleImage %>" alt="<%= rental.vehicleName %>">
+                        <h3><%= rental.vehicleName %></h3>
+                        <p class="rental-cost">Cost/day: <strong>₹<%= rental.costPerDay %></strong></p>
+                        <div class="car-details">
+                            <p><strong>Year:</strong> <%= rental.year %></p>
+                            <p><strong>AC:</strong> <%= rental.AC === 'available' ? 'Yes' : 'No' %></p>
+                            <p><strong>Capacity:</strong> <%= rental.capacity %> passengers</p>
+                            <p><strong>Condition:</strong> <%= rental.condition.charAt(0).toUpperCase() + rental.condition.slice(1) %></p>
+                            <p><strong>Seller:</strong> <%= rental.sellerId.firstName %> <%= rental.sellerId.lastName %></p>
+                            <% if (rental.driverAvailable) { %>
+                                <p><strong>Driver:</strong> Yes (₹<%= rental.driverRate %>/day)</p>
+                            <% } %>
+                        </div>
+                        <div class="button-container">
+                            <a href="/buyer_dashboard?page=rental&id=<%= rental._id %>" class="details-btn">Details</a>
+                            <a href="/buyer_dashboard?page=rental&id=<%= rental._id %>" class="placebid-btn">Rent Now</a>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="no-results">
+                    <p>No rentals found matching your criteria.</p>
+                    <a href="/buyer_dashboard?page=rentals" class="details-btn" style="margin-top: 1rem; display: inline-block;">Clear Filters</a>
+                </div>
+            <% } %>
+        </div>
+    </section>
+
+    <!-- Include Footer -->
+    <%- include('partials/footer') %>
+
+    <script>
+        // Heart button functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize wishlist status
+            initializeWishlistStatus();
+            
+            // Add event listeners to heart buttons
+            document.querySelectorAll('.heart-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const isLiked = this.getAttribute('data-liked') === 'true';
+                    const rentalId = this.getAttribute('data-rental-id');
+                    
+                    // Toggle liked state
+                    this.setAttribute('data-liked', !isLiked);
+                    this.style.color = !isLiked ? '#ff6b00' : '#ccc';
+                    
+                    // Send request to server
+                    fetch('/api/wishlist', {
+                        method: isLiked ? 'DELETE' : 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            rentalId: rentalId,
+                            type: 'rental'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            // If operation failed, revert the button state
+                            this.setAttribute('data-liked', isLiked);
+                            this.style.color = isLiked ? '#ff6b00' : '#ccc';
+                            console.error('Wishlist operation failed:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        // If there was an error, revert the button state
+                        this.setAttribute('data-liked', isLiked);
+                        this.style.color = isLiked ? '#ff6b00' : '#ccc';
+                        console.error('Error:', error);
+                    });
+                });
+            });
+        });
+
+        // Initialize heart buttons based on wishlist
+        function initializeWishlistStatus() {
+            fetch('/api/wishlist')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Set heart buttons for rentals
+                        document.querySelectorAll('.heart-btn[data-rental-id]').forEach(button => {
+                            const rentalId = button.getAttribute('data-rental-id');
+                            if (data.wishlist.rentals && data.wishlist.rentals.includes(rentalId)) {
+                                button.setAttribute('data-liked', 'true');
+                                button.style.color = '#ff6b00';
+                            } else {
+                                button.setAttribute('data-liked', 'false');
+                                button.style.color = '#ccc';
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading wishlist:', error);
+                });
+        }
+    </script>
+</body>
+</html>

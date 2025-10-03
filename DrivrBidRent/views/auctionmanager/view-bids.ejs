@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DRIVBIDRENT - Auction Bids</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      body {
+        background-color: #f8f9fa;
+      }
+
+      /* Header Styles */
+      .header {
+        background-color: #ff6b00;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 80px;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 100;
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .logo a {
+        color: white;
+        text-decoration: none;
+      }
+
+      .nav-links {
+        display: flex;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        margin-left: 20px;
+        font-weight: bold;
+        transition: opacity 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        opacity: 0.8;
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1200px;
+        margin: 120px auto 40px;
+        padding: 0 20px;
+      }
+
+      /* Auction Info Section */
+      .auction-info {
+        background-color: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+
+      .auction-info h1 {
+        font-size: 22px;
+        font-weight: 600;
+        color: #ff6b00;
+        margin-bottom: 20px;
+      }
+
+      .auction-info img {
+        width: 100%;
+        max-width: 300px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .auction-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        color: #555;
+      }
+
+      .auction-details p {
+        margin-bottom: 10px;
+      }
+
+      /* Bids Section */
+      .bids-section {
+        background-color: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #ff6b00;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .current-bid {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-left: 5px solid #ff6b00;
+      }
+
+      .no-bids {
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        font-style: italic;
+      }
+
+      .bid-amount {
+        font-size: 26px;
+        font-weight: bold;
+        color: #ff6b00;
+        margin-bottom: 10px;
+      }
+
+      .bid-info {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        color: #555;
+      }
+
+      .bid-info > div {
+        margin-bottom: 5px;
+      }
+
+      .past-bids-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #555;
+      }
+
+      .past-bids {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 15px;
+      }
+
+      .past-bid-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        border-left: 5px solid #3a86ff;
+      }
+
+      .past-bid-amount {
+        font-size: 20px;
+        font-weight: bold;
+        color: #3a86ff;
+        margin-bottom: 10px;
+      }
+
+      /* Action Buttons */
+      .action-btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s ease;
+      }
+
+      .stop-auction-btn {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+      }
+
+      .stop-auction-btn:hover {
+        background-color: #c0392b;
+      }
+
+      .back-btn {
+        background-color: #3a86ff;
+        color: white;
+        border: none;
+        margin-right: 10px;
+      }
+
+      .back-btn:hover {
+        background-color: #2a66cf;
+      }
+
+      /* Status Message */
+      .status-message {
+        display: none;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        font-size: 16px;
+        text-align: center;
+      }
+
+      .success-message {
+        background-color: #e6ffed;
+        color: #2e7d32;
+        border: 1px solid #2e7d32;
+      }
+
+      .error-message {
+        background-color: #ffe6e6;
+        color: #d32f2f;
+        border: 1px solid #d32f2f;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .bid-info {
+          flex-direction: column;
+        }
+
+        .auction-details {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/navbar') %>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Auction Information -->
+      <div class="auction-info">
+        <h1><%= helpers.capitalize(auction.vehicleName) %></h1>
+        <img
+          src="<%= auction.vehicleImage %>"
+          alt="<%= auction.vehicleName %>"
+        />
+        <div class="auction-details">
+          <p>
+            <strong>Seller:</strong> <%=
+            helpers.capitalize(auction.sellerId.firstName) %> <%=
+            helpers.capitalize(auction.sellerId.lastName) %>
+          </p>
+          <p><strong>Email:</strong> <%= auction.sellerId.email %></p>
+          <p>
+            <strong>City:</strong> <%= helpers.capitalize(auction.sellerId.city)
+            %>
+          </p>
+          <p><strong>Year:</strong> <%= auction.year %></p>
+          <p>
+            <strong>Condition:</strong> <%=
+            helpers.capitalize(auction.condition) %>
+          </p>
+          <p>
+            <strong>Starting Bid:</strong> <%=
+            helpers.formatCurrency(auction.startingBid) %>
+          </p>
+        </div>
+      </div>
+
+      <!-- Bids Section -->
+      <div class="bids-section">
+        <div class="section-title">
+          <span>Bids on <%= helpers.capitalize(auction.vehicleName) %></span>
+          <div>
+            <a href="/auctionmanager/approvedcars" class="action-btn back-btn"
+              >Back to Cars</a
+            >
+            <% if (!auction.auction_stopped && auction.started_auction ===
+            'yes') { %>
+            <form
+              id="stopAuctionForm"
+              action="/auctionmanager/stop-auction/<%= auction._id %>"
+              method="POST"
+              style="display: inline"
+            >
+              <button type="submit" class="action-btn stop-auction-btn">
+                Stop Auction
+              </button>
+            </form>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Status Message -->
+        <% if (auction.auction_stopped) { %>
+        <div class="status-message success-message" style="display: block">
+          Auction has been stopped.
+        </div>
+        <% } %>
+
+        <!-- Current Bid -->
+        <% if (currentBid) { %>
+        <div class="current-bid">
+          <div class="bid-amount">
+            <%= helpers.formatCurrency(currentBid.bidAmount) %>
+          </div>
+          <div class="bid-info">
+            <div>
+              <strong>Bidder:</strong> <%=
+              helpers.capitalize(currentBid.buyerId.firstName) %> <%=
+              helpers.capitalize(currentBid.buyerId.lastName) %> (<%=
+              currentBid.buyerId.email %>)
+            </div>
+            <div>
+              <strong>Time:</strong> <%= helpers.formatDate(currentBid.bidTime)
+              %>
+            </div>
+          </div>
+        </div>
+        <% } else { %>
+        <div class="no-bids">
+          <p>No bids have been placed yet.</p>
+        </div>
+        <% } %>
+
+        <!-- Past Bids -->
+        <% if (pastBids && pastBids.length > 0) { %>
+        <div class="past-bids-title">Bid History (Last 3)</div>
+        <div class="past-bids">
+          <% pastBids.forEach(function(bid) { %>
+          <div class="past-bid-card">
+            <div class="past-bid-amount">
+              <%= helpers.formatCurrency(bid.bidAmount) %>
+            </div>
+            <div class="bid-info">
+              <div>
+                <strong>Bidder:</strong> <%=
+                helpers.capitalize(bid.buyerId.firstName) %> <%=
+                helpers.capitalize(bid.buyerId.lastName) %> (<%=
+                bid.buyerId.email %>)
+              </div>
+              <div>
+                <strong>Time:</strong> <%= helpers.formatDate(bid.bidTime) %>
+              </div>
+            </div>
+          </div>
+          <% }); %>
+        </div>
+        <% } %>
+      </div>
+    </div>
+
+    <%- include('partials/footer') %>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const stopAuctionForm = document.getElementById("stopAuctionForm");
+        if (!stopAuctionForm) return;
+
+        stopAuctionForm.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const actionButtons = document.querySelector(".section-title > div");
+          const existingMessage = document.querySelector(".status-message");
+          if (existingMessage) existingMessage.remove();
+
+          try {
+            const response = await fetch(
+              "/auctionmanager/stop-auction/<%= auction._id %>",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                },
+              }
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+              // Remove the form and button
+              stopAuctionForm.remove();
+
+              // Add success message
+              const successMessage = document.createElement("div");
+              successMessage.className = "status-message success-message";
+              successMessage.style.display = "block";
+              successMessage.textContent = "Auction has been stopped.";
+              document
+                .querySelector(".bids-section")
+                .insertBefore(
+                  successMessage,
+                  document.querySelector(".current-bid") ||
+                    document.querySelector(".no-bids")
+                );
+            } else {
+              // Display error message
+              const errorMessage = document.createElement("div");
+              errorMessage.className = "status-message error-message";
+              errorMessage.style.display = "block";
+              errorMessage.textContent =
+                data.message || "Failed to stop auction.";
+              document
+                .querySelector(".bids-section")
+                .insertBefore(
+                  errorMessage,
+                  document.querySelector(".current-bid") ||
+                    document.querySelector(".no-bids")
+                );
+            }
+          } catch (error) {
+            console.error("Error stopping auction:", error);
+            const errorMessage = document.createElement("div");
+            errorMessage.className = "status-message error-message";
+            errorMessage.style.display = "block";
+            errorMessage.textContent =
+              "An error occurred while stopping the auction.";
+            document
+              .querySelector(".bids-section")
+              .insertBefore(
+                errorMessage,
+                document.querySelector(".current-bid") ||
+                  document.querySelector(".no-bids")
+              );
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

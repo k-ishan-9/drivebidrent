@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics - DriveBidRent</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      body {
+        background-color: #f4f4f4;
+        color: #333333;
+      }
+
+      section {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        color: #ff6b00;
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .analytics-card {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .analytics-card h2 {
+        color: #ff6b00;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .analytics-card p {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333333;
+      }
+
+      .performance-table {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+      }
+
+      .performance-table h2 {
+        color: #ff6b00;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+
+      th,
+      td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f9f9f9;
+        color: #333333;
+        font-weight: 600;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .error-message {
+        color: #c62828;
+        text-align: center;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Include the navbar partial -->
+    <%- include('partials/navbar', { currentPage: 'analytics' }) %>
+
+    <!-- Analytics Content -->
+    <section>
+      <h1>Analytics</h1>
+
+      <% if (error) { %>
+      <p class="error-message"><%= error %></p>
+      <% } %>
+
+      <!-- Analytics Metrics -->
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <h2>Total Users</h2>
+          <p><%= totalUsers.toLocaleString() %></p>
+        </div>
+        <div class="analytics-card">
+          <h2>Total Cars Rented</h2>
+          <p><%= totalCarsRented.toLocaleString() %></p>
+        </div>
+        <div class="analytics-card">
+          <h2>Auction Listings</h2>
+          <p><%= totalAuctionListings.toLocaleString() %></p>
+        </div>
+      </div>
+
+      <!-- In the performance-table section of your analytics.ejs file -->
+      <div class="performance-table">
+        <h2>Vehicle Sales Performance</h2>
+        <% if (vehiclePerformance.length > 0) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>Car</th>
+              <th>Starting Price</th>
+              <th>Final Sale Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% vehiclePerformance.forEach(perf => { %>
+            <tr>
+              <td><%= perf.vehicleName || 'Unknown' %></td>
+              <td>
+                <% if (perf.startingPrice != null) { %> ₹<%=
+                perf.startingPrice.toLocaleString('en-IN', {
+                minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> <% }
+                else { %> N/A <% } %>
+              </td>
+              <td>
+                <% if (perf.finalSalePrice != null) { %> ₹<%=
+                perf.finalSalePrice.toLocaleString('en-IN', {
+                minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> <% }
+                else { %> N/A <% } %>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <% } else { %>
+        <p>No vehicle sales data available.</p>
+        <% } %>
+      </div>
+    </section>
+
+    <!-- Include the footer partial -->
+    <%- include('partials/footer') %>
+  </body>
+</html>

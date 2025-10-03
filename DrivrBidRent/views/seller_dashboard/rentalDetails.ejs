@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rental Details - DriveBidRent</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        body {
+            background-color: #f8f8f8;
+            color: #333333;
+        }
+
+        /* Rental Details Container */
+        .rental-details-container {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .rental-details-container h1 {
+            color: #ff6b00;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .details-wrapper {
+            display: flex;
+            gap: 2rem;
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+
+        .image-section {
+            flex: 1;
+        }
+
+        .details-section {
+            flex: 1;
+        }
+
+        .vehicle-image {
+            width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .basic-info {
+            margin-bottom: 2rem;
+        }
+
+        .vehicle-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .cost-info, .location-info {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .details-table tr {
+            border-bottom: 1px solid #eee;
+        }
+
+        .details-table td {
+            padding: 0.8rem 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+            width: 40%;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.3rem;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 2rem;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #ff8c3f;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .details-wrapper {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navbar Partial -->
+    <%- include('partials/navbar', { currentPage: 'view-rentals' }) %>
+
+    <!-- Rental Details Content -->
+    <section class="rental-details-container">
+        <h1>Rental Vehicle Details</h1>
+        
+        <% if (rental) { %>
+            <div class="details-wrapper">
+                <div class="image-section">
+                    <img src="<%= rental.vehicleImage %>" alt="<%= rental.vehicleName %>" class="vehicle-image">
+                    <div class="basic-info">
+                        <h2 class="vehicle-name"><%= rental.vehicleName %></h2>
+                        <p class="cost-info">Cost per day: ₹<%= rental.costPerDay %></p>
+                        <p class="location-info">Location: <%= rental.location %></p>
+                    </div>
+                </div>
+                
+                <div class="details-section">
+                    <h3>Vehicle Specifications</h3>
+                    <table class="details-table">
+                        <tr>
+                            <td class="detail-label">Year:</td>
+                            <td class="detail-value"><%= rental.year %></td>
+                        </tr>
+                        <tr>
+                            <td class="detail-label">AC:</td>
+                            <td class="detail-value"><%= rental.ac ? 'Available' : 'Not Available' %></td>
+                        </tr>
+                        <tr>
+                            <td class="detail-label">Capacity:</td>
+                            <td class="detail-value"><%= rental.capacity %> passengers</td>
+                        </tr>
+                        <tr>
+                            <td class="detail-label">Condition:</td>
+                            <td class="detail-value"><%= rental.condition %></td>
+                        </tr>
+                        <tr>
+                            <td class="detail-label">Fuel Type:</td>
+                            <td class="detail-value"><%= rental.fuelType %></td>
+                        </tr>
+                        <tr>
+                            <td class="detail-label">Transmission:</td>
+                            <td class="detail-value"><%= rental.transmission %></td>
+                        </tr>
+                        <tr>
+                            <td class="detail-label">Driver Available:</td>
+                            <td class="detail-value"><%= rental.driverAvailable ? 'Yes' : 'No' %></td>
+                        </tr>
+                        <% if (rental.driverAvailable) { %>
+                        <tr>
+                            <td class="detail-label">Driver Rate:</td>
+                            <td class="detail-value">₹<%= rental.driverRate %> per day</td>
+                        </tr>
+                        <% } %>
+                    </table>
+                </div>
+            </div>
+            
+            <a href="/seller_dashboard/view-rentals" class="back-btn">Back to Rentals</a>
+        <% } else { %>
+            <div class="error-message">
+                Rental details not found.
+            </div>
+            <a href="/seller_dashboard/view-rentals" class="back-btn">Back to Rentals</a>
+        <% } %>
+    </section>
+
+    <!-- Include Footer Partial -->
+    <%- include('partials/footer') %>
+</body>
+</html>

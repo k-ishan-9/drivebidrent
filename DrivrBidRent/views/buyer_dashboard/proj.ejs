@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveBidRent - Buyer Dashboard</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #333333;
+        }
+
+        /* Heading Section */
+        .heading1 {
+            width: 90%;
+            height: 500px;
+            margin: 50px auto;
+            border-radius: 15px;
+            box-shadow: 10px 10px 50px rgba(255, 107, 0, 0.3);
+            background: linear-gradient(135deg, #ff6b00, #ff9a44, #ffffff);
+            opacity: 1;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .heading1 h1 {
+            font-family: "Montserrat", sans-serif;
+            font-size: 42px;
+            font-weight: 700;
+            transition: text-shadow 0.3s ease-in-out;
+            margin-bottom: 15px;
+            color: #ff6b00;
+        }
+
+        .heading1 p {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.5;
+            font-size: 20px;
+            font-weight: 500;
+            color: #333333;
+            margin-top: 5px;
+        }
+
+        .heading1 h1:hover {
+            text-shadow: 0px 0px 15px #ff6b00;
+        }
+
+        .oneL {
+            color: #ff6b00;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Sections */
+        section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #ff6b00, #ff9a44, transparent);
+        }
+
+        section h2 {
+            color: #ff6b00;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        /* Auctions Section Heading */
+        .auctions h2 {
+            color: #ff6b00;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Rentals Section Heading */
+        .rentals h2 {
+            color: #ff6b00;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Car Cards - Consistent Size */
+        .car-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #ff6b00;
+            height: 550px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .car-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(255, 107, 0, 0.3);
+        }
+
+        .hot-tag, .new-tag {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: #ff6b00;
+            color: white;
+            padding: 2px 15px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .heart-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .heart-btn[data-liked="true"] {
+            color: #ff6b00;
+        }
+
+        .car-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .car-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #ff6b00;
+        }
+
+        .auction-date, .rental-cost, .costperday {
+            color: #666666;
+            margin-bottom: 1rem;
+        }
+
+        .car-details {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .car-details p {
+            margin-bottom: 0.5rem;
+            color: #333333;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .details-btn {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.3rem;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            flex: 1;
+            margin-right: 0.5rem;
+            text-align: center;
+        }
+
+        .placebid-btn, .bid-btn {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.3rem;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            flex: 1;
+            margin-left: 0.5rem;
+            text-align: center;
+        }
+
+        .placebid-btn:hover,
+        .bid-btn:hover,
+        .details-btn:hover {
+            background-color: #e65c00;
+        }
+
+        /* More Button Container */
+        .more-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        /* More Button */
+        .more-btn {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.3rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+
+        .more-btn:hover {
+            background-color: #e65c00;
+        }
+
+        /* No Items Message */
+        .no-items {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 2rem;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .card-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .heading1 {
+                width: 90%;
+                padding-left: 20px;
+                padding-right: 20px;
+                text-align: center;
+            }
+            
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .details-btn,
+            .placebid-btn,
+            .bid-btn {
+                margin: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation Bar -->
+    <%- include('partials/navbar') %>
+
+    <!-- Hero Section -->
+    <div class="heading1">
+        <h1><strong class="oneL">D</strong>rive<strong class="oneL">B</strong>id<strong class="oneL">R</strong>ent</h1> 
+        <p>Buy or Rent—Drive Your Dream with <strong class="oneL">Ease!</strong></p>
+    </div>
+
+<!-- Auctions Section -->
+<section class="auctions">
+    <h2>Featured Auctions</h2>
+    <div class="card-container">
+        <% if (featuredAuctions && featuredAuctions.length > 0) { %>
+            <% featuredAuctions.forEach(auction => { %>
+                <div class="car-card">
+                    <span class="hot-tag">Hot</span>
+                    <button class="heart-btn" data-liked="false" data-auction-id="<%= auction._id %>">❤</button>
+                    <img src="<%= auction.vehicleImage %>" alt="<%= auction.vehicleName %>">
+                    <h3><%= auction.vehicleName %></h3>
+                    <p class="auction-date">Auction on: <strong><%= new Date(auction.auctionDate).toLocaleDateString() %></strong></p>
+                    <div class="car-details">
+                        <p><strong>Year:</strong> <%= auction.year %></p>
+                        <p><strong>Mileage:</strong> <%= auction.mileage %> km</p>
+                        <p><strong>Condition:</strong> <%= auction.condition.charAt(0).toUpperCase() + auction.condition.slice(1) %></p>
+                        <p><strong>Estimated Price:</strong> ₹<%= auction.startingBid.toLocaleString() %></p>
+                    </div>
+                    <div class="button-container">
+                        <a href="/auction_detail?id=<%= auction._id %>" class="details-btn">Details</a>
+                        <a href="/auction?id=<%= auction._id %>" class="bid-btn">Place Bid</a>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <div class="no-items">
+                <p>No auctions available at the moment.</p>
+            </div>
+        <% } %>
+    </div>
+    <div class="more-btn-container">
+        <a href="/buyer_dashboard?page=auctions" class="more-btn">More Auctions</a>
+    </div>
+</section>
+    <!-- Rentals Section - Limited to 3 cars -->
+    <section class="rentals">
+        <h2>Featured Rentals</h2>
+        <div class="card-container">
+            <% if (featuredRentals && featuredRentals.length > 0) { %>
+                <% const displayedRentals = featuredRentals.slice(0, 3); %>
+                <% displayedRentals.forEach(rental => { %>
+                    <div class="car-card">
+                        <% if (new Date() - rental.createdAt < 7 * 24 * 60 * 60 * 1000) { %>
+                            <span class="new-tag">New</span>
+                        <% } %>
+                        <button class="heart-btn" data-liked="false" data-rental-id="<%= rental._id %>">❤</button>
+                        <img src="<%= rental.vehicleImage %>" alt="<%= rental.vehicleName %>">
+                        <h3><%= rental.vehicleName %></h3>
+                        <p class="rental-cost">Cost/day: <strong>₹<%= rental.costPerDay %></strong></p>
+                        <div class="car-details">
+                            <p><strong>Year:</strong> <%= rental.year %></p>
+                            <p><strong>AC:</strong> <%= rental.AC === 'available' ? 'Yes' : 'No' %></p>
+                            <p><strong>Capacity:</strong> <%= rental.capacity %> passengers</p>
+                            <p><strong>Seller:</strong> <%= rental.sellerId.firstName %> <%= rental.sellerId.lastName %></p>
+                            <% if (rental.driverAvailable) { %>
+                                <p><strong>Driver:</strong> Yes (₹<%= rental.driverRate %>/day)</p>
+                            <% } %>
+                        </div>
+                        <div class="button-container">
+                            <a href="/buyer_dashboard?page=rental&id=<%= rental._id %>" class="details-btn">Details</a>
+                            <a href="/buyer_dashboard?page=rental&id=<%= rental._id %>" class="placebid-btn">Rent Now</a>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="no-items">
+                    <p>No featured rentals available at the moment.</p>
+                </div>
+            <% } %>
+        </div>
+        <div class="more-btn-container">
+            <a href="/buyer_dashboard?page=rentals" class="more-btn">More Rentals</a>
+        </div>
+    </section>
+
+    <!-- Include Footer -->
+    <%- include('partials/footer') %>
+
+    // Replace the existing heart button script in proj.ejs with this updated version
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize wishlist status
+            initializeWishlistStatus();
+            
+            // Add event listeners to heart buttons
+            document.querySelectorAll('.heart-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const isLiked = this.getAttribute('data-liked') === 'true';
+                    const rentalId = this.getAttribute('data-rental-id');
+                    const auctionId = this.getAttribute('data-auction-id');
+                    
+                    // Toggle liked state
+                    this.setAttribute('data-liked', !isLiked);
+                    this.style.color = !isLiked ? '#ff6b00' : '#ccc';
+                    
+                    // Store in localStorage for persistence between page reloads
+                    if (auctionId) {
+                        localStorage.setItem(`auction_${auctionId}_liked`, !isLiked ? 'true' : 'false');
+                    } else if (rentalId) {
+                        localStorage.setItem(`rental_${rentalId}_liked`, !isLiked ? 'true' : 'false');
+                    }
+                    
+                    // Send request to server
+                    fetch('/api/wishlist', {
+                        method: isLiked ? 'DELETE' : 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            rentalId: rentalId || null,
+                            auctionId: auctionId || null,
+                            type: rentalId ? 'rental' : 'auction'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            // If operation failed, revert the button state
+                            this.setAttribute('data-liked', isLiked);
+                            this.style.color = isLiked ? '#ff6b00' : '#ccc';
+                            
+                            // Revert localStorage
+                            if (auctionId) {
+                                localStorage.setItem(`auction_${auctionId}_liked`, isLiked ? 'true' : 'false');
+                            } else if (rentalId) {
+                                localStorage.setItem(`rental_${rentalId}_liked`, isLiked ? 'true' : 'false');
+                            }
+                            
+                            console.error('Wishlist operation failed:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        // If there was an error, revert the button state
+                        this.setAttribute('data-liked', isLiked);
+                        this.style.color = isLiked ? '#ff6b00' : '#ccc';
+                        
+                        // Revert localStorage
+                        if (auctionId) {
+                            localStorage.setItem(`auction_${auctionId}_liked`, isLiked ? 'true' : 'false');
+                        } else if (rentalId) {
+                            localStorage.setItem(`rental_${rentalId}_liked`, isLiked ? 'true' : 'false');
+                        }
+                        
+                        console.error('Error:', error);
+                    });
+                });
+            });
+        });
+    
+        // Initialize heart buttons based on wishlist
+        function initializeWishlistStatus() {
+            // First try to set button states from localStorage for immediate visual feedback
+            document.querySelectorAll('.heart-btn').forEach(button => {
+                const rentalId = button.getAttribute('data-rental-id');
+                const auctionId = button.getAttribute('data-auction-id');
+                
+                if (rentalId) {
+                    const storedState = localStorage.getItem(`rental_${rentalId}_liked`);
+                    if (storedState === 'true') {
+                        button.setAttribute('data-liked', true);
+                        button.style.color = '#ff6b00';
+                    }
+                } else if (auctionId) {
+                    const storedState = localStorage.getItem(`auction_${auctionId}_liked`);
+                    if (storedState === 'true') {
+                        button.setAttribute('data-liked', true);
+                        button.style.color = '#ff6b00';
+                    }
+                }
+            });
+            
+            // Then fetch server data to ensure consistency
+            fetch('/api/wishlist')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Set heart buttons for rentals
+                        document.querySelectorAll('.heart-btn[data-rental-id]').forEach(button => {
+                            const rentalId = button.getAttribute('data-rental-id');
+                            const isLiked = data.wishlist.rentals && data.wishlist.rentals.includes(rentalId);
+                            
+                            // Update localStorage to match server
+                            localStorage.setItem(`rental_${rentalId}_liked`, isLiked ? 'true' : 'false');
+                            
+                            // Update button state
+                            button.setAttribute('data-liked', isLiked);
+                            button.style.color = isLiked ? '#ff6b00' : '#ccc';
+                        });
+                        
+                        // Set heart buttons for auctions
+                        document.querySelectorAll('.heart-btn[data-auction-id]').forEach(button => {
+                            const auctionId = button.getAttribute('data-auction-id');
+                            const isLiked = data.wishlist.auctions && data.wishlist.auctions.includes(auctionId);
+                            
+                            // Update localStorage to match server
+                            localStorage.setItem(`auction_${auctionId}_liked`, isLiked ? 'true' : 'false');
+                            
+                            // Update button state
+                            button.setAttribute('data-liked', isLiked);
+                            button.style.color = isLiked ? '#ff6b00' : '#ccc';
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading wishlist:', error);
+                    // We already set states from localStorage, so no need for fallback
+                });
+        }
+    </script>
+</body>
+</html>

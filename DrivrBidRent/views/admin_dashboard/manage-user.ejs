@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Users - DriveBidRent</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    
+    .container {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .card {
+      background-color: #ffffff;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+    
+    h1, h2 {
+      color: #ff6b00;
+    }
+    
+    h1 {
+      text-align: center;
+    }
+    
+    .search-bar {
+      margin-bottom: 1rem;
+    }
+    
+    .search-bar input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    
+    .mechanic-list, .buyer-list, .seller-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .mechanic-item, .buyer-item, .seller-item {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.5s ease;
+    }
+    
+    .mechanic-item.removing, .buyer-item.removing, .seller-item.removing {
+      opacity: 0;
+      transform: translateX(-100px);
+      height: 0;
+      padding: 0;
+      margin: 0;
+      border: none;
+      overflow: hidden;
+    }
+    
+    .mechanic-item.hidden, .buyer-item.hidden, .seller-item.hidden {
+      display: none;
+    }
+    
+    .mechanic-info, .buyer-info, .seller-info {
+      flex-grow: 1;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn {
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .btn-blue {
+      background-color: #007bff;
+    }
+    
+    .btn-green {
+      background-color: #00cc66;
+    }
+    
+    .btn-red {
+      background-color: #ff3333;
+    }
+    
+    .show-more {
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    
+    .show-more-btn {
+      background-color: #ff6b00;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .show-more-btn:hover {
+      background-color: #e65c00;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      position: relative;
+      background-color: white;
+      margin: 10% auto;
+      padding: 2rem;
+      width: 70%;
+      max-width: 800px;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .close {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    .no-mechanics, .no-buyers, .no-sellers {
+      padding: 2rem;
+      text-align: center;
+      color: #666;
+      font-style: italic;
+    }
+    
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+    
+    .alert-success {
+      color: #155724;
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+    }
+    
+    .alert-danger {
+      color: #721c24;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+    
+    .alert-close {
+      float: right;
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <%- include('./partials/navbar') %>
+
+  <div class="container">
+    <h1>Manage Users</h1>
+    
+    <div id="alertContainer"></div>
+    
+    <!-- Pending Mechanics Section -->
+    <div class="card">
+      <h2>Mechanics Waiting for Approval</h2>
+      
+      <div class="search-bar">
+        <input type="text" id="pendingMechanicSearch" placeholder="Search by name or email..." onkeyup="searchUsers('pendingMechanic')">
+      </div>
+      
+      <ul class="mechanic-list" id="mechanic-list">
+        <% if (users && users.length > 0) { %>
+          <% users.forEach((user, index) => { %>
+            <li class="mechanic-item <%= index >= 5 ? 'hidden' : '' %>" id="mechanic-<%= user._id %>" 
+                data-firstname="<%= user.firstName.toLowerCase() %>" 
+                data-lastname="<%= user.lastName.toLowerCase() %>" 
+                data-email="<%= user.email.toLowerCase() %>">
+              <div class="mechanic-info">
+                <strong><%= user.firstName %> <%= user.lastName %></strong> - <%= user.email %> (Mechanic)
+                <span style="margin-left: 10px; font-style: italic;">
+                  Status: Pending Approval
+                </span>
+              </div>
+              <div class="action-buttons">
+                <button class="btn btn-blue" onclick="viewDetails('mechanic', '<%= user._id %>', '<%= user.firstName %>', '<%= user.lastName %>', '<%= user.email %>', '<%= user.phone %>', '<%= user.experienceYears || 0 %>', '<%= user.shopName || 'N/A' %>', '<%= user.repairBikes || false %>', '<%= user.repairCars || false %>', '<%= user.doorNo || '' %>', '<%= user.street || '' %>', '<%= user.city || '' %>', '<%= user.state || '' %>', '<%= user.googleAddressLink || '' %>', '<%= user.dateOfBirth || '' %>')">
+                  View Details
+                </button>
+                <button class="btn btn-green" onclick="handleAction('<%= user._id %>', 'approve')">Approve</button>
+                <button class="btn btn-red" onclick="handleAction('<%= user._id %>', 'decline')">Decline</button>
+              </div>
+            </li>
+          <% }); %>
+        <% } else { %>
+          <li class="no-mechanics">No pending mechanics found</li>
+        <% } %>
+      </ul>
+      <% if (users && users.length > 5) { %>
+        <div class="show-more">
+          <button class="show-more-btn" onclick="toggleShowMore('mechanic-list')">
+            Show More <span class="arrow">▼</span>
+          </button>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Approved Mechanics Section -->
+    <div class="card">
+      <h2>Manage Mechanics</h2>
+      
+      <div class="search-bar">
+        <input type="text" id="approvedMechanicSearch" placeholder="Search by name or email..." onkeyup="searchUsers('approvedMechanic')">
+      </div>
+      
+      <ul class="mechanic-list" id="approved-mechanic-list">
+        <% if (mechanics && mechanics.length > 0) { %>
+          <% mechanics.forEach((mechanic, index) => { %>
+            <li class="mechanic-item <%= index >= 5 ? 'hidden' : '' %>" id="mechanic-<%= mechanic._id %>" 
+                data-firstname="<%= mechanic.firstName.toLowerCase() %>" 
+                data-lastname="<%= mechanic.lastName.toLowerCase() %>" 
+                data-email="<%= mechanic.email.toLowerCase() %>">
+              <div class="mechanic-info">
+                <strong><%= mechanic.firstName %> <%= mechanic.lastName %></strong> - <%= mechanic.email %> (Mechanic)
+              </div>
+              <div class="action-buttons">
+                <button class="btn btn-blue" onclick="viewDetails('mechanic', '<%= mechanic._id %>', '<%= mechanic.firstName %>', '<%= mechanic.lastName %>', '<%= mechanic.email %>', '<%= mechanic.phone %>', '<%= mechanic.experienceYears || 0 %>', '<%= mechanic.shopName || 'N/A' %>', '<%= mechanic.repairBikes || false %>', '<%= mechanic.repairCars || false %>', '<%= mechanic.doorNo || '' %>', '<%= mechanic.street || '' %>', '<%= mechanic.city || '' %>', '<%= mechanic.state || '' %>', '<%= mechanic.googleAddressLink || '' %>', '<%= mechanic.dateOfBirth || '' %>')">
+                  View Details
+                </button>
+                <button class="btn btn-red" onclick="handleDelete('<%= mechanic._id %>', 'mechanic')">Delete</button>
+              </div>
+            </li>
+          <% }); %>
+        <% } else { %>
+          <li class="no-mechanics">No approved mechanics found</li>
+        <% } %>
+      </ul>
+      <% if (mechanics && mechanics.length > 5) { %>
+        <div class="show-more">
+          <button class="show-more-btn" onclick="toggleShowMore('approved-mechanic-list')">
+            Show More <span class="arrow">▼</span>
+          </button>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Buyers Section -->
+    <div class="card">
+      <h2>Manage Buyers</h2>
+      
+      <div class="search-bar">
+        <input type="text" id="buyerSearch" placeholder="Search by name or email..." onkeyup="searchUsers('buyer')">
+      </div>
+      
+      <ul class="buyer-list" id="buyer-list">
+        <% if (buyers && buyers.length > 0) { %>
+          <% buyers.forEach((buyer, index) => { %>
+            <li class="buyer-item <%= index >= 5 ? 'hidden' : '' %>" id="buyer-<%= buyer._id %>" 
+                data-firstname="<%= buyer.firstName.toLowerCase() %>" 
+                data-lastname="<%= buyer.lastName.toLowerCase() %>" 
+                data-email="<%= buyer.email.toLowerCase() %>">
+              <div class="buyer-info">
+                <strong><%= buyer.firstName %> <%= buyer.lastName %></strong> - <%= buyer.email %> (Buyer)
+              </div>
+              <div class="action-buttons">
+                <button class="btn btn-blue" onclick="viewDetails('buyer', '<%= buyer._id %>', '<%= buyer.firstName %>', '<%= buyer.lastName %>', '<%= buyer.email %>', '<%= buyer.phone %>', null, null, null, null, '<%= buyer.doorNo || '' %>', '<%= buyer.street || '' %>', '<%= buyer.city || '' %>', '<%= buyer.state || '' %>', null, '<%= buyer.dateOfBirth || '' %>')">
+                  View Details
+                </button>
+                <button class="btn btn-red" onclick="handleDelete('<%= buyer._id %>', 'buyer')">Delete</button>
+              </div>
+            </li>
+          <% }); %>
+        <% } else { %>
+          <li class="no-buyers">No buyers found</li>
+        <% } %>
+      </ul>
+      <% if (buyers && buyers.length > 5) { %>
+        <div class="show-more">
+          <button class="show-more-btn" onclick="toggleShowMore('buyer-list')">
+            Show More <span class="arrow">▼</span>
+          </button>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Sellers Section -->
+    <div class="card">
+      <h2>Manage Sellers</h2>
+      
+      <div class="search-bar">
+        <input type="text" id="sellerSearch" placeholder="Search by name or email..." onkeyup="searchUsers('seller')">
+      </div>
+      
+      <ul class="seller-list" id="seller-list">
+        <% if (sellers && sellers.length > 0) { %>
+          <% sellers.forEach((seller, index) => { %>
+            <li class="seller-item <%= index >= 5 ? 'hidden' : '' %>" id="seller-<%= seller._id %>" 
+                data-firstname="<%= seller.firstName.toLowerCase() %>" 
+                data-lastname="<%= seller.lastName.toLowerCase() %>" 
+                data-email="<%= seller.email.toLowerCase() %>">
+              <div class="seller-info">
+                <strong><%= seller.firstName %> <%= seller.lastName %></strong> - <%= seller.email %> (Seller)
+              </div>
+              <div class="action-buttons">
+                <button class="btn btn-blue" onclick="viewDetails('seller', '<%= seller._id %>', '<%= seller.firstName %>', '<%= seller.lastName %>', '<%= seller.email %>', '<%= seller.phone %>', null, null, null, null, '<%= seller.doorNo || '' %>', '<%= seller.street || '' %>', '<%= seller.city || '' %>', '<%= seller.state || '' %>', null, '<%= seller.dateOfBirth || '' %>')">
+                  View Details
+                </button>
+                <button class="btn btn-red" onclick="handleDelete('<%= seller._id %>', 'seller')">Delete</button>
+              </div>
+            </li>
+          <% }); %>
+        <% } else { %>
+          <li class="no-sellers">No sellers found</li>
+        <% } %>
+      </ul>
+      <% if (sellers && sellers.length > 5) { %>
+        <div class="show-more">
+          <button class="show-more-btn" onclick="toggleShowMore('seller-list')">
+            Show More <span class="arrow">▼</span>
+          </button>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div id="detailsModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">×</span>
+      <h2 id="modalTitle">User Details</h2>
+      <div id="modalContent"></div>
+      <div id="modalActions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button id="modalApproveBtn" class="btn btn-green" style="display: none;">Approve</button>
+        <button id="modalDeclineBtn" class="btn btn-red" style="display: none;">Decline</button>
+        <button id="modalDeleteBtn" class="btn btn-red" style="display: none;">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <%- include('./partials/footer') %>
+
+  <script>
+    const modal = document.getElementById('detailsModal');
+    const closeModal = document.getElementById('closeModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+    const approveBtn = document.getElementById('modalApproveBtn');
+    const declineBtn = document.getElementById('modalDeclineBtn');
+    const deleteBtn = document.getElementById('modalDeleteBtn');
+    let currentUserId = '';
+    let currentUserType = '';
+
+    // Modal functions
+    closeModal.onclick = function() {
+      modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = 'none';
+      }
+    }
+
+    function viewDetails(userType, id, firstName, lastName, email, phone, experience, shopName, repairBikes, repairCars, doorNo, street, city, state, googleLink, dateOfBirth) {
+      currentUserId = id;
+      currentUserType = userType;
+
+      // Set modal title based on user type
+      modalTitle.textContent = `${userType.charAt(0).toUpperCase() + userType.slice(1)} Details`;
+
+      // Prepare details HTML based on user type
+      let detailsHtml = `
+        <div class="details-grid">
+          <div>
+            <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+      `;
+
+      // Add fields specific to user type
+      if (userType === 'mechanic') {
+        detailsHtml += `
+            <p><strong>Experience:</strong> ${experience || 'N/A'} ${experience ? 'years' : ''}</p>
+          </div>
+          <div>
+            <p><strong>Shop Name:</strong> ${shopName || 'N/A'}</p>
+            <p><strong>Repairs Bikes:</strong> ${repairBikes === 'true' ? 'Yes' : 'No'}</p>
+            <p><strong>Repairs Cars:</strong> ${repairCars === 'true' ? 'Yes' : 'No'}</p>
+        `;
+      } else {
+        detailsHtml += `
+          </div>
+          <div>
+        `;
+      }
+
+      // Common fields for all user types
+      detailsHtml += `
+            <p><strong>Address:</strong> ${doorNo || ''}, ${street || ''}, ${city || ''}, ${state || ''}</p>
+            <p><strong>Date of Birth:</strong> ${dateOfBirth ? new Date(dateOfBirth).toLocaleDateString('en-IN') : 'N/A'}</p>
+          </div>
+        </div>
+      `;
+
+      if (userType === 'mechanic' && googleLink) {
+        detailsHtml += `<p><strong>Location:</strong> <a href="${googleLink}" target="_blank">View on Google Maps</a></p>`;
+      }
+
+      modalContent.innerHTML = detailsHtml;
+
+      // Show/hide action buttons based on context
+      if (userType === 'mechanic' && document.getElementById(`mechanic-${id}`).parentElement.id === 'mechanic-list') {
+        // Pending mechanic: show Approve and Decline buttons
+        approveBtn.style.display = 'inline-block';
+        declineBtn.style.display = 'inline-block';
+        deleteBtn.style.display = 'none';
+        approveBtn.onclick = () => handleAction(id, 'approve');
+        declineBtn.onclick = () => handleAction(id, 'decline');
+      } else {
+        // Approved mechanic, buyer, or seller: show Delete button
+        approveBtn.style.display = 'none';
+        declineBtn.style.display = 'none';
+        deleteBtn.style.display = 'inline-block';
+        deleteBtn.onclick = () => handleDelete(id, userType);
+      }
+
+      modal.style.display = 'block';
+    }
+
+    // Handle mechanic approval/decline
+    async function handleAction(id, action) {
+      const url = `/${action === 'approve' ? 'approve-user' : 'decline-user'}/${id}`;
+      const confirmMessage = action === 'decline' ? 'Are you sure you want to decline and delete this mechanic?' : null;
+      
+      if (action === 'decline' && !confirm(confirmMessage)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert(result.message, 'success');
+          const mechanicItem = document.getElementById(`mechanic-${id}`);
+          if (mechanicItem) {
+            mechanicItem.classList.add('removing');
+            setTimeout(() => {
+              mechanicItem.remove();
+              const mechanicList = document.getElementById('mechanic-list');
+              if (mechanicList.children.length === 0) {
+                mechanicList.innerHTML = '<li class="no-mechanics">No pending mechanics found</li>';
+              }
+            }, 500);
+          }
+          modal.style.display = 'none';
+        } else {
+          showAlert(result.message || `Error ${action === 'approve' ? 'approving' : 'declining'} mechanic`, 'danger');
+        }
+      } catch (error) {
+        console.error(`Error ${action} mechanic:`, error);
+        showAlert(`Error ${action === 'approve' ? 'approving' : 'declining'} mechanic. Please try again.`, 'danger');
+      }
+    }
+
+    // Handle deletion for all user types
+    async function handleDelete(id, userType) {
+      const url = userType === 'buyer' ? `/delete-buyer/${id}` : userType === 'seller' ? `/delete-seller/${id}` : `/decline-user/${id}`;
+      const confirmMessage = `Are you sure you want to delete this ${userType}?`;
+      
+      if (!confirm(confirmMessage)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert(result.message, 'success');
+          const item = document.getElementById(`${userType}-${id}`);
+          if (item) {
+            item.classList.add('removing');
+            setTimeout(() => {
+              item.remove();
+              const list = document.getElementById(`${userType}-list`);
+              if (list.children.length === 0) {
+                list.innerHTML = `<li class="no-${userType}s">No ${userType}s found</li>`;
+              }
+            }, 500);
+          }
+          modal.style.display = 'none';
+        } else {
+          showAlert(result.message || `Error deleting ${userType}`, 'danger');
+        }
+      } catch (error) {
+        console.error(`Error deleting ${userType}:`, error);
+        showAlert(`Error deleting ${userType}. Please try again.`, 'danger');
+      }
+    }
+
+    function showAlert(message, type = 'success') {
+      const alertContainer = document.getElementById('alertContainer');
+      const alertDiv = document.createElement('div');
+      alertDiv.className = `alert alert-${type}`;
+      alertDiv.innerHTML = `
+        <span class="alert-close" onclick="this.parentElement.style.display='none';">×</span>
+        ${message}
+      `;
+      alertContainer.appendChild(alertDiv);
+      setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 500);
+      }, 5000);
+    }
+
+    // Search functionality
+    function searchUsers(type) {
+      const searchInput = document.getElementById(`${type}Search`).value.toLowerCase();
+      const listId = type === 'pendingMechanic' ? 'mechanic-list' : type === 'approvedMechanic' ? 'approved-mechanic-list' : `${type}-list`;
+      const list = document.getElementById(listId);
+      const items = list.querySelectorAll(`.${type === 'pendingMechanic' || type === 'approvedMechanic' ? 'mechanic' : type}-item`);
+
+      items.forEach(item => {
+        const firstName = item.dataset.firstname;
+        const lastName = item.dataset.lastname;
+        const email = item.dataset.email;
+        const fullName = `${firstName} ${lastName}`;
+
+        if (fullName.includes(searchInput) || email.includes(searchInput)) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+
+      // Update Show More button visibility
+      const visibleItems = Array.from(items).filter(item => !item.classList.contains('hidden'));
+      const showMoreBtn = list.nextElementSibling?.querySelector('.show-more-btn');
+      if (showMoreBtn) {
+        showMoreBtn.style.display = visibleItems.length > 5 ? 'flex' : 'none';
+      }
+    }
+
+    // Toggle Show More/Show Less
+    function toggleShowMore(listId) {
+      const list = document.getElementById(listId);
+      const items = list.querySelectorAll(`.${listId.includes('mechanic') ? 'mechanic' : listId.includes('buyer') ? 'buyer' : 'seller'}-item`);
+      const showMoreBtn = list.nextElementSibling.querySelector('.show-more-btn');
+      const arrow = showMoreBtn.querySelector('.arrow');
+      const isShowingAll = showMoreBtn.textContent.includes('Show Less');
+
+      if (isShowingAll) {
+        // Hide items beyond the first 5
+        items.forEach((item, index) => {
+          if (index >= 5 && !item.classList.contains('removing')) {
+            item.classList.add('hidden');
+          }
+        });
+        showMoreBtn.innerHTML = 'Show More <span class="arrow">▼</span>';
+      } else {
+        // Show all items
+        items.forEach(item => {
+          if (!item.classList.contains('removing')) {
+            item.classList.remove('hidden');
+          }
+        });
+        showMoreBtn.innerHTML = 'Show Less <span class="arrow">▲</span>';
+      }
+
+      // Reapply search filter after toggling
+      const searchInput = document.querySelector(`#${listId === 'mechanic-list' ? 'pendingMechanicSearch' : listId === 'approved-mechanic-list' ? 'approvedMechanicSearch' : listId === 'buyer-list' ? 'buyerSearch' : 'sellerSearch'}`).value;
+      if (searchInput) {
+        const type = listId === 'mechanic-list' ? 'pendingMechanic' : listId === 'approved-mechanic-list' ? 'approvedMechanic' : listId === 'buyer-list' ? 'buyer' : 'seller';
+        searchUsers(type);
+      }
+    }
+  </script>
+</body>
+</html>

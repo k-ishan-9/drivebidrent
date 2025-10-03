@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveBidRent - Mechanic Profile</title>
+    <%- include('partials/styles') %>
+    <style>
+        /* Profile Settings Specific Styles */
+        .profile-settings {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .profile-settings h2 {
+            color: #ff6b00;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-details,
+        .change-password {
+            flex: 1;
+            background-color: #f9f9f9;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid #ff6b00;
+            box-shadow: 0 5px 15px rgba(255, 107, 0, 0.1);
+        }
+
+        .profile-details h3,
+        .change-password h3 {
+            color: #ff6b00;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-details-item {
+            margin-bottom: 1rem;
+        }
+
+        .profile-details-item strong {
+            display: inline-block;
+            width: 140px;
+            font-weight: 500;
+        }
+
+        .profile-details-item span {
+            display: inline-block;
+        }
+
+        .change-password label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .change-password input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 0.3rem;
+            font-size: 1rem;
+        }
+
+        .change-btn {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.3rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .change-btn:hover {
+            background-color: #e65c00;
+        }
+
+        /* Alert messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 0.3rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <!-- Profile Settings Section -->
+    <section class="profile-settings">
+        <h2>Mechanic Profile</h2>
+
+        <!-- Success and Error Alerts -->
+        <div id="success-alert" class="alert alert-success"></div>
+        <div id="error-alert" class="alert alert-danger"></div>
+
+        <div class="profile-container">
+            <!-- Personal Details (Read-only) -->
+            <div class="profile-details">
+                <h3>Personal Details</h3>
+                <div class="profile-details-item">
+                    <strong>Name:</strong>
+                    <span><%= user.firstName %> <%= user.lastName %></span>
+                </div>
+                <div class="profile-details-item">
+                    <strong>Email:</strong>
+                    <span><%= user.email %></span>
+                </div>
+                <div class="profile-details-item">
+                    <strong>Phone:</strong>
+                    <span><%= user.phone || 'Not provided' %></span>
+                </div>
+                <div class="profile-details-item">
+                    <strong>Address:</strong>
+                    <span>
+                        <%= user.doorNo || '' %><%= user.doorNo ? ', ' : '' %>
+                        <%= user.street || '' %><%= user.street ? ', ' : '' %>
+                        <%= user.city || '' %><%= user.city ? ', ' : '' %>
+                        <%= user.state || '' %>
+                    </span>
+                </div>
+                <div class="profile-details-item">
+                    <strong>Shop Name:</strong>
+                    <span><%= user.shopName || 'Not provided' %></span>
+                </div>
+                <div class="profile-details-item">
+                    <strong>Experience:</strong>
+                    <span><%= user.experienceYears || 'Not provided' %> years</span>
+                </div>
+                <div class="profile-details-item">
+                    <strong>Services:</strong>
+                    <span>
+                        <% if (user.repairCars && user.repairBikes) { %>
+                            Cars and Bikes
+                        <% } else if (user.repairCars) { %>
+                            Cars
+                        <% } else if (user.repairBikes) { %>
+                            Bikes
+                        <% } else { %>
+                            Not specified
+                        <% } %>
+                    </span>
+                </div>
+
+                <div class="profile-details-item">
+                    <strong>Monthly Salary:</strong>
+                    <span>₹30,000</span>
+                </div>
+                <div class="profile-details-item">
+                    <strong>Map Location:</strong>
+                    <span>
+                        <% if (user.googleAddressLink) { %>
+                            <a href="<%= user.googleAddressLink %>" target="_blank">View on Google Maps</a>
+                        <% } else { %>
+                            Not provided
+                        <% } %>
+                    </span>
+                </div>
+                <div class="profile-details-item">
+                    <strong>Account Status:</strong>
+                    <span><%= user.approved_status === 'Yes' ? 'Approved' : 'Pending Approval' %></span>
+                </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="change-password">
+                <h3>Change Password</h3>
+                <form id="password-form">
+                    <label for="old-password">Current Password:</label>
+                    <input type="password" id="old-password" name="oldPassword" required>
+
+                    <label for="new-password">New Password:</label>
+                    <input type="password" id="new-password" name="newPassword" required>
+                    <small>Password must be at least 8 characters long</small>
+
+                    <label for="confirm-password">Confirm New Password:</label>
+                    <input type="password" id="confirm-password" name="confirmPassword" required>
+
+                    <button type="submit" class="change-btn">Change Password</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <%- include('partials/footer') %>
+
+    <!-- Profile JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordForm = document.getElementById('password-form');
+            const successAlert = document.getElementById('success-alert');
+            const errorAlert = document.getElementById('error-alert');
+            
+            // Function to show alerts
+            function showAlert(element, message) {
+                element.textContent = message;
+                element.style.display = 'block';
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Change password
+            passwordForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const oldPassword = document.getElementById('old-password').value;
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                
+                // Basic validation
+                if (newPassword !== confirmPassword) {
+                    showAlert(errorAlert, 'New passwords do not match');
+                    return;
+                }
+                
+                if (newPassword.length < 8) {
+                    showAlert(errorAlert, 'Password must be at least 8 characters long');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/mechanic_dashboard/change-password', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            oldPassword,
+                            newPassword,
+                            confirmPassword
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showAlert(successAlert, result.message);
+                        // Reset form
+                        passwordForm.reset();
+                    } else {
+                        showAlert(errorAlert, result.message);
+                    }
+                } catch (error) {
+                    showAlert(errorAlert, 'An error occurred. Please try again.');
+                    console.error(error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

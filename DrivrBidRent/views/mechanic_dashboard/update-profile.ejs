@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Profile</title>
+    <%- include('partials/styles') %>
+    <style>
+      /* Main Page Styles */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff;
+        color: #333;
+      }
+
+      main {
+        padding: 20px;
+      }
+
+      h1 {
+        color: #ff6600;
+      }
+
+      /* Form Styling */
+      form {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 400px;
+        margin: 20px auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      form label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: bold;
+      }
+
+      form input,
+      form textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+
+      form textarea {
+        height: 100px;
+        resize: vertical;
+      }
+
+      form button {
+        background-color: #ff6600;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        width: 100%;
+        font-size: 16px;
+      }
+
+      form button:hover {
+        background-color: #e65c00;
+        transform: scale(1.02);
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/header') %>
+
+    <main>
+      <h1>Update Profile</h1>
+      <form id="update-profile-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required />
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="contact">Contact:</label>
+        <input type="tel" id="contact" name="contact" required />
+
+        <label for="vehicle">Vehicle Specialization:</label>
+        <input type="text" id="vehicle" name="vehicle" required />
+
+        <label for="address">Address:</label>
+        <textarea id="address" name="address" rows="4" required></textarea>
+
+        <button type="submit">Save Changes</button>
+      </form>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+      // Handle form submission
+      const form = document.getElementById("update-profile-form");
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        // Get form data
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const contact = document.getElementById("contact").value;
+        const vehicle = document.getElementById("vehicle").value;
+        const address = document.getElementById("address").value;
+
+        // Save data to localStorage
+        const profileData = {
+          name,
+          email,
+          contact,
+          vehicle,
+          address,
+        };
+        localStorage.setItem("profile", JSON.stringify(profileData));
+
+        // Redirect to profile page
+        window.location.href = "/mechanic_dashboard/profile";
+      });
+
+      // Load existing profile data if available
+      document.addEventListener("DOMContentLoaded", () => {
+        if (localStorage.getItem("profile")) {
+          const profileData = JSON.parse(localStorage.getItem("profile"));
+          document.getElementById("name").value = profileData.name;
+          document.getElementById("email").value = profileData.email;
+          document.getElementById("contact").value = profileData.contact;
+          document.getElementById("vehicle").value = profileData.vehicle;
+          document.getElementById("address").value = profileData.address;
+        }
+      });
+    </script>
+  </body>
+</html>

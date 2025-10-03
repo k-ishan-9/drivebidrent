@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/rental.css">
+    <style>
+        /* Additional styles for the rental page */
+        .rental-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .vehicle-image img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .vehicle-info h1 {
+            margin-top: 0;
+        }
+        
+        .rental-cost {
+            font-size: 1.25rem;
+            color: #4CAF50;
+        }
+        
+        .vehicle-specs {
+            margin-top: 1rem;
+        }
+        
+        .rental-form, .rental-summary {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .rental-form label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+        
+        .rental-form input, .rental-form select {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.25rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .rental-form button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            margin-top: 1.5rem;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        
+        .rental-form button:hover {
+            background-color: #3e8e41;
+        }
+        
+        .rental-summary h2 {
+            margin-top: 0;
+        }
+        
+        .success-message {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .error-message {
+            background-color: #f44336;
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .rental-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation Bar -->
+    <%- include('partials/navbar') %>
+
+    <!-- Rental Page Content -->
+    <section class="rental-details">
+        <div class="rental-container">
+            <!-- Vehicle Image and Basic Details -->
+            <div class="vehicle-image">
+                <img src="<%= vehicle.image %>" alt="<%= vehicle.name %>">
+            </div>
+            <div class="vehicle-info">
+                <h1><%= vehicle.name %></h1>
+                <p class="rental-cost">Cost/day: <strong>₹<%= vehicle.costPerDay %></strong></p>
+                <div class="vehicle-specs">
+                    <p><strong>Year:</strong> <%= vehicle.year %></p>
+                    <p><strong>AC:</strong> <%= vehicle.AC %></p>
+                    <p><strong>Driver:</strong> <%= vehicle.driverAvailable ? 'Available' : 'Not Available' %></p>
+                    <p><strong>Capacity:</strong> <%= vehicle.capacity %></p>
+                </div>
+            </div>
+
+            <!-- Rental Form -->
+            <div class="rental-form">
+                <h2>Rental Details</h2>
+                <form id="rental-form">
+                    <input type="hidden" id="vehicle-id" value="<%= vehicle.id %>">
+                    <input type="hidden" id="vehicle-name" value="<%= vehicle.name %>">
+                    <input type="hidden" id="cost-per-day" value="<%= vehicle.costPerDay %>">
+                    <input type="hidden" id="user-id" value="<%= userId %>">
+                    
+                    <label for="pickup-date">Pickup Date:</label>
+                    <input type="date" id="pickup-date" name="pickup-date" required>
+
+                    <label for="return-date">Return Date:</label>
+                    <input type="date" id="return-date" name="return-date" required>
+
+                    <label for="driver-required">Driver Required:</label>
+                    <select id="driver-required" name="driver-required">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+
+                    <button type="submit" class="rent-btn">Confirm Rental</button>
+                </form>
+                <div id="success-message" class="success-message"></div>
+                <div id="error-message" class="error-message"></div>
+            </div>
+
+            <!-- Rental Summary -->
+            <div class="rental-summary">
+                <h2>Rental Summary</h2>
+                <p><strong>Vehicle:</strong> <%= vehicle.name %></p>
+                <p><strong>Cost/day:</strong> ₹<%= vehicle.costPerDay %></p>
+                <p><strong>Pickup Date:</strong> <span id="summary-pickup-date">-</span></p>
+                <p><strong>Return Date:</strong> <span id="summary-return-date">-</span></p>
+                <p><strong>Driver Required:</strong> <span id="summary-driver-required">-</span></p>
+                <p><strong>Total Days:</strong> <span id="summary-days">-</span></p>
+                <p><strong>Total Cost:</strong> <span id="total-cost">-</span></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Include Footer -->
+    <%- include('partials/footer') %>
+
+    <!-- Rental Page JavaScript -->
+    <script>
+        // Rental Form Submission
+        const rentalForm = document.getElementById('rental-form');
+        const summaryPickupDate = document.getElementById('summary-pickup-date');
+        const summaryReturnDate = document.getElementById('summary-return-date');
+        const summaryDriverRequired = document.getElementById('summary-driver-required');
+        const summaryDays = document.getElementById('summary-days');
+        const totalCost = document.getElementById('total-cost');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+
+        rentalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Get form values
+            const pickupDate = document.getElementById('pickup-date').value;
+            const returnDate = document.getElementById('return-date').value;
+            const driverRequired = document.getElementById('driver-required').value;
+            const costPerDay = document.getElementById('cost-per-day').value;
+            const vehicleId = document.getElementById('vehicle-id').value;
+            const vehicleName = document.getElementById('vehicle-name').value;
+            const userId = document.getElementById('user-id').value;
+
+            // Validate dates
+            const pickup = new Date(pickupDate);
+            const returnD = new Date(returnDate);
+            const today = new Date();
+            
+            // Reset messages
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            
+            // Validation
+            if (pickup < today) {
+                errorMessage.textContent = 'Pickup date cannot be in the past';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            if (returnD <= pickup) {
+                errorMessage.textContent = 'Return date must be after pickup date';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Calculate number of days
+            const diffTime = returnD - pickup;
+            const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            // Calculate total cost
+            const total = costPerDay * totalDays;
+
+            // Update summary
+            summaryPickupDate.textContent = pickupDate;
+            summaryReturnDate.textContent = returnDate;
+            summaryDriverRequired.textContent = driverRequired;
+            summaryDays.textContent = totalDays + ' days';
+            totalCost.textContent = '₹' + total.toFixed(2);
+
+            // Create booking data
+            const bookingData = {
+                vehicleId: vehicleId,
+                vehicleName: vehicleName,
+                userId: userId,
+                pickupDate: pickupDate,
+                returnDate: returnDate,
+                driverRequired: driverRequired,
+                totalDays: totalDays,
+                totalCost: total
+            };
+
+            // Here you would normally send this data to your server
+            // For now, we'll just simulate a successful booking
+            setTimeout(() => {
+                successMessage.textContent = 'Booking confirmed! Thank you for choosing DriveBidRent.';
+                successMessage.style.display = 'block';
+                
+                // You could redirect to a confirmation page
+                // window.location.href = '/booking-confirmation?id=123';
+            }, 1000);
+        });
+
+        // Update summary as user fills form
+        document.getElementById('pickup-date').addEventListener('change', updateSummary);
+        document.getElementById('return-date').addEventListener('change', updateSummary);
+        document.getElementById('driver-required').addEventListener('change', updateSummary);
+
+        function updateSummary() {
+            const pickupDate = document.getElementById('pickup-date').value;
+            const returnDate = document.getElementById('return-date').value;
+            const driverRequired = document.getElementById('driver-required').value;
+            const costPerDay = document.getElementById('cost-per-day').value;
+
+            if (pickupDate) summaryPickupDate.textContent = pickupDate;
+            if (returnDate) summaryReturnDate.textContent = returnDate;
+            if (driverRequired) summaryDriverRequired.textContent = driverRequired;
+            
+            if (pickupDate && returnDate) {
+                const pickup = new Date(pickupDate);
+                const returnD = new Date(returnDate);
+                if (returnD > pickup) {
+                    const diffTime = returnD - pickup;
+                    const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    summaryDays.textContent = totalDays + ' days';
+                    if (costPerDay) {
+                        const total = costPerDay * totalDays;
+                        totalCost.textContent = '₹' + total.toFixed(2);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

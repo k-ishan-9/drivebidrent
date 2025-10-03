@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DRIVBIDRENT - Pending Cars</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      body {
+        background-color: #ffffff;
+      }
+
+      /* Header Styles */
+      .header {
+        background-color: #ff6b00;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 80px;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 100;
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .logo a {
+        color: white;
+        text-decoration: none;
+      }
+
+      .nav-links {
+        display: flex;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        margin-left: 20px;
+        font-weight: bold;
+        transition: opacity 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        opacity: 0.8;
+      }
+
+      /* Cards Container */
+      .cards-container {
+        max-width: 1000px;
+        margin: 120px auto 20px;
+        padding: 30px 20px;
+      }
+
+      .car-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .car-card {
+        background-color: #ffffff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .car-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .car-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+
+      .car-details {
+        margin-top: 15px;
+      }
+
+      .car-title {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .car-info {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 5px;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+
+      .status-pending {
+        background-color: #ffa500;
+        color: white;
+      }
+
+      .view-button {
+        width: 100%;
+        padding: 10px;
+        background-color: #ff6b00;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+        margin-top: 10px;
+      }
+
+      .view-button:hover {
+        opacity: 0.8;
+      }
+
+      .no-cars {
+        text-align: center;
+        grid-column: 1 / -1;
+        padding: 40px;
+        color: #666;
+        font-size: 18px;
+      }
+
+      .star-rating {
+        color: gold;
+        font-size: 20px;
+        letter-spacing: 2px;
+      }
+
+      #reviewModal {
+        z-index: 1000;
+      }
+
+      #reviewModal > div {
+        border-radius: 10px;
+        max-width: 600px;
+      }
+
+      #reviewContent p {
+        margin: 10px 0;
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .modal-button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+      }
+
+      .modal-button:hover {
+        opacity: 0.8;
+      }
+
+      .approve-button {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      .decline-button {
+        background-color: #ff4444;
+        color: white;
+      }
+
+      .close-button {
+        background-color: #666;
+        color: white;
+        margin-top: 20px;
+      }
+
+      .status-completed {
+  background-color: #4caf50;
+  color: white;
+}
+
+    </style>
+  </head>
+  <body>
+    <%- include('partials/navbar') %>
+
+    <!-- Cards Container -->
+    <div class="cards-container">
+      <div class="car-grid">
+        <% if (pendingCars && pendingCars.length > 0) { %> <%
+        pendingCars.forEach(function(car) { %>
+        <div class="car-card">
+          <img
+            src="<%= car.vehicleImage %>"
+            alt="<%= car.vehicleName %>"
+            class="car-image"
+          />
+          <div class="car-details">
+            <div class="car-title"><%= car.vehicleName %></div>
+            <div class="car-info">
+              Seller: <%= car.sellerId.firstName %> <%= car.sellerId.lastName %>
+            </div>
+            <div class="car-info">Location: <%= car.sellerId.city %></div>
+            <% if (car.reviewStatus === 'completed') { %>
+  <div class="status-badge status-completed">Inspection Done</div>
+<% } else { %>
+  <div class="status-badge status-pending">Pending Inspection</div>
+<% } %>
+          </div>
+          <button class="view-button" onclick="showReview('<%= car._id %>')">
+            View Details
+          </button>
+        </div>
+        <% }); %> <% } else { %>
+        <div class="no-cars">No cars currently pending inspection</div>
+        <% } %>
+      </div>
+    </div>
+
+    <div
+      id="reviewModal"
+      style="
+        display: none;
+        position: fixed;
+        background: rgba(0, 0, 0, 0.5);
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      "
+    >
+      <div
+        style="background: white; margin: 100px auto; padding: 20px; width: 60%"
+      >
+        <h2>Mechanic Review</h2>
+        <div id="reviewContent">
+          <p><strong>Rating:</strong> <span id="reviewRating"></span></p>
+          <p>
+            <strong>Mechanical:</strong> <span id="reviewMechanical"></span>
+          </p>
+          <p><strong>Body Condition:</strong> <span id="reviewBody"></span></p>
+          <p>
+            <strong>Recommendations:</strong>
+            <span id="reviewRecommendations"></span>
+          </p>
+        </div>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+          "
+        >
+          <button
+            onclick="updateCarStatus('rejected')"
+            style="
+              padding: 10px 20px;
+              background-color: #ff4444;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+            "
+          >
+            Decline
+          </button>
+          <button
+            onclick="updateCarStatus('approved')"
+            style="
+              padding: 10px 20px;
+              background-color: #4caf50;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+            "
+          >
+            Approve
+          </button>
+        </div>
+        <button
+          onclick="closeModal()"
+          style="
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #666;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          "
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <%- include('partials/footer') %>
+
+    <script>
+      let currentCarId = null;
+
+      async function showReview(carId) {
+        currentCarId = carId;
+        try {
+          document.getElementById("reviewContent").innerHTML =
+            "<p>Loading review...</p>";
+          document.getElementById("reviewModal").style.display = "block";
+
+          const response = await fetch(`/auctionmanager/get-review/${carId}`);
+          const review = await response.json();
+
+          if (review.conditionRating) {
+            document.getElementById("reviewContent").innerHTML = `
+              <p><strong>Rating:</strong> <span class="star-rating">${"★".repeat(
+                review.conditionRating
+              )}</span></p>
+              <p><strong>Mechanical Condition:</strong> ${
+                review.mechanicalCondition || "Not provided"
+              }</p>
+              <p><strong>Body Condition:</strong> ${
+                review.bodyCondition || "Not provided"
+              }</p>
+              <p><strong>Recommendations:</strong> ${
+                review.recommendations || "Not provided"
+              }</p>
+            `;
+          } else {
+            document.getElementById("reviewContent").innerHTML =
+              "<p>No review submitted yet</p>";
+          }
+        } catch (error) {
+          console.error("Error loading review:", error);
+          document.getElementById("reviewContent").innerHTML =
+            "<p>Error loading review</p>";
+        }
+      }
+
+      async function updateCarStatus(newStatus) {
+        if (!currentCarId) return;
+
+        try {
+          const response = await fetch(
+            `/auctionmanager/update-status/${currentCarId}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ status: newStatus }),
+            }
+          );
+
+          if (response.ok) {
+            alert(`Car status updated to ${newStatus}`);
+            closeModal();
+            window.location.reload();
+          } else {
+            throw new Error("Failed to update status");
+          }
+        } catch (error) {
+          console.error("Error updating status:", error);
+          alert("Failed to update status");
+        }
+      }
+
+      function closeModal() {
+        document.getElementById("reviewModal").style.display = "none";
+        currentCarId = null;
+      }
+    </script>
+  </body>
+</html>

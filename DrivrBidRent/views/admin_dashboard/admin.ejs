@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - DriveBidRent</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      body {
+        background-color: #f4f4f4;
+        color: #333333;
+      }
+
+      section {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        color: #ff6b00;
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .overview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .overview-card {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.2s;
+      }
+
+      .overview-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .overview-card h2 {
+        color: #ff6b00;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .overview-card p {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333333;
+      }
+
+      .earnings-overview {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+      }
+
+      .earnings-overview h2 {
+        color: #ff6b00;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .earnings-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+      }
+
+      .earnings-card {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        background-color: #f9f9f9;
+      }
+
+      .earnings-label {
+        color: #555;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .earnings-value {
+        color: #ff6b00;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .activity-container {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+      }
+
+      .activity-container h2 {
+        color: #ff6b00;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .activity-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .activity-item {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.2s;
+      }
+
+      .activity-item:hover {
+        background-color: #f9f9f9;
+      }
+
+      .activity-item:last-child {
+        border-bottom: none;
+      }
+
+      .activity-description {
+        color: #333333;
+        font-size: 1rem;
+        flex: 1;
+      }
+
+      .activity-timestamp {
+        color: #666666;
+        font-size: 0.9rem;
+        min-width: 150px;
+        text-align: right;
+      }
+
+      .error-message {
+        color: #c62828;
+        text-align: center;
+        margin-top: 1rem;
+        font-weight: 500;
+      }
+
+      @media (max-width: 768px) {
+        .overview-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .earnings-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .activity-item {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .activity-timestamp {
+          text-align: left;
+          margin-top: 0.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Include the navbar partial -->
+    <%- include('partials/navbar', { currentPage: 'admin' }) %>
+
+    <!-- Admin Dashboard Content -->
+    <section>
+      <h1>Admin Dashboard</h1>
+
+      <% if (error) { %>
+      <p class="error-message"><%= error %></p>
+      <% } %>
+
+      <!-- Overview Cards -->
+      <div class="overview-grid">
+        <div class="overview-card">
+          <h2>Total Users</h2>
+          <p><%= totalUsers.toLocaleString() %></p>
+        </div>
+        <div class="overview-card">
+          <h2>Total Buyers</h2>
+          <p><%= totalBuyers.toLocaleString() %></p>
+        </div>
+        <div class="overview-card">
+          <h2>Total Sellers</h2>
+          <p><%= totalSellers.toLocaleString() %></p>
+        </div>
+        <div class="overview-card">
+          <h2>Total Mechanics</h2>
+          <p><%= totalMechanics.toLocaleString() %></p>
+        </div>
+      </div>
+
+          </div>
+          <div class="earnings-card">
+            <div class="earnings-label">Total Earnings</div>
+            <div class="earnings-value">
+              ₹<%= totalEarnings.toLocaleString('en-IN', {
+              minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="activity-container">
+        <h2>Recent Activity</h2>
+        <% if (recentActivity.length > 0) { %>
+        <ul class="activity-list">
+          <% recentActivity.forEach(activity => { %>
+          <li class="activity-item">
+            <span class="activity-description"
+              ><%= activity.description %></span
+            >
+            <span class="activity-timestamp">
+              <%= new Date(activity.timestamp).toLocaleString('en-IN', {
+              dateStyle: 'short', timeStyle: 'short' }) %>
+            </span>
+          </li>
+          <% }) %>
+        </ul>
+        <% } else { %>
+        <p>No recent activity available.</p>
+        <% } %>
+      </div>
+    </section>
+
+    <!-- Include the footer partial -->
+    <%- include('partials/footer') %>
+  </body>
+</html>

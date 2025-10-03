@@ -1,0 +1,186 @@
+<!-- Footer Partial -->
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+    /* Global Styles */
+    body {
+        background-color: #ffffff;
+        color: #333333;
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Buttons */
+    .btn {
+        display: inline-block;
+        background-color: #ff6b00;
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 0.3rem;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn:hover {
+        background-color: #e65c00;
+    }
+
+    /* Alert messages */
+    .alert {
+        padding: 1rem;
+        border-radius: 0.3rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    /* Footer Styles */
+    footer {
+        margin-top: 80px;
+        color: white;
+        padding: 30px 10px;
+        text-align: center;
+        border-top: 3px solid #ff6b00;
+        background-color: #333333;
+    }
+
+    .footerbox {
+        display: flex;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+        padding: 20px;
+    }
+
+    .footercontainer {
+        width: 30%;
+        min-width: 250px;
+        text-align: left;
+        padding: 10px;
+    }
+
+    .footercontainer h3 {
+        border-bottom: 3px solid #ff6b00;
+        display: inline-block;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+    }
+
+    .footercontainer ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .footercontainer ul li {
+        margin: 8px 0;
+    }
+
+    .footercontainer ul li a {
+        color: white;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    .footercontainer ul li a:hover {
+        color: #ff6b00;
+        text-decoration: underline;
+    }
+
+    .footercontainer p {
+        margin: 8px 0;
+    }
+
+    .footercontainer a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .footercontainer a:hover {
+        color: #ff6b00;
+    }
+
+    .soc-med-img {
+        width: 35px;
+        height: auto;
+        margin: 0 8px;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .soc-med-img:hover {
+        transform: scale(1.2);
+    }
+
+    .social-icons {
+        display: flex;
+        gap: 15px;
+        justify-content: left;
+        margin-top: 10px;
+    }
+
+    .footer-copy {
+        margin-top: 20px;
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    /* Responsive adjustments for footer */
+    @media (max-width: 768px) {
+        .footerbox {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footercontainer {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .social-icons {
+            justify-content: center;
+        }
+    }
+</style>
+
+<footer>
+    <div class="footerbox">
+        <div class="footercontainer">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="/purchase">My Purchases</a></li>
+                <li><a href="/wishlist">Wishlist</a></li>
+                <li><a href="#notifications">Notifications</a></li>
+                <li><a href="/Aboutus">About Us</a></li>
+            </ul>
+        </div>
+        <div class="footercontainer">
+            <h3>Contact Us</h3>
+            <p><strong>Email:</strong> <a href="mailto:jeevanvankadara@gmail.com">jeevanvankadara@gmail.com</a></p>
+            <p><strong>Phone:</strong> <a href="tel:9876543210">9876543210</a></p>
+            <p><strong>Address:</strong> sb-2, sagar colony, hyderabad</p>
+        </div>
+        <div class="footercontainer">
+            <h3>Follow Us</h3>
+            <div class="social-icons">
+                <a href="#instagram"><img src="./images/instagram.png" alt="Instagram" class="soc-med-img"></a>
+                <a href="#facebook"><img src="./images/facebook.png" alt="Facebook" class="soc-med-img"></a>
+                <a href="#twitter"><img src="./images/X.png" alt="X" class="soc-med-img"></a>
+            </div>
+        </div>
+    </div>
+    <p class="footer-copy">© 2025 DriveBidRent | All rights reserved.</p>
+</footer>

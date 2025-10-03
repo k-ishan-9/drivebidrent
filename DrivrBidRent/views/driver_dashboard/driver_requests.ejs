@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Requests - DriveBidRent</title>
+    <style>
+        /* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    color: #333;
+}
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 70px;
+}
+
+/* Top Header */
+.top-header {
+    background: #ff8500;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: fixed; /* Make the header sticky */
+    top: 0; /* Stick to the top */
+    left: 0; /* Align to the left */
+    right: 0; /* Align to the right */
+    z-index: 1000; /* Ensure it stays above other content */
+}
+
+.header-left .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
+
+.header-right .profile-link {
+    font-size: 1rem;
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 25px;
+    background: #4CAF50; /* Green color for contrast */
+    transition: background 0.3s ease;
+}
+
+.header-right .profile-link:hover {
+    background: #45a049; /* Darker green on hover */
+}
+
+/* Left Panel */
+.left-panel {
+    width: 300px;
+    background: #ff8500;
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.left-panel .card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.left-panel h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.left-panel h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Availability */
+.availability-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: red;
+    border-radius: 34px;
+    transition: 0.4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+input:checked + .slider {
+    background-color: green;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+#availability-text {
+    font-weight: bold;
+    color: red;
+}
+
+input:checked + .slider + #availability-text {
+    color: green;
+}
+
+/* Finances */
+.finance-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.finance-details label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.finance-details input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    width: 100px;
+    background: #f4f4f9;
+}
+
+#update-rate {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 25px;
+    background: #ff8500;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#update-rate:hover {
+    background: #e67600;
+}
+
+/* Right Panel */
+.right-panel {
+    flex: 1;
+    padding: 20px;
+    background: #f4f4f9;
+}
+
+.right-panel .card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.right-panel h2 {
+    color: #ff8500;
+    margin-bottom: 15px;
+}
+
+/* Booking Requests */
+.requests-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.request {
+    border: 2px solid #ff8500;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.request:hover {
+    transform: scale(1.05);
+}
+
+.request img {
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.accept-btn, .reject-btn {
+    width: 90px;
+    padding: 8px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.3s ease;
+}
+
+.accept-btn {
+    background: green;
+    color: white;
+}
+
+.reject-btn {
+    background: red;
+    color: white;
+}
+
+.accept-btn:hover, .reject-btn:hover {
+    opacity: 0.8;
+}
+
+/* Status Styles */
+.completed {
+    color: green;
+    font-weight: bold;
+}
+
+.in-progress {
+    color: #ff8500;
+    font-weight: bold;
+}
+
+/* See More Button Styles */
+.btn-primary {
+    background: #ff8500;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+    text-decoration: none; /* Remove underline for links */
+    display: inline-block; /* Ensure it behaves like a button */
+}
+
+.btn-primary:hover {
+    background: #e67600;
+}
+
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
+
+.modal-content input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    width: 100%;
+    margin-bottom: 10px;
+    background: #f4f4f9;
+}
+
+.modal-content button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 25px;
+    background: #ff8500;
+    color: white;
+    cursor: pointer;
+}
+
+.modal-content button:hover {
+    background: #e67600;
+}
+
+.close {
+    float: right;
+    cursor: pointer;
+    font-size: 24px;
+}
+
+/* Confirmation Modal */
+#confirmation-modal .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
+
+#confirmation-modal .confirmation-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#confirmation-modal button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#confirm-yes {
+    background: green;
+    color: white;
+}
+
+#confirm-no {
+    background: red;
+    color: white;
+}
+
+/* Logout Button */
+#logout {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+    width: 100%;
+    margin-top: 20px;
+}
+
+#logout:hover {
+    background: #ff4c4c;
+}
+
+/* Vehicles Section */
+.vehicle-list {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.vehicle-item {
+    background: #f4f4f9;
+    border: 2px solid #ff8500;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    width: 120px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vehicle-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.vehicle-item img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.vehicle-item p {
+    font-weight: bold;
+    color: #333;
+}
+
+#new-vehicle {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    width: calc(100% - 100px);
+    margin-right: 10px;
+    background: #f4f4f9;
+}
+
+#add-vehicle {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 25px;
+    background: #ff8500;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#add-vehicle:hover {
+    background: #e67600;
+}
+
+/* Booking Requests Page Styles */
+.booking-requests-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 70px auto 0; /* Account for the fixed header */
+}
+
+.booking-requests-container h1 {
+    color: #ff8500;
+    margin-bottom: 20px;
+}
+
+.requests-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.request {
+    border: 2px solid #ff8500;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.request:hover {
+    transform: scale(1.05);
+}
+
+.request img {
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.accept-btn, .reject-btn {
+    width: 90px;
+    padding: 8px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.3s ease;
+}
+
+.accept-btn {
+    background: green;
+    color: white;
+}
+
+.reject-btn {
+    background: red;
+    color: white;
+}
+
+.accept-btn:hover, .reject-btn:hover {
+    opacity: 0.8;
+}
+
+.previous-jobs-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 70px auto 0; /* Account for the fixed header */
+}
+
+.previous-jobs-container h1 {
+    color: #ff8500;
+    margin-bottom: 20px;
+}
+
+.requests-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.request {
+    border: 2px solid #ff8500;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.request:hover {
+    transform: scale(1.05);
+}
+
+.request img {
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.completed {
+    color: green;
+    font-weight: bold;
+}
+
+ /* Footer */
+ footer {
+    background: linear-gradient(135deg, #ff6b00, #ff9a44); /* Gradient background */
+    padding: 4rem 2rem 2rem;
+    margin-top: 4rem;
+    color: white; /* White text for better contrast */
+    border-top: none; /* Remove the orange border */
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+    gap: 3rem;
+}
+
+.footer-section h3 {
+    color: white; /* White text for headings */
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section ul li {
+    margin-bottom: 0.8rem;
+}
+
+.footer-section a {
+    color: white; /* White text for links */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-section p {
+    margin-top: 0.8rem;
+    color: white; /* White text for paragraphs */
+}
+
+.footer-section a:hover {
+    color: #f0f0f0; /* Light gray on hover */
+}
+
+.social-icons {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-icons img {
+    width: 30px;
+    height: 30px;
+    filter: brightness(0) invert(1); /* Make icons white */
+    transition: transform 0.3s ease;
+}
+
+.social-icons img:hover {
+    transform: scale(1.2); /* Scale icons on hover */
+}
+
+.copyright {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2); /* Light white border */
+    color: white; /* White text for copyright */
+}
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="top-header">
+        <div class="header-left">
+            <a href="/driver_dashboard/driverdashboard" class="logo">DriveBidRent</a> <!-- Link to dashboard -->
+        </div>
+        <div class="header-right">
+            <a href="/driver_dashboard/driver_profile" class="profile-link">My Profile</a>
+        </div>
+    </header>
+
+    <!-- Booking Requests Section -->
+    <main class="booking-requests-container">
+        <h1>Booking Requests</h1>
+        <div class="requests-container" id="requests-container">
+            <!-- Booking requests will be dynamically added here -->
+        </div>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <h2>Confirmation</h2>
+            <p id="confirmation-message"></p>
+            <div class="confirmation-buttons">
+                <button id="confirm-yes">Yes</button>
+                <button id="confirm-no">No</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const requestsContainer = document.getElementById('requests-container');
+    const confirmationModal = document.getElementById('confirmation-modal');
+    const confirmYes = document.getElementById('confirm-yes');
+    const confirmNo = document.getElementById('confirm-no');
+    let currentAction = null; // Store the current action (accept/reject)
+    let currentRequest = null; // Store the current request element
+
+    // Sample data for additional booking requests
+    const additionalRequests = [
+        {
+            image: "https://luxecars.co.in/wp-content/uploads/2023/03/DSC06925-scaled.jpg",
+            vehicle: "Truck",
+            date: "17/08/2025",
+            days: 3
+        },
+        {
+            image: "https://luxecars.co.in/wp-content/uploads/2023/03/DSC06925-scaled.jpg",
+            vehicle: "SUV",
+            date: "20/08/2025",
+            days: 4
+        },
+        {
+            image: "https://luxecars.co.in/wp-content/uploads/2023/03/DSC06925-scaled.jpg",
+            vehicle: "Van",
+            date: "22/08/2025",
+            days: 2
+        }
+    ];
+
+    // Function to create a booking request card
+    function createRequestCard(request) {
+        const card = document.createElement('div');
+        card.className = 'request';
+        card.innerHTML = `
+            <img src="${request.image}" alt="Vehicle">
+            <p><strong>Vehicle:</strong> ${request.vehicle}</p>
+            <p><strong>Date:</strong> ${request.date}</p>
+            <p><strong>Days:</strong> ${request.days}</p>
+            <div class="action-buttons">
+                <button class="accept-btn">Accept</button>
+                <button class="reject-btn">Reject</button>
+            </div>
+            <p class="status" style="display: none;"><strong>Status:</strong> <span class="status-text"></span></p>
+        `;
+        return card;
+    }
+
+    // Add additional booking requests to the page
+    additionalRequests.forEach(request => {
+        const card = createRequestCard(request);
+        requestsContainer.appendChild(card);
+    });
+
+    // Double Confirmation Modal
+    function showConfirmation(message) {
+        document.getElementById('confirmation-message').textContent = message;
+        confirmationModal.style.display = "flex";
+    }
+
+    function hideConfirmation() {
+        confirmationModal.style.display = "none";
+    }
+
+    // Handle Accept/Reject Buttons
+    document.querySelectorAll('.accept-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            currentAction = "accept";
+            currentRequest = this.closest('.request');
+            showConfirmation("Are you sure you want to accept this booking?");
+        });
+    });
+
+    document.querySelectorAll('.reject-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            currentAction = "reject";
+            currentRequest = this.closest('.request');
+            showConfirmation("Are you sure you want to reject this booking?");
+        });
+    });
+
+    // Handle Confirmation Modal Buttons
+    confirmYes.addEventListener('click', () => {
+        if (currentAction === "accept") {
+            currentRequest.querySelector('.action-buttons').style.display = "none"; // Hide buttons
+            const statusText = currentRequest.querySelector('.status-text');
+            statusText.textContent = "Approved";
+            statusText.style.color = "green";
+            currentRequest.querySelector('.status').style.display = "block"; // Show status
+        } else if (currentAction === "reject") {
+            currentRequest.querySelector('.action-buttons').style.display = "none"; // Hide buttons
+            const statusText = currentRequest.querySelector('.status-text');
+            statusText.textContent = "Rejected";
+            statusText.style.color = "red";
+            currentRequest.querySelector('.status').style.display = "block"; // Show status
+        }
+        hideConfirmation();
+    });
+
+    confirmNo.addEventListener('click', () => {
+        hideConfirmation();
+    });
+});
+    </script> 
+</body>
+</html>

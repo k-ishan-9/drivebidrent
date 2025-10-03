@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Rental - DriveBidRent</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      body {
+        background-color: #f8f8f8;
+        color: #333333;
+      }
+
+      .update-container {
+        padding: 4rem 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .update-title {
+        color: #ff6b00;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .update-form {
+        background-color: #ffffff;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #555;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 0.3rem;
+        font-size: 1rem;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: #ff6b00;
+      }
+
+      .radio-group {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .radio-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .driver-rate-container {
+        margin-top: 1rem;
+        padding-left: 1.5rem;
+        border-left: 2px solid #ff6b00;
+        display: none;
+      }
+
+      .btn {
+        background-color: #ff6b00;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.3rem;
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.3s ease;
+      }
+
+      .btn:hover {
+        background-color: #ff8c3f;
+      }
+
+      .back-btn {
+        display: inline-block;
+        margin-top: 1rem;
+        color: #ff6b00;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .back-btn:hover {
+        text-decoration: underline;
+      }
+
+      .error-message {
+        color: #ff0000;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background-color: #ffeeee;
+        border-radius: 0.3rem;
+      }
+
+      .success-message {
+        color: #2e7d32;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background-color: #e6f7e6;
+        border-radius: 0.3rem;
+      }
+
+      .select-dropdown {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 0.3rem;
+        font-size: 1rem;
+        background-color: white;
+      }
+      
+      .note {
+        font-size: 0.9rem;
+        color: #666;
+        font-style: italic;
+        margin-top: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Include Navbar Partial -->
+    <%- include('partials/navbar', { currentPage: 'view-rentals' }) %>
+
+    <!-- Update Rental Content -->
+    <section class="update-container">
+      <h1 class="update-title">Update Rental Vehicle</h1>
+      
+      <% if (error) { %>
+        <div class="error-message">
+          <%= error %>
+        </div>
+      <% } %>
+      
+      <% if (success) { %>
+        <div class="success-message">
+          <%= success %>
+        </div>
+      <% } %>
+      
+      <% if (rental) { %>
+        <form class="update-form" action="/seller_dashboard/update-rental/<%= rental._id %>" method="POST" id="rental-form">
+          <div class="form-group">
+            <label class="form-label">Cost per day (₹)</label>
+            <input type="number" class="form-control" name="rental-cost" 
+                   value="<%= rental.costPerDay %>" step="0.01" min="0" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Driver Available</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="driver-available" value="yes" 
+                       <%= rental.driverAvailable ? 'checked' : '' %>>
+                Yes
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="driver-available" value="no" 
+                       <%= !rental.driverAvailable ? 'checked' : '' %>>
+                No
+              </label>
+            </div>
+            
+            <div class="driver-rate-container" id="driver-rate-container">
+              <label class="form-label">Driver Rate per day (₹)</label>
+              <input type="number" class="form-control" name="driver-rate" 
+                     value="<%= rental.driverRate || '' %>" step="0.01" min="0">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="select-dropdown" name="status" id="status-dropdown" required>
+              <option value="available" <%= rental.status === 'available' ? 'selected' : '' %>>Available</option>
+              <option value="unavailable" <%= rental.status === 'unavailable' ? 'selected' : '' %>>Unavailable</option>
+            </select>
+            
+            <% if (isBeforeReturnDate && rental.status === 'unavailable') { %>
+              <p class="note">
+                Note: This rental cannot be changed from unavailable to available before the return date: 
+                <%= new Date(rental.dropDate).toLocaleDateString() %>
+              </p>
+            <% } %>
+          </div>
+          
+          <button type="submit" class="btn">Update Rental</button>
+          <a href="/seller_dashboard/view-rentals" class="back-btn">Back to Rentals</a>
+          
+          <!-- Store original status for JavaScript validation -->
+          <input type="hidden" id="original-status" value="<%= rental.status %>">
+          <input type="hidden" id="is-before-return-date" value="<%= isBeforeReturnDate %>">
+        </form>
+      <% } else { %>
+        <div class="error-message">
+          Rental not found
+        </div>
+        <a href="/seller_dashboard/view-rentals" class="back-btn">Back to Rentals</a>
+      <% } %>
+    </section>
+
+    <!-- Include Footer Partial -->
+    <%- include('partials/footer') %>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Show/hide driver rate field based on selection
+        const driverYes = document.querySelector('input[value="yes"]');
+        const driverNo = document.querySelector('input[value="no"]');
+        const driverRateContainer = document.getElementById('driver-rate-container');
+        const statusDropdown = document.getElementById('status-dropdown');
+        const originalStatus = document.getElementById('original-status').value;
+        const isBeforeReturnDate = document.getElementById('is-before-return-date').value === 'true';
+        const rentalForm = document.getElementById('rental-form');
+        
+        function toggleDriverRate() {
+          driverRateContainer.style.display = driverYes.checked ? 'block' : 'none';
+          if (driverYes.checked) {
+            document.querySelector('input[name="driver-rate"]').required = true;
+          } else {
+            document.querySelector('input[name="driver-rate"]').required = false;
+          }
+        }
+        
+        driverYes.addEventListener('change', toggleDriverRate);
+        driverNo.addEventListener('change', toggleDriverRate);
+        
+        // Initialize on page load
+        toggleDriverRate();
+        
+        // Validate form submission - prevent changing from unavailable to available before return date
+        rentalForm.addEventListener('submit', function(event) {
+          if (originalStatus === 'unavailable' && 
+              statusDropdown.value === 'available' && 
+              isBeforeReturnDate) {
+            event.preventDefault();
+            alert('Cannot change status from unavailable to available before the return date');
+            statusDropdown.value = 'unavailable';
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

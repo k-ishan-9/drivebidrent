@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seller Dashboard - DriveBidRent</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      body {
+        background-color: #ffffff;
+        color: #333333;
+      }
+
+      /* Seller Dashboard Content */
+      .seller-dashboard {
+        padding: 4rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .seller-dashboard h1 {
+        color: #ff6b00;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .dashboard-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+      }
+
+      .dashboard-card {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .dashboard-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .dashboard-card h2 {
+        color: #ff6b00;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .dashboard-card p {
+        margin-bottom: 1.5rem;
+        color: #666666;
+      }
+
+      .card-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #ff6b00, #ff9a44);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background 0.3s ease;
+        margin: 0.5rem;
+      }
+
+      .card-btn:hover {
+        background: linear-gradient(135deg, #ff9a44, #ff6b00);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .dashboard-cards {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Include Navbar Partial -->
+    <%- include('partials/navbar', { currentPage: 'dashboard' }) %>
+
+    <!-- Seller Dashboard Content -->
+    <section class="seller-dashboard">
+      <h1>Welcome, Seller!</h1>
+      <div class="dashboard-cards">
+        <!-- Auction Listings Card -->
+        <div class="dashboard-card">
+          <h2>Auction Listings</h2>
+          <p>Manage your vehicles listed for auction.</p>
+          <a href="/seller_dashboard/add-auction" class="card-btn">Add New Auction</a>
+          <a href="/seller_dashboard/view-auctions" class="card-btn">View Auctions</a>
+        </div>
+
+        <!-- Rental Listings Card -->
+        <div class="dashboard-card">
+          <h2>Rental Listings</h2>
+          <p>Manage your vehicles listed for rent.</p>
+          <a href="/seller_dashboard/add-rental" class="card-btn">Add New Rental</a>
+          <a href="/seller_dashboard/view-rentals" class="card-btn">View Rentals</a>
+        </div>
+
+        <!-- Earnings Card -->
+        <div class="dashboard-card">
+          <h2>Earnings</h2>
+          <p>View your total earnings and analytics.</p>
+          <a href="/seller_dashboard/view-earnings" class="card-btn">View Earnings</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Include Footer Partial -->
+    <%- include('partials/footer') %>
+
+    <script>
+      // Form Submission for Auction
+      const auctionForm = document.getElementById('auction-form');
+      if (auctionForm) {
+        auctionForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          alert('Auction listing submitted successfully!');
+          // You can add logic here to send the data to the server
+        });
+      }
+
+      // Form Submission for Rental
+      const rentalForm = document.getElementById('rental-form');
+      if (rentalForm) {
+        rentalForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          alert('Rental listing submitted successfully!');
+          // You can add logic here to send the data to the server
+        });
+      }
+
+      // Logout button functionality
+      document.querySelector('.logout-btn').addEventListener('click', () => {
+        // Redirect to logout route
+        window.location.href = '/logout';
+      });
+    </script>
+  </body>
+</html>

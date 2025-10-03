@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DRIVBIDRENT - Approved Cars</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      body {
+        background-color: #ffffff;
+      }
+
+      /* Header Styles */
+      .header {
+        background-color: #ff6b00;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 80px;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 100;
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .logo a {
+        color: white;
+        text-decoration: none;
+      }
+
+      .nav-links {
+        display: flex;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        margin-left: 20px;
+        font-weight: bold;
+        transition: opacity 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        opacity: 0.8;
+      }
+
+      /* Cards Container */
+      .cards-container {
+        max-width: 1000px;
+        margin: 120px auto 20px;
+        padding: 30px 20px;
+      }
+
+      /* Car Card Styles */
+      .car-card {
+        background-color: #ffffff;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        padding: 20px;
+        display: flex;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .car-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .car-image-container {
+        width: 300px;
+        height: 180px;
+        overflow: hidden;
+        border-radius: 10px;
+        margin-right: 30px;
+      }
+
+      .car-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .car-details {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .car-name {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .car-condition {
+        font-size: 18px;
+        color: #ff6b00;
+        font-weight: bold;
+      }
+
+      /* Auction Button Styles */
+      .auction-button {
+        background-color: #ff6b00;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 15px;
+        width: 150px;
+        text-align: center;
+      }
+
+      .auction-button:hover {
+        background-color: #e05e00;
+      }
+
+      .view-bids-button {
+        background-color: #3a86ff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 15px;
+        width: 150px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .view-bids-button:hover {
+        background-color: #2a66cf;
+      }
+
+      .button-container {
+        margin-top: auto;
+        align-self: flex-end;
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/navbar') %>
+
+    <!-- Cards Container -->
+    <div class="cards-container">
+      <% if (approvedCars && approvedCars.length > 0) { %> <%
+      approvedCars.forEach(function(car) { %>
+      <div class="car-card">
+        <div class="car-image-container">
+          <img
+            src="<%= car.vehicleImage %>"
+            alt="<%= car.vehicleName %>"
+            class="car-image"
+          />
+        </div>
+        <div class="car-details">
+          <div class="car-name"><%= car.vehicleName %></div>
+          <div class="car-condition">
+            Condition: <%= car.condition.charAt(0).toUpperCase() +
+            car.condition.slice(1) %>
+          </div>
+          <div style="margin-top: 10px; color: #555">
+            Seller: <%= car.sellerId.firstName %> <%= car.sellerId.lastName %>
+          </div>
+          <div style="color: #555">Location: <%= car.sellerId.city %></div>
+        </div>
+        <div class="button-container">
+          <% if (car.started_auction === 'no') { %>
+          <form
+            action="/auctionmanager/start-auction/<%= car._id %>"
+            method="POST"
+          >
+            <button type="submit" class="auction-button">Start Auction</button>
+          </form>
+          <% } else { %>
+          <a
+            href="/auctionmanager/view-bids/<%= car._id %>"
+            class="view-bids-button"
+            >View Bids</a
+          >
+          <% } %>
+        </div>
+      </div>
+      <% }); %> <% } else { %>
+      <div
+        style="text-align: center; padding: 40px; color: #666; font-size: 18px"
+      >
+        No approved cars available
+      </div>
+      <% } %>
+    </div>
+
+    <%- include('partials/footer') %>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const auctionForms = document.querySelectorAll(
+          'form[action^="/auctionmanager/start-auction/"]'
+        );
+
+        auctionForms.forEach((form) => {
+          form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            try {
+              const response = await fetch(this.action, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              });
+
+              if (response.ok) {
+                const buttonContainer = this.parentElement;
+                const carId = this.action.split("/").pop();
+
+                buttonContainer.innerHTML = `
+                  <a href="/auctionmanager/view-bids/${carId}" class="view-bids-button">View Bids</a>
+                `;
+              } else {
+                console.error("Failed to start auction");
+              }
+            } catch (error) {
+              console.error("Error:", error);
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

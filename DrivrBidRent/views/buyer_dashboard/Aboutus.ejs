@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveBidRent - About Us</title>
+    <style>
+        /* About Us Page Specific Styles */
+        
+        /* Hero Section */
+        .about-hero {
+            height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding: 2rem;
+            background-color: #ffffff;
+        }
+
+        .about-hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            color: #ff6b00;
+        }
+
+        .about-hero p {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            color: #333333;
+        }
+
+        .oneL {
+            color: #ff6b00;
+        }
+
+        /* Sections */
+        section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #ff6b00, #ff9a44, transparent);
+        }
+
+        section h2 {
+            color: #ff6b00;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        /* Our Story Section */
+        .story-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .story-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            text-align: justify;
+            color: #333333;
+        }
+
+        .story-text p {
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            border: 1px solid #ff6b00;
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 0, 0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 107, 0, 0.2);
+        }
+
+        .stat-card h3 {
+            color: #ff6b00;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            color: #666666;
+        }
+
+        /* Mission Cards */
+        .mission-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .mission-card {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid #ff6b00;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 0, 0.1);
+        }
+
+        .mission-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 107, 0, 0.2);
+        }
+
+        .mission-card h3 {
+            color: #ff6b00;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .mission-card p {
+            line-height: 1.6;
+            color: #333333;
+        }
+
+        /* Team Section */
+        .team-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .team-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid #ff6b00;
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 0, 0.1);
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 107, 0, 0.2);
+        }
+
+        .team-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .team-card h3 {
+            color: #ff6b00;
+            font-size: 1.3rem;
+            margin: 1rem;
+        }
+
+        .team-card .position {
+            color: #666666;
+            margin: 0 1rem;
+        }
+
+        .team-card .bio {
+            padding: 1rem;
+            line-height: 1.6;
+            color: #333333;
+        }
+
+        /* Contact Section */
+        .contact-container {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid #ff6b00;
+            box-shadow: 0 5px 15px rgba(255, 107, 0, 0.1);
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .contact-card {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .contact-card h3 {
+            color: #ff6b00;
+            margin-bottom: 1rem;
+        }
+
+        .contact-card p {
+            margin-bottom: 0.5rem;
+            color: #333333;
+        }
+
+        .contact-card a {
+            color: #333333;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-card a:hover {
+            color: #ff6b00;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .about-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-hero p {
+                font-size: 1.2rem;
+            }
+
+            .story-content {
+                text-align: center;
+            }
+
+            .contact-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation Bar -->
+    <%- include('partials/navbar') %>
+
+    <!-- Hero Section -->
+    <div class="about-hero">
+        <h1>About <span class="oneL">DriveBidRent</span></h1>
+        <p>Your Trusted Partner in Automotive Solutions</p>
+    </div>
+
+    <!-- Our Story Section -->
+    <section class="our-story">
+        <h2>Our Story</h2>
+        <div class="story-content">
+            <div class="story-text">
+                <p>Founded in 2025, DriveBidRent emerged from a simple vision: to revolutionize the way people buy, sell, and rent vehicles. We understood the challenges faced by both buyers and sellers in the traditional automotive market and set out to create a platform that would make the process seamless, transparent, and enjoyable.</p>
+                <p>What started as a small startup has now grown into a trusted platform serving thousands of satisfied customers across the country.</p>
+            </div>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>5000+</h3>
+                    <p>Happy Customers</p>
+                </div>
+                <div class="stat-card">
+                    <h3>1000+</h3>
+                    <p>Successful Auctions</p>
+                </div>
+                <div class="stat-card">
+                    <h3>500+</h3>
+                    <p>Rental cars</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Mission Section -->
+    <section class="our-mission">
+        <h2>Our Mission</h2>
+        <div class="mission-cards">
+            <div class="mission-card">
+                <h3>Trust & Transparency</h3>
+                <p>We believe in complete transparency in every transaction, ensuring both buyers and sellers have access to accurate information and fair pricing.</p>
+            </div>
+            <div class="mission-card">
+                <h3>Quality Service</h3>
+                <p>Our commitment to quality extends beyond just vehicles. We ensure every aspect of our service meets the highest standards of excellence.</p>
+            </div>
+            <div class="mission-card">
+                <h3>Customer First</h3>
+                <p>Your satisfaction is our priority. We're dedicated to providing personalized solutions that meet your specific needs and preferences.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="our-team">
+        <h2>Meet Our Team</h2>
+        <div class="team-container">
+            <div class="team-card">
+                <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="CEO">
+                <h3>M V Tejesh</h3>
+                <p class="position">Captain</p>
+                <p class="bio">The captian of this project and makes driver dashboard and ensures smooth operational functions.</p>
+            </div>
+            <div class="team-card">
+                <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="COO">
+                <h3>V Jeevan Guptha</h3>
+                <p class="position">Front-end designer</p>
+                <p class="bio">Jeevan designed the buyer dashboard page and UI/UX designer of this project.</p>
+            </div>
+            <div class="team-card">
+                <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="COO">
+                <h3>Sk Toufeeq</h3>
+                <p class="position">Chief Technology Officer</p>
+                <p class="bio">Toufeeq leads our technical innovations and platform development initiatives.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <h2>Get in Touch</h2>
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="contact-card">
+                    <h3>Visit Us</h3>
+                    <p>SB-2, Sagar Colony</p>
+                    <p>Hyderabad, India</p>
+                </div>
+                <div class="contact-card">
+                    <h3>Contact Us</h3>
+                    <p>Email: <a href="mailto:jeevanvankadara@gmail.com">jeevanvankadara@gmail.com</a></p>
+                    <p>Phone: <a href="tel:9876543210">+91 9876543210</a></p>
+                </div>
+                <div class="contact-card">
+                    <h3>Business Hours</h3>
+                    <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+                    <p>Saturday: 10:00 AM - 4:00 PM</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Include Footer -->
+    <%- include('partials/footer') %>
+
+    <!-- JavaScript for Animating Numbers -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Function to animate the numbers
+            function animateValue(obj, start, end, duration) {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    obj.textContent = Math.floor(progress * (end - start) + start) + "+";
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+
+            // Animate the stats
+            const stats = document.querySelectorAll(".stat-card h3");
+            stats.forEach((stat) => {
+                const target = parseInt(stat.textContent.replace(/[^0-9]/g, ''), 10); 
+                animateValue(stat, 0, target, 1000); 
+            });
+        });
+    </script>
+</body>
+</html>

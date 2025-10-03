@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveBidRent - Profile Settings</title>
+    <style>
+        /* Profile Settings Specific Styles */
+        .profile-settings {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .profile-settings h2 {
+            color: #ff6b00;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-details,
+        .change-password {
+            flex: 1;
+            background-color: #f9f9f9;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid #ff6b00;
+            box-shadow: 0 5px 15px rgba(255, 107, 0, 0.1);
+        }
+
+        .profile-details h3,
+        .change-password h3 {
+            color: #ff6b00;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-details label,
+        .change-password label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .profile-details input,
+        .profile-details textarea,
+        .change-password input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 0.3rem;
+            font-size: 1rem;
+        }
+
+        .profile-details textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        .save-btn,
+        .change-btn {
+            display: inline-block;
+            background-color: #ff6b00;
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.3rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .save-btn:hover,
+        .change-btn:hover {
+            background-color: #e65c00;
+        }
+
+        /* Alert messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 0.3rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <%- include('partials/navbar') %>
+
+    <!-- Profile Settings Section -->
+    <section class="profile-settings">
+        <h2>Profile Settings</h2>
+
+        <!-- Success and Error Alerts -->
+        <div id="success-alert" class="alert alert-success"></div>
+        <div id="error-alert" class="alert alert-danger"></div>
+
+        <div class="profile-container">
+            <!-- Personal Details -->
+            <div class="profile-details">
+                <h3>Personal Details</h3>
+                <form id="profile-form">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" value="<%= user.firstName %>" required>
+
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" value="<%= user.lastName %>" required>
+
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="<%= user.email %>" required>
+
+                    <label for="phone">Phone:</label>
+                    <input type="tel" id="phone" name="phone" value="<%= user.phone || '' %>">
+
+                    <label for="doorNo">Door/Flat No:</label>
+                    <input type="text" id="doorNo" name="doorNo" value="<%= user.doorNo || '' %>">
+
+                    <label for="street">Street/Area:</label>
+                    <input type="text" id="street" name="street" value="<%= user.street || '' %>">
+
+                    <label for="city">City:</label>
+                    <input type="text" id="city" name="city" value="<%= user.city || '' %>">
+
+                    <label for="state">State:</label>
+                    <input type="text" id="state" name="state" value="<%= user.state || '' %>">
+
+                    <button type="submit" class="save-btn">Save Changes</button>
+                </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="change-password">
+                <h3>Change Password</h3>
+                <form id="password-form">
+                    <label for="old-password">Current Password:</label>
+                    <input type="password" id="old-password" name="oldPassword" required>
+
+                    <label for="new-password">New Password:</label>
+                    <input type="password" id="new-password" name="newPassword" required>
+                    <small>Password must be at least 8 characters long</small>
+
+                    <label for="confirm-password">Confirm New Password:</label>
+                    <input type="password" id="confirm-password" name="confirmPassword" required>
+
+                    <button type="submit" class="change-btn">Change Password</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Include Footer -->
+    <%- include('partials/footer') %>
+
+    <!-- Profile JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileForm = document.getElementById('profile-form');
+            const passwordForm = document.getElementById('password-form');
+            const successAlert = document.getElementById('success-alert');
+            const errorAlert = document.getElementById('error-alert');
+            
+            // Function to show alerts
+            function showAlert(element, message) {
+                element.textContent = message;
+                element.style.display = 'block';
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Update profile
+            profileForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    doorNo: document.getElementById('doorNo').value,
+                    street: document.getElementById('street').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value
+                };
+                
+                try {
+                    const response = await fetch('/update-profile', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showAlert(successAlert, result.message);
+                        
+                        // Update the profile name in the navbar if first or last name was changed
+                        const firstName = document.getElementById('firstName').value;
+                        const lastName = document.getElementById('lastName').value;
+                        document.querySelector('.profile-text').textContent = `${firstName} ${lastName}`;
+                    } else {
+                        showAlert(errorAlert, result.message);
+                    }
+                } catch (error) {
+                    showAlert(errorAlert, 'An error occurred. Please try again.');
+                    console.error(error);
+                }
+            });
+            
+            // Change password
+            passwordForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const oldPassword = document.getElementById('old-password').value;
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                
+                // Basic validation
+                if (newPassword !== confirmPassword) {
+                    showAlert(errorAlert, 'New passwords do not match');
+                    return;
+                }
+                
+                if (newPassword.length < 8) {
+                    showAlert(errorAlert, 'Password must be at least 8 characters long');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/change-password', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            oldPassword,
+                            newPassword,
+                            confirmPassword
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showAlert(successAlert, result.message);
+                        // Reset form
+                        passwordForm.reset();
+                    } else {
+                        showAlert(errorAlert, result.message);
+                    }
+                } catch (error) {
+                    showAlert(errorAlert, 'An error occurred. Please try again.');
+                    console.error(error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

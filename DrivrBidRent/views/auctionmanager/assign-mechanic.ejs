@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DRIVBIDRENT - Assign Mechanic</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      body {
+        background-color: #ffffff;
+      }
+
+      /* Header Styles */
+      .header {
+        background-color: #ff6b00;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 80px;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 100;
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .logo a {
+        color: white;
+        text-decoration: none;
+      }
+
+      .nav-links {
+        display: flex;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        margin-left: 20px;
+        font-weight: bold;
+        transition: opacity 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        opacity: 0.8;
+      }
+
+      /* Car Details Container */
+      .car-details-container {
+        max-width: 1200px;
+        margin: 120px auto 20px;
+        padding: 30px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+      }
+
+      /* Left Column - Car Image */
+      .car-left-column {
+        flex: 1;
+        min-width: 300px;
+      }
+
+      .car-image-container {
+        width: 100%;
+        height: 350px;
+        overflow: hidden;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .car-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .car-name {
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      /* Right Column - Car Info */
+      .car-right-column {
+        flex: 1;
+        min-width: 300px;
+      }
+
+      .car-info-section {
+        margin-bottom: 25px;
+      }
+
+      .section-title {
+        font-size: 22px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #ff6b00;
+        padding-bottom: 5px;
+      }
+
+      .car-info {
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 10px;
+        padding: 5px 0;
+      }
+
+      .car-info strong {
+        color: #333;
+        display: inline-block;
+        width: 130px;
+      }
+
+      .seller-details {
+        margin-top: 10px;
+      }
+
+      .assign-mechanic {
+        margin-top: 30px;
+      }
+
+      .assign-mechanic button {
+        padding: 12px 24px;
+        background-color: #ff6b00;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+      }
+
+      .assign-mechanic button:hover {
+        opacity: 0.8;
+      }
+
+      .mechanic-dropdown {
+        display: none;
+        margin-top: 15px;
+      }
+
+      .mechanic-dropdown select {
+        width: 100%;
+        padding: 12px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+      }
+
+      .mechanic-assigned {
+        padding: 12px 24px;
+        background-color: #4caf50;
+        color: white;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 15px;
+        display: none;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .car-details-container {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/navbar') %>
+
+    <!-- Car Details Container -->
+    <div class="car-details-container">
+        <!-- Left Column - Car Image -->
+        <div class="car-left-column">
+            <div class="car-image-container">
+                <img src="<%= request.vehicleImage ? request.vehicleImage : '/images/default-car.jpg' %>" alt="<%= request.vehicleName ? request.vehicleName : 'Vehicle' %>" class="car-image" />
+            </div>
+            <div class="car-name"><%= request.vehicleName ? request.vehicleName : 'Vehicle' %></div>
+        </div>
+
+        <!-- Right Column - Car Info -->
+        <div class="car-right-column">
+            <div class="car-info-section">
+                <div class="section-title">Vehicle Information</div>
+                <div class="car-info">
+                    <strong>Fuel Type:</strong> <%= request.fuelType ? request.fuelType : 'Not specified' %>
+                </div>
+                <div class="car-info">
+                    <strong>Mileage:</strong> <%= request.mileage ? request.mileage : 'Not specified' %> km
+                </div>
+                <div class="car-info">
+                    <strong>Condition:</strong> <%= request.condition ? request.condition : 'Pending' %>
+                </div>
+                <div class="car-info">
+                    <strong>Year:</strong> <%= request.year ? request.year : 'Not specified' %>
+                </div>
+                <div class="car-info">
+                    <strong>Transmission:</strong> <%= request.transmission ? request.transmission : 'Not specified' %>
+                </div>
+                <div class="car-info">
+                    <strong>Starting Bid:</strong> <%= request.startingBid ? '$' + request.startingBid : 'Not specified' %>
+                </div>
+            </div>
+
+            <!-- Seller Details -->
+            <div class="car-info-section">
+                <div class="section-title">Seller Details</div>
+                <% if (request.sellerId) { %>
+                    <div class="car-info">
+                        <strong>Name:</strong> <%= request.sellerId.firstName || '' %> <%= request.sellerId.lastName || '' %>
+                    </div>
+                    <div class="car-info">
+                        <strong>Contact:</strong> <%= request.sellerId.phone || 'Not provided' %>
+                    </div>
+                    <div class="car-info">
+                        <strong>Location:</strong> <%= request.sellerId.doorNo || '' %>, <%= request.sellerId.street || '' %>, <%= request.sellerId.city || '' %>, <%= request.sellerId.state || '' %>
+                    </div>
+                <% } else { %>
+                    <div class="car-info">
+                        <strong>Seller:</strong> Information not available
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Mechanic Assignment -->
+            <div class="assign-mechanic">
+                <button id="assign-button" onclick="showMechanicDropdown()">
+                    Assign Mechanic
+                </button>
+                <div class="mechanic-dropdown" id="mechanic-dropdown">
+                    <select id="mechanic-select">
+                        <option value="">Select a Mechanic</option>
+                        <% if (mechanics && mechanics.length > 0) { %>
+                            <% mechanics.forEach(function(mechanic) { %>
+                                <option value="<%= mechanic.firstName %> <%= mechanic.lastName %>" data-id="<%= mechanic._id %>">
+                                    <%= mechanic.firstName %> <%= mechanic.lastName %>
+                                    <% if (mechanic.shopName) { %> - <%= mechanic.shopName %><% } %>
+                                    <% if (mechanic.experienceYears) { %> (<%= mechanic.experienceYears %> yrs exp)<% } %>
+                                </option>
+                            <% }); %>
+                        <% } %>
+                    </select>
+                </div>
+                <div id="mechanic-assigned" class="mechanic-assigned">
+                    Mechanic Assigned
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        function showMechanicDropdown() {
+            document.getElementById("mechanic-dropdown").style.display = "block";
+        }
+
+        document.getElementById("mechanic-select").addEventListener("change", function() {
+            if (this.value) {
+                const mechanicId = this.options[this.selectedIndex].getAttribute("data-id");
+                const mechanicName = this.value;
+
+                fetch("/auctionmanager/assign-mechanic-update/<%= request._id %>", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ mechanicName, mechanicId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("assign-button").style.display = "none";
+                        document.getElementById("mechanic-dropdown").style.display = "none";
+                        document.getElementById("mechanic-assigned").style.display = "block";
+                    } else {
+                        alert("Failed to assign mechanic. Please try again.");
+                        this.value = "";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while assigning the mechanic.");
+                    this.value = "";
+                });
+            }
+        });
+    </script>
+</body>
+</html>

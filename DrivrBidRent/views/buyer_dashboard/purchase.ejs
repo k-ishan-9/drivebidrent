@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveBidRent - My Purchases</title>
+    <style>
+        /* Purchase Page Specific Styles */
+        
+        /* Hero Section */
+        .purchases-hero {
+            width: 800px;
+            height: 300px;
+            padding-top: 150px;
+            margin: 150px auto 85px auto;
+            border: 3px solid #ff6b00; /* Orange */
+            border-radius: 15px;
+            box-shadow: 5px 10px 20px rgba(255, 107, 0, 0.3); /* Orange shadow */
+            text-align: center;
+            background-color: #ffffff; /* White */
+            opacity: 1;
+        }
+
+        .purchases-hero h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            color: #ff6b00; /* Orange */
+        }
+
+        .purchases-hero p {
+            font-size: 1.15rem;
+            opacity: 0.75;
+            color: #333333; /* Dark gray */
+        }
+
+        .oneL {
+            color: #ff6b00; /* Orange */
+        }
+
+        /* Sections */
+        section {
+            padding: 3rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #ff6b00, #ff9a44, transparent);
+        }
+
+        section h2 {
+            color: #ff6b00;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 cards in a row */
+            gap: 2rem;
+        }
+
+        /* Car Cards */
+        .car-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #ff6b00;
+            height: 550px;
+        }
+
+        .car-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(255, 107, 0, 0.3);
+        }
+
+        .status-tag {
+            position: absolute;
+            top: 1.75rem;
+            left: 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 1;
+        }
+
+        .status-tag.purchased {
+            background-color: #ff6b00;
+            color: white;
+        }
+
+        .status-tag.pending {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .status-tag.active {
+            background-color: #ff6b00;
+            color: white;
+        }
+
+        .status-tag.completed {
+            background-color: #888888;
+            color: white;
+        }
+
+        .car-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .car-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #ff6b00;
+        }
+
+        .purchase-date, .rental-period, .booking-period {
+            color: #666666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .car-details {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .car-details p {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #333333;
+        }
+
+        .doc-link {
+            color: #2196F3;
+            text-decoration: none;
+        }
+
+        .doc-link:hover {
+            text-decoration: underline;
+        }
+
+        .details-btn, .bid-btn, .pay-now-btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.3rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .details-btn {
+            background-color: #ff6b00;
+            color: white;
+            margin-right: 0.5rem;
+        }
+
+        .details-btn:hover {
+            background-color: #e65c00;
+        }
+
+        .pay-now-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .pay-now-btn:hover {
+            background-color: #45a049;
+        }
+
+        /* Popup Styles */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 400px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .popup h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: #333;
+        }
+
+        .popup p {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .popup .pay-now-final {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            background-color: #ff6b00;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .popup .pay-now-final:hover {
+            background-color: #e65c00;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .card-container {
+                grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .purchases-hero {
+                width: 90%;
+                padding: 100px 20px;
+            }
+            
+            .card-container {
+                grid-template-columns: repeat(1, 1fr); /* 1 card per row */
+            }
+            
+            .details-btn, .pay-now-btn {
+                display: block;
+                width: 100%;
+                text-align: center;
+                margin-bottom: 0.5rem;
+            }
+
+            .popup {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation Bar -->
+    <%- include('partials/navbar') %>
+
+    <!-- Hero Section -->
+    <div class="purchases-hero">
+        <h1>My <span class="oneL">Purchases</span></h1>
+        <p>Track and manage all your vehicle transactions</p>
+    </div>
+
+    <!-- Auction Purchases Section -->
+    <section class="purchases-section">
+        <h2>Auction Purchases</h2>
+        <% if (auctionPurchases && auctionPurchases.length > 0) { %>
+        <div class="card-container">
+            <% auctionPurchases.forEach(purchase => { %>
+            <div class="car-card">
+                <span class="status-tag <%= purchase.paymentStatus === 'pending' ? 'pending' : 'purchased' %>">
+                    <%= purchase.paymentStatus === 'pending' ? 'Pending Payment' : 'Purchased' %>
+                </span>
+                <img src="<%= purchase.vehicleImage %>" alt="<%= purchase.vehicleName %>">
+                <h3><%= purchase.vehicleName %></h3>
+                <p class="purchase-date">Purchased on: <strong><%= new Date(purchase.purchaseDate).toLocaleDateString() %></strong></p>
+                <div class="car-details">
+                    <p><strong>Year:</strong> <%= purchase.year %></p>
+                    <p><strong>Mileage:</strong> <%= purchase.mileage %> km</p>
+                    <p><strong>Purchase Price:</strong> ₹<%= purchase.purchasePrice.toLocaleString() %></p>
+                    <p><strong>Seller:</strong> <%= purchase.sellerName %></p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="/purchase_details?id=<%= purchase._id %>" class="details-btn">More Details</a>
+                    <% if (purchase.paymentStatus === 'pending') { %>
+                        <a href="#" class="pay-now-btn" data-auction-id="<%= purchase.auctionId %>" data-purchase-id="<%= purchase._id %>">Pay Now</a>
+                    <% } %>
+                </div>
+            </div>
+            <% }); %>
+        </div>
+        <% } else { %>
+        <p>You haven't purchased any vehicles from auctions yet.</p>
+        <% } %>
+    </section>
+
+    <!-- Current Rentals Section -->
+    <section class="rentals-section">
+        <h2>Current Rentals</h2>
+        <% if (rentals && rentals.length > 0) { %>
+        <div class="card-container">
+            <% rentals.forEach(rental => { %>
+            <div class="car-card">
+                <span class="status-tag active">Active</span>
+                <img src="<%= rental.vehicleImage %>" alt="<%= rental.vehicleName %>">
+                <h3><%= rental.vehicleName %></h3>
+                <p class="rental-period">Period: <strong><%= new Date(rental.pickupDate).toLocaleDateString() %> - <%= new Date(rental.dropDate).toLocaleDateString() %></strong></p>
+                <div class="car-details">
+                    <p><strong>Daily Rate:</strong> ₹<%= rental.costPerDay %></p>
+                    <p><strong>Total Cost:</strong> ₹<%= rental.totalCost %></p>
+                    <p><strong>Seller:</strong> <%= rental.sellerName %></p>
+                    <p><strong>Contact:</strong> <%= rental.sellerPhone %></p>
+                </div>
+                <a href="/rental_details/<%= rental._id %>" class="details-btn">More Details</a>
+            </div>
+            <% }); %>
+        </div>
+        <% } else { %>
+        <p style="text-align: center; color: #666;">You don't have any active rentals.</p>
+        <% } %>
+    </section>
+
+    <!-- Popup Overlay -->
+    <div class="popup-overlay" id="paymentPopup">
+        <div class="popup">
+            <span class="popup-close" id="popupClose">×</span>
+            <h2>Congratulations on Buying the Car!</h2>
+            <p><strong>Amount for Car:</strong> ₹<span id="carAmount"></span></p>
+            <p><strong>Convenience Fee (1%):</strong> ₹<span id="convenienceFee"></span></p>
+            <p><strong>Total Amount:</strong> ₹<span id="totalAmount"></span></p>
+            <button class="pay-now-final" id="finalPayNow">Pay Now</button>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <%- include('partials/footer') %>
+
+    <!-- JavaScript for Popup -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const payNowButtons = document.querySelectorAll('.pay-now-btn');
+            const popupOverlay = document.getElementById('paymentPopup');
+            const popupClose = document.getElementById('popupClose');
+            const finalPayNowButton = document.getElementById('finalPayNow');
+            let currentPurchaseId = null;
+
+            payNowButtons.forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const auctionId = button.getAttribute('data-auction-id');
+                    currentPurchaseId = button.getAttribute('data-purchase-id');
+
+                    try {
+                        const response = await fetch(`/auction/confirm-payment/${auctionId}`);
+                        const data = await response.json();
+
+                        if (data.success) {
+                            document.getElementById('carAmount').textContent = data.amount.toLocaleString();
+                            document.getElementById('convenienceFee').textContent = data.convenienceFee.toLocaleString();
+                            document.getElementById('totalAmount').textContent = data.totalAmount.toLocaleString();
+                            popupOverlay.style.display = 'flex';
+                        } else {
+                            alert(data.message);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching payment details:', error);
+                        alert('Failed to load payment details');
+                    }
+                });
+            });
+
+            popupClose.addEventListener('click', () => {
+                popupOverlay.style.display = 'none';
+            });
+
+            finalPayNowButton.addEventListener('click', async () => {
+                if (!currentPurchaseId) {
+                    alert('Purchase ID not found');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/auction/complete-payment/${currentPurchaseId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('Payment completed successfully!, Contact the seller for further details.');
+                        popupOverlay.style.display = 'none';
+                        location.reload(); // Refresh the page to update payment status
+                    } else {
+                        alert(data.message);
+                    }
+                } catch (error) {
+                    console.error('Error completing payment:', error);
+                    alert('Failed to complete payment');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
