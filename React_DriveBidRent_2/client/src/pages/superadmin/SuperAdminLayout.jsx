@@ -1,7 +1,6 @@
 // client/src/pages/superadmin/SuperAdminLayout.jsx
 import { Outlet } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from '../components/Footer';
+import Sidebar from './components/Sidebar';
 import './SuperAdminDashboard.css';
 
 const SuperAdminLayout = () => {
@@ -36,9 +35,10 @@ const SuperAdminLayout = () => {
           font-weight: 500 !important;
         }
       `}</style>
-      <Navbar />
-      <Outlet />
-      <Footer />
+      <Sidebar />
+      <main className="superadmin-main-content">
+        <Outlet />
+      </main>
     </div>
   );
 };

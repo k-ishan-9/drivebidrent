@@ -1,6 +1,7 @@
 // client/src/pages/buyer/AuctionsList.jsx
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import io from 'socket.io-client';
 import CarCard from './components/CarCard';
 import { getAuctions, getWishlist, addToWishlist, removeFromWishlist } from '../../services/buyer.services';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -33,13 +34,19 @@ export default function AuctionsList() {
   useEffect(() => {
     fetchAuctions();
     fetchWishlist();
-    
-    // Set up polling for real-time auction updates every 2 seconds
-    const intervalId = setInterval(() => {
+
+    // Setup Socket.io for real-time bid updates
+    const backendUrl = import.meta.env.VITE_BACKEND_URL?.replace('/api', '') || 'https://drivebidrent.onrender.com';
+    const socket = io(backendUrl, { withCredentials: true });
+
+    socket.on('global_new_bid', () => {
       fetchAuctions();
-    }, 2000);
-    
-    return () => clearInterval(intervalId);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, condition, fuelType, transmission, minPrice, maxPrice]);
 
   const fetchAuctions = async () => {
@@ -53,8 +60,8 @@ export default function AuctionsList() {
         maxPrice: maxPrice ? Number(maxPrice) : undefined,
       };
 
-      const data = await getAuctions(filters);
-      setAuctions(data);
+      const result = await getAuctions(filters);
+      setAuctions(result.auctions);
     } catch (error) {
       console.error('Error fetching auctions:', error);
     } finally {
@@ -77,13 +84,13 @@ export default function AuctionsList() {
   const toggleWishlist = async (id, type) => {
     try {
       const isInWishlist = wishlist.auctions?.some(item => item._id === id);
-      
+
       if (isInWishlist) {
         await removeFromWishlist(id, type);
       } else {
         await addToWishlist(id, type);
       }
-      
+
       fetchWishlist();
     } catch (error) {
       console.error('Error toggling wishlist:', error);
@@ -93,13 +100,13 @@ export default function AuctionsList() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     const newParams = new URLSearchParams(searchParams);
-    
+
     if (value) {
       newParams.set(name, value);
     } else {
       newParams.delete(name);
     }
-    
+
     setSearchParams(newParams);
   };
 
@@ -137,7 +144,7 @@ export default function AuctionsList() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl border border-orange-100 p-8 sticky top-24">
               <h3 className="text-2xl font-bold text-orange-600 mb-6">Filter Auctions</h3>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Search by Name</label>

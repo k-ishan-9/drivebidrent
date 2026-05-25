@@ -93,7 +93,7 @@ export default function AboutUs() {
       {/* Hero Section */}
       <div className="about-hero">
         <h1>About <span className="oneL">DriveBidRent</span></h1>
-        <p>Your Trusted Partner in Automotive Solutions</p>
+        <p>Your Trusted Partner in Automotive Solutions - Updated for CI/CD verification on April 20, 2026.</p>
       </div>
 
       {/* Our Story Section */}

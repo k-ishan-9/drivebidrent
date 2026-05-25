@@ -18,14 +18,24 @@ export default function ChatPageMechanic() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-[#f8fafc] font-montserrat">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-          <div className="flex h-[calc(100vh-100px)] min-h-[700px]">
-            <aside className="w-96 border-r border-gray-200">
+        {/* Chat Interface Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Inspection Messages</h1>
+          <p className="text-gray-500 mt-1">Communicate directly with auction managers regarding your vehicle assignments.</p>
+        </div>
+
+        {/* Chat Application Container */}
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="flex h-[calc(100vh-200px)] min-h-[600px] max-h-[800px]">
+            {/* Sidebar List */}
+            <aside className="w-96 border-r border-gray-100 bg-gray-50/30 flex flex-col">
               <ChatListMechanic onSelect={handleSelect} selectedId={selectedChatId} />
             </aside>
-            <main className="flex-1">
+            
+            {/* Main Chat Panel */}
+            <main className="flex-1 bg-white flex flex-col relative overflow-hidden">
               <ChatRoomMechanic chatIdProp={selectedChatId} />
             </main>
           </div>

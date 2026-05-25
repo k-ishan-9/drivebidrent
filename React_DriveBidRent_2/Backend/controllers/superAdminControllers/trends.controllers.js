@@ -11,59 +11,59 @@ const getTrends = async (req, res) => {
     // Current trends analysis
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+
     const sixtyDaysAgo = new Date();
     sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
     // User signup trends (comparing last 30 days with previous 30 days)
-    const recentSignups = await User.countDocuments({ 
-      createdAt: { $gte: thirtyDaysAgo } 
-    });
-    
-    const previousSignups = await User.countDocuments({ 
-      createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo } 
+    const recentSignups = await User.countDocuments({
+      createdAt: { $gte: thirtyDaysAgo }
     });
 
-    const signupGrowth = previousSignups > 0 
+    const previousSignups = await User.countDocuments({
+      createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo }
+    });
+
+    const signupGrowth = previousSignups > 0
       ? (((recentSignups - previousSignups) / previousSignups) * 100).toFixed(2)
       : 100;
 
     // Auction activity trends
-    const recentAuctions = await AuctionRequest.countDocuments({ 
-      createdAt: { $gte: thirtyDaysAgo } 
-    });
-    
-    const previousAuctions = await AuctionRequest.countDocuments({ 
-      createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo } 
+    const recentAuctions = await AuctionRequest.countDocuments({
+      createdAt: { $gte: thirtyDaysAgo }
     });
 
-    const auctionGrowth = previousAuctions > 0 
+    const previousAuctions = await AuctionRequest.countDocuments({
+      createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo }
+    });
+
+    const auctionGrowth = previousAuctions > 0
       ? (((recentAuctions - previousAuctions) / previousAuctions) * 100).toFixed(2)
       : 100;
 
     // Bidding activity trends
-    const recentBids = await AuctionBid.countDocuments({ 
-      bidTime: { $gte: thirtyDaysAgo } 
-    });
-    
-    const previousBids = await AuctionBid.countDocuments({ 
-      bidTime: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo } 
+    const recentBids = await AuctionBid.countDocuments({
+      bidTime: { $gte: thirtyDaysAgo }
     });
 
-    const biddingGrowth = previousBids > 0 
+    const previousBids = await AuctionBid.countDocuments({
+      bidTime: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo }
+    });
+
+    const biddingGrowth = previousBids > 0
       ? (((recentBids - previousBids) / previousBids) * 100).toFixed(2)
       : 100;
 
     // Rental activity trends
-    const recentRentals = await RentalRequest.countDocuments({ 
-      createdAt: { $gte: thirtyDaysAgo } 
-    });
-    
-    const previousRentals = await RentalRequest.countDocuments({ 
-      createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo } 
+    const recentRentals = await RentalRequest.countDocuments({
+      createdAt: { $gte: thirtyDaysAgo }
     });
 
-    const rentalGrowth = previousRentals > 0 
+    const previousRentals = await RentalRequest.countDocuments({
+      createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo }
+    });
+
+    const rentalGrowth = previousRentals > 0
       ? (((recentRentals - previousRentals) / previousRentals) * 100).toFixed(2)
       : 100;
 
@@ -90,7 +90,7 @@ const getTrends = async (req, res) => {
 
     const recentRevenueTotal = (recentAuctionRevenue[0]?.total || 0) + (recentRentalRevenue[0]?.total || 0);
     const previousRevenueTotal = (previousAuctionRevenue[0]?.total || 0) + (previousRentalRevenue[0]?.total || 0);
-    
+
     console.log('💰 [Trends Revenue Debug]');
     console.log('Recent (last 30 days):');
     console.log('  - Auction Revenue:', recentAuctionRevenue[0]?.total || 0);
@@ -100,19 +100,19 @@ const getTrends = async (req, res) => {
     console.log('  - Auction Revenue:', previousAuctionRevenue[0]?.total || 0);
     console.log('  - Rental Revenue:', previousRentalRevenue[0]?.total || 0);
     console.log('  - Total:', previousRevenueTotal);
-    
-    const revenueGrowth = previousRevenueTotal > 0 
+
+    const revenueGrowth = previousRevenueTotal > 0
       ? (((recentRevenueTotal - previousRevenueTotal) / previousRevenueTotal) * 100).toFixed(2)
       : 100;
 
     // Most popular vehicle types (trending) - from auctions only (rentals don't have vehicle type)
     const trendingAuctionVehicleTypes = await AuctionRequest.aggregate([
       { $match: { createdAt: { $gte: thirtyDaysAgo } } },
-      { 
-        $group: { 
-          _id: { $toLower: "$carType" }, 
-          auctionCount: { $sum: 1 } 
-        } 
+      {
+        $group: {
+          _id: { $toLower: "$carType" },
+          auctionCount: { $sum: 1 }
+        }
       },
       { $sort: { auctionCount: -1 } },
       { $limit: 10 }
@@ -154,7 +154,7 @@ const getTrends = async (req, res) => {
       bidTime: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo }
     });
 
-    const retainedUsers = activeUsersRecent.filter(id => 
+    const retainedUsers = activeUsersRecent.filter(id =>
       activeUsersPrevious.some(prevId => prevId.equals(id))
     ).length;
 
@@ -164,12 +164,12 @@ const getTrends = async (req, res) => {
 
     // Average auction duration for completed auctions
     const avgAuctionDuration = await AuctionRequest.aggregate([
-      { 
-        $match: { 
+      {
+        $match: {
           status: "approved",
           auction_stopped: true,
           auctionDate: { $gte: thirtyDaysAgo }
-        } 
+        }
       },
       {
         $project: {
@@ -204,7 +204,7 @@ const getTrends = async (req, res) => {
       ? ((purchasesRecent / completedAuctionsRecent) * 100).toFixed(2)
       : 0;
 
-    console.log('📊 [Trends Metrics Debug]');
+    console.log('[Trends Metrics Debug]');
     console.log('Conversion Rate:');
     console.log('  - Completed Auctions (last 30 days):', completedAuctionsRecent);
     console.log('  - Purchases (last 30 days):', purchasesRecent);
@@ -221,9 +221,9 @@ const getTrends = async (req, res) => {
           auctions: { current: recentAuctions, previous: previousAuctions, growth: auctionGrowth },
           rentals: { current: recentRentals, previous: previousRentals, growth: rentalGrowth },
           bidding: { current: recentBids, previous: previousBids, growth: biddingGrowth },
-          revenue: { 
-            current: recentRevenueTotal, 
-            previous: previousRevenueTotal, 
+          revenue: {
+            current: recentRevenueTotal,
+            previous: previousRevenueTotal,
             growth: revenueGrowth,
             auctionCurrent: (recentAuctionRevenue[0]?.total || 0),
             rentalCurrent: (recentRentalRevenue[0]?.total || 0)

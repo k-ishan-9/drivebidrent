@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getRentalById, bookRental } from '../../services/buyer.services';
+import { getRentalById, createCheckoutSession } from '../../services/buyer.services';
 import DatePickerModal from './components/modals/DatePickerModal';
 import PaymentModal from './components/modals/PaymentModal';
 import ProcessingModal from './components/modals/ProcessingModal';
@@ -21,6 +21,7 @@ export default function BookRental() {
 
   useEffect(() => {
     fetchRentalDetails();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchRentalDetails = async () => {
@@ -41,32 +42,36 @@ export default function BookRental() {
     setShowPaymentModal(true);
   };
 
-  const handlePayment = async (paymentMethod) => {
+  const handlePayment = async (_paymentMethod) => {
     setShowPaymentModal(false);
     setShowProcessingModal(true);
 
     try {
-      const bookingData = {
-        rentalCarId: id,
-        sellerId: rental.seller?._id,
-        pickupDate: selectedDates.pickupDate,
-        dropDate: selectedDates.dropDate,
-        totalCost: totalCost,
-        includeDriver: selectedDates.includeDriver || false
-      };
+      const sessionData = await createCheckoutSession({
+        amount: totalCost,
+        productName: `Rental: ${rental.vehicleName}`,
+        metadata: {
+          type: 'rental',
+          rentalCarId: id,
+          sellerId: rental.seller?._id,
+          pickupDate: selectedDates.pickupDate,
+          dropDate: selectedDates.dropDate,
+          totalCost: totalCost.toString(),
+          includeDriver: selectedDates.includeDriver ? 'true' : 'false'
+        },
+        successUrl: `${window.location.origin}/buyer/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${window.location.origin}/buyer/payment-cancel`
+      });
 
-      const result = await bookRental(bookingData);
-
-      if (result.success) {
-        setShowProcessingModal(false);
-        setShowSuccessModal(true);
+      if (sessionData.success && sessionData.url) {
+        window.location.href = sessionData.url;
       } else {
-        throw new Error(result.message || 'Booking failed');
+        throw new Error(sessionData.message || 'Failed to initialize payment');
       }
     } catch (error) {
-      console.error('Booking error:', error);
+      console.error('Booking/Payment error:', error);
       setShowProcessingModal(false);
-      alert('Booking failed. Please try again.');
+      alert('Payment initialization failed. Please try again.');
     }
   };
 

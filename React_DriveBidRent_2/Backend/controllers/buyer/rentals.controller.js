@@ -3,10 +3,33 @@ import RentalRequest from '../../models/RentalRequest.js';
 import RentalCost from '../../models/RentalCost.js';
 import User from '../../models/User.js';
 import ChatController from '../../controllers/chat.controller.js';
+import redisClient from '../../utils/redisClient.js';
 
 export const getRentals = async (req, res) => {
   try {
     const { search, fuelType, transmission, minPrice, maxPrice, capacity, city } = req.query;
+
+    // Build a unique cache key based on query params
+    const cacheKey = `rentals:${JSON.stringify(req.query)}`;
+    const startTime = Date.now();
+
+    // Check Redis Cache first
+    if (redisClient.isReady) {
+      const cachedData = await redisClient.get(cacheKey);
+      if (cachedData) {
+        const responseTime = Date.now() - startTime;
+        console.log(`\x1b[32m[REDIS HIT]\x1b[0m  Key: ${cacheKey} | Time: ${responseTime}ms (served from Redis cache)\x1b[0m`);
+        return res.json({
+          success: true,
+          message: 'Rentals fetched successfully (Cached)',
+          cacheStatus: 'HIT',
+          responseTime: responseTime,
+          data: JSON.parse(cachedData)
+        });
+      }
+    }
+
+    // CACHE MISS — fetch from MongoDB Atlas
     const query = { status: 'available' };
 
     if (search) query.vehicleName = { $regex: search, $options: 'i' };
@@ -37,14 +60,26 @@ export const getRentals = async (req, res) => {
         .map(rental => rental.sellerId.city)
     )].sort();
 
+    const responseData = {
+      rentals,
+      filters: { searchQuery: search, fuelType, transmission, minPrice, maxPrice, capacity, city },
+      uniqueCities
+    };
+
+    // Save to Redis Cache with 90 second TTL
+    if (redisClient.isReady) {
+      await redisClient.setEx(cacheKey, 90, JSON.stringify(responseData));
+    }
+
+    const responseTime = Date.now() - startTime;
+    console.log(`\x1b[33m[REDIS MISS]\x1b[0m Key: ${cacheKey} | Time: ${responseTime}ms (fetched from MongoDB Atlas)\x1b[0m`);
+
     res.json({
       success: true,
-      message: 'Rentals fetched',
-      data: {
-        rentals,
-        filters: { searchQuery: search, fuelType, transmission, minPrice, maxPrice, capacity, city },
-        uniqueCities
-      }
+      message: 'Rentals fetched successfully (from Atlas)',
+      cacheStatus: 'MISS',
+      responseTime: responseTime,
+      data: responseData
     });
   } catch (err) {
     console.error('Error fetching rentals:', err);

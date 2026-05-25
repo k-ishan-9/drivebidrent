@@ -9,12 +9,26 @@ export const auctionAuthServices = {
   },
 
   login: async (credentials) => {
+    // Prevent a stale token (e.g. buyer/seller token) from being reused on this login call.
+    localStorage.removeItem('token');
     const res = await axiosInstance.post('/auth/auctionmanager/login', credentials);
+    if (res.data?.token) {
+      localStorage.setItem('token', res.data.token);
+    }
+    if (res.data?.user) {
+      localStorage.setItem('authState', JSON.stringify({
+        user: res.data.user,
+        userType: res.data.user.userType,
+        approved_status: res.data.user.approved_status
+      }));
+    }
     return res.data;
   },
 
   logout: async () => {
     const res = await axiosInstance.get('/auth/auctionmanager/logout');
+    localStorage.removeItem('token');
+    localStorage.removeItem('authState');
     return res.data;
   }
 };

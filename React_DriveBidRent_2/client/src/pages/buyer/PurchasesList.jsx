@@ -6,7 +6,7 @@ import { ShoppingBag, Car, History, CreditCard } from 'lucide-react';
 import {
   getPurchases,
   getAuctionPaymentDetails,
-  completeAuctionPayment
+  createCheckoutSession
 } from '../../services/buyer.services';
 import PaymentModal from './components/modals/PaymentModal';
 import AuctionPurchaseCard from './components/AuctionPurchaseCard';
@@ -48,18 +48,28 @@ export default function PurchasesList() {
     }
   };
 
-  const handlePayment = async (paymentMethod) => {
+  const handlePayment = async (_paymentMethod) => {
     try {
-      const result = await completeAuctionPayment(selectedPurchase._id, paymentMethod);
-      if (result.success) {
-        alert('Payment successful! Contact the seller.');
-        setShowPaymentModal(false);
-        fetchPurchases();
+      setShowPaymentModal(false);
+      const sessionData = await createCheckoutSession({
+        amount: paymentDetails?.totalAmount || selectedPurchase.purchasePrice || 0,
+        productName: `Purchase: ${selectedPurchase.vehicleName}`,
+        metadata: {
+          type: 'auction',
+          purchaseId: selectedPurchase._id
+        },
+        successUrl: `${window.location.origin}/buyer/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${window.location.origin}/buyer/payment-cancel`
+      });
+
+      if (sessionData.success && sessionData.url) {
+        window.location.href = sessionData.url;
       } else {
-        alert(result.message || 'Payment failed');
+        alert(sessionData.message || 'Payment intialization failed');
       }
-    } catch {
-      alert('Payment failed. Please try again.');
+    } catch (error) {
+      console.error('Payment initialization error:', error);
+      alert('Payment initialization failed. Please try again.');
     }
   };
 

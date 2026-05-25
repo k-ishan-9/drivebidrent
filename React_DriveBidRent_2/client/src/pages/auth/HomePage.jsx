@@ -1,18 +1,137 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { clearSuccess, clearError } from '../../redux/slices/authSlice';
 import axiosInstance from '../../utils/axiosInstance.util';
-import Footer from '../components/Footer'
+import Footer from '../components/Footer';
+// eslint-disable-next-line no-unused-vars
+import { motion, AnimatePresence } from 'framer-motion';
+
+/* ═══════════════════════════════════════════════════════
+   SPLASH SCREEN — shown only on the FIRST visit per
+   browser session while the Render backend cold-starts.
+   Disappears as soon as the backend responds.
+   ═══════════════════════════════════════════════════════ */
+const SplashScreen = ({ onReady }) => {
+  const [dots, setDots] = useState('');
+  const [fadingOut, setFadingOut] = useState(false);
+
+  /* Animated dots */
+  useEffect(() => {
+    const id = setInterval(() => setDots(d => d.length >= 3 ? '' : d + '.'), 500);
+    return () => clearInterval(id);
+  }, []);
+
+  /* When parent signals ready, fade out then unmount */
+  useEffect(() => {
+    if (onReady === true && !fadingOut) {
+      setFadingOut(true);
+    }
+  }, [onReady, fadingOut]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 1 }}
+      animate={fadingOut ? { opacity: 0 } : { opacity: 1 }}
+      transition={{ duration: 0.5, ease: 'easeInOut' }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        fontFamily: '"Montserrat", sans-serif',
+      }}
+    >
+      <style>{`
+        @keyframes splashPulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50%      { transform: scale(1.06); opacity: 0.85; }
+        }
+        @keyframes splashBar {
+          0%   { width: 0%; }
+          100% { width: 100%; }
+        }
+        @keyframes splashDot {
+          0%, 80%, 100% { transform: scale(0); opacity: 0; }
+          40% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+
+      {/* Logo Mark */}
+      <div style={{
+        width: 72, height: 72, borderRadius: 18,
+        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: '0 8px 30px rgba(245, 158, 11, 0.35)',
+        animation: 'splashPulse 2s ease-in-out infinite',
+        marginBottom: 28,
+      }}>
+        <span style={{ fontSize: '2rem', fontWeight: 900, color: '#fff' }}>D</span>
+      </div>
+
+      {/* Brand name */}
+      <h1 style={{
+        fontSize: '2rem', fontWeight: 900,
+        color: '#fff', letterSpacing: '-0.02em',
+        margin: 0,
+      }}>
+        Drive<span style={{ color: '#f59e0b' }}>Bid</span>Rent
+      </h1>
+
+      {/* Progress bar */}
+      <div style={{
+        width: 200, height: 3, borderRadius: 2,
+        background: 'rgba(255,255,255,0.08)',
+        marginTop: 28, overflow: 'hidden',
+      }}>
+        <div style={{
+          height: '100%', borderRadius: 2,
+          background: 'linear-gradient(90deg, #f59e0b, #d97706)',
+          animation: 'splashBar 2.5s ease-in-out infinite',
+        }} />
+      </div>
+
+      {/* Status text */}
+      <p style={{
+        marginTop: 18, fontSize: '0.8125rem',
+        color: 'rgba(255,255,255,0.4)', fontWeight: 600,
+        letterSpacing: '0.08em', textTransform: 'uppercase',
+        minWidth: 200, textAlign: 'center',
+      }}>
+        Connecting to server{dots}
+      </p>
+
+      {/* Three bouncing dots */}
+      <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
+        {[0, 1, 2].map(i => (
+          <div key={i} style={{
+            width: 6, height: 6, borderRadius: '50%',
+            background: '#f59e0b',
+            animation: `splashDot 1.4s ease-in-out ${i * 0.16}s infinite`,
+          }} />
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
 
 const HomePage = () => {
   const [topRentals, setTopRentals] = useState([]);
   const [topAuctions, setTopAuctions] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { success, error } = useSelector((state) => state.auth);
+
+  /* ── Splash state ─────────────────────────────────
+     Only show splash on the FIRST visit of the session
+     (cold-start scenario for Render backend).
+     ────────────────────────────────────────────────── */
+  const alreadyLoaded = sessionStorage.getItem('dbr_splash_done') === '1';
+  const [showSplash, setShowSplash] = useState(!alreadyLoaded);
+  const [backendReady, setBackendReady] = useState(false);
+  const splashMinShown = useRef(false);
 
   // Show logout success or other auth messages
   useEffect(() => {
@@ -41,6 +160,7 @@ const HomePage = () => {
 
   // fetch home data on mount
   useEffect(() => {
+    let isMounted = true;
     const fetchHomeData = async () => {
       try {
         const response = await axiosInstance.get('/home/data');
@@ -50,24 +170,38 @@ const HomePage = () => {
         }
       } catch (err) {
         console.error('Error fetching home data:', err);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchHomeData();
+    /* Show splash for at least 1.2s so it doesn't just flash */
+    const minTime = new Promise(resolve => setTimeout(() => {
+      splashMinShown.current = true;
+      resolve();
+    }, 1200));
+
+    Promise.all([fetchHomeData(), minTime]).then(() => {
+      if (!isMounted) return;
+      setBackendReady(true);
+      /* Mark session so splash won't show again on navigation back */
+      sessionStorage.setItem('dbr_splash_done', '1');
+      /* Give the fade-out animation 500ms then unmount */
+      setTimeout(() => {
+        if (isMounted) setShowSplash(false);
+      }, 550);
+    });
+
+    return () => { isMounted = false; };
   }, []);
 
   const handleAuth = (path) => {
     navigate(path);
   };
 
+  // eslint-disable-next-line no-unused-vars
   const isLoggedIn = () => {
     // Simple check - in full app, use a protected route or store
     return document.cookie.includes('jwt=');
   };
-
-  if (loading) return <div>Loading...</div>;
 
   return (
     <>
@@ -168,9 +302,11 @@ const HomePage = () => {
           position: absolute;
           top: 0;
           left: 0;
-          z-index: -1;
+          z-index: 0;
         }
         .hero-content {
+          position: relative;
+          z-index: 10;
           color: #333333;
           max-width: 600px;
         }
@@ -550,35 +686,38 @@ const HomePage = () => {
         }
       `}</style>
 
-      <header className="navbar">
-        <div className="logo">DriveBidRent</div>
-        <nav>
-          <ul>
-            <li><a onClick={() => navigate('#auctions')}>Buy</a></li>
-            <li><a onClick={() => navigate('#join-us')}>Sell</a></li>
-            <li><a onClick={() => navigate('#rentals')}>Rent</a></li>
-            <li><a onClick={() => navigate('#auctions')}>Auction</a></li>
-          </ul>
-        </nav>
-        <div className="auth-buttons">
-          <button className="login" onClick={() => handleAuth('/login')}>Login</button>
-          <button className="signup" onClick={() => handleAuth('/signup')}>
-            Sign Up
-          </button>
-        </div>
-      </header>
+      {showSplash && <SplashScreen onReady={backendReady} />}
 
-      <section className="hero">
-        <img
-          src="/css/photos/mainPhoto.png"
-          alt="Car Banner"
-          className="hero-img"
-        />
-        <div className="hero-content">
-          <h1>Find the Perfect Car for You</h1>
-          <p>Buy, Sell, Rent, and Auction vehicles with ease.</p>
-        </div>
-      </section>
+          <header className="navbar">
+            <div className="logo">DriveBidRent</div>
+            <nav>
+              <ul>
+                <li><a onClick={() => navigate('#auctions')}>Buy</a></li>
+                <li><a onClick={() => navigate('#join-us')}>Sell</a></li>
+                <li><a onClick={() => navigate('#rentals')}>Rent</a></li>
+                <li><a onClick={() => navigate('#auctions')}>Auction</a></li>
+              </ul>
+            </nav>
+            <div className="auth-buttons">
+              <button className="login" onClick={() => handleAuth('/login')}>Login</button>
+              <button className="signup" onClick={() => handleAuth('/signup')}>
+                Sign Up
+              </button>
+            </div>
+          </header>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <section className="hero">
+              <img
+                src="/css/photos/mainPhoto.png"
+                alt="Car Banner"
+                className="hero-img"
+              />
+              <div className="hero-content">
+                <h1>Find the Perfect Car for You</h1>
+                <p>Buy, Sell, Rent, and Auction vehicles with ease.</p>
+              </div>
+            </section>
 
       <section className="about">
         <h2>Welcome to DriveBidRent</h2>
@@ -692,6 +831,7 @@ const HomePage = () => {
       </section>
 
         <Footer />
+          </motion.div>
     </>
   );
 };

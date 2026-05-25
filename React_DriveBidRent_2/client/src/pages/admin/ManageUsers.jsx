@@ -64,7 +64,7 @@ const ManageUsers = () => {
     setShowAll(prev => ({ ...prev, [type]: !prev[type] }));
   };
 
-  const handleAction = async (action, id, type) => {
+  const handleAction = async (action, id, _type) => {
     try {
       let res;
       if (action === 'approve') {
@@ -200,12 +200,18 @@ const ManageUsers = () => {
   return (
     <>
       <div className="container p-8 max-w-6xl mx-auto">
-        <h1 className="text-center text-4xl font-bold text-orange-500 mb-8">Manage Users</h1>
+        <div className="admin-page-header">
+          <h1 className="admin-page-title">
+            <i className="fas fa-users"></i>
+            Manage Users
+          </h1>
+          <p className="admin-page-subtitle">View, approve, and manage all platform users</p>
+        </div>
 
         {/* Reported Users Section - Shows at the top */}
         {data.reportedUsers.length > 0 && (
-          <div className="card bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
-            <h2 className="text-2xl font-semibold text-red-600 mb-6">Reported Users (Payment Failures)</h2>
+          <div className="admin-section border-l-4 border-l-red-500">
+            <h2 className="admin-section-title text-red-600 mb-6 flex items-center gap-2"><i className="fas fa-exclamation-triangle"></i>Reported Users (Payment Failures)</h2>
             <div className="search-bar mb-4">
               <input
                 type="text"
@@ -251,8 +257,8 @@ const ManageUsers = () => {
 
         {/* Blocked Users Section */}
         {data.blockedUsers.length > 0 && (
-          <div className="card bg-white p-6 rounded-lg shadow-md mb-8 border border-red-300">
-            <h2 className="text-2xl font-semibold text-red-600 mb-6">Blocked Users</h2>
+          <div className="admin-section border-l-4 border-l-red-600">
+            <h2 className="admin-section-title text-red-600 mb-6 flex items-center gap-2"><i className="fas fa-ban"></i>Blocked Users</h2>
             <div className="search-bar mb-4">
               <input
                 type="text"
@@ -297,23 +303,23 @@ const ManageUsers = () => {
           </div>
         )}
 
-        <div className="card bg-white p-6 rounded-lg shadow-md mb-8">
-          <h2 className="text-2xl font-semibold text-orange-500 mb-6">Pending Mechanics</h2>
+        <div className="admin-section">
+          <h2 className="admin-section-title mb-6"><i className="fas fa-tools mr-2"></i>Pending Mechanics</h2>
           {renderUserList(data.pendingMechanics, 'pendingMechanic', true, true)}
         </div>
 
-        <div className="card bg-white p-6 rounded-lg shadow-md mb-8">
-          <h2 className="text-2xl font-semibold text-orange-500 mb-6">Approved Mechanics</h2>
+        <div className="admin-section">
+          <h2 className="admin-section-title mb-6"><i className="fas fa-check-circle mr-2"></i>Approved Mechanics</h2>
           {renderUserList(data.approvedMechanics, 'approvedMechanic', true, false)}
         </div>
 
-        <div className="card bg-white p-6 rounded-lg shadow-md mb-8">
-          <h2 className="text-2xl font-semibold text-orange-500 mb-6">Buyers</h2>
+        <div className="admin-section">
+          <h2 className="admin-section-title mb-6"><i className="fas fa-shopping-cart mr-2"></i>Buyers</h2>
           {renderUserList(data.buyers, 'buyer')}
         </div>
 
-        <div className="card bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-orange-500 mb-6">Sellers</h2>
+        <div className="admin-section">
+          <h2 className="admin-section-title mb-6"><i className="fas fa-store mr-2"></i>Sellers</h2>
           {renderUserList(data.sellers, 'seller')}
         </div>
       </div>

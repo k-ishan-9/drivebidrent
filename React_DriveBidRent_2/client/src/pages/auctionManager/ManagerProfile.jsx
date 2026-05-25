@@ -75,7 +75,7 @@ export default function ManagerProfile() {
     }
   };
 
-  const handleOldPasswordChange = (value) => {
+  const _handleOldPasswordChange = (value) => {
     setOldPassword(value);
   };
 

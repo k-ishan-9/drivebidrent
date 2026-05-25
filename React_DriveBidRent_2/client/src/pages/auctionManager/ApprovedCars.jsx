@@ -1,6 +1,6 @@
 // client/src/pages/auctionManager/ApprovedCars.jsx
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { auctionManagerServices } from '../../services/auctionManager.services';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -9,7 +9,8 @@ export default function ApprovedCars() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all'); // all | not-started | ongoing | ended | reauction
+  const [statusFilter, setStatusFilter] = useState('all');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCars = async () => {
@@ -264,7 +265,7 @@ export default function ApprovedCars() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {filteredCars.map(car => (
-                <div key={car._id} className="bg-white rounded-3xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden flex flex-col h-full group">
+                <div key={car._id} className="bg-white rounded-3xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden flex flex-col h-full group cursor-pointer" onClick={() => navigate(`/auctionmanager/view-bids/${car._id}`)}>
                   <div className="relative h-64 overflow-hidden bg-gray-100">
                     <img src={car.mainImage || car.vehicleImage} alt={car.vehicleName} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     <div className="absolute top-4 left-4">
@@ -289,7 +290,7 @@ export default function ApprovedCars() {
                         <p className="text-sm font-medium text-gray-900 capitalize">{car.condition}</p>
                       </div>
                     </div>
-                    <div className="mt-auto pt-4 border-t border-gray-100">
+                    <div className="mt-auto pt-4 border-t border-gray-100" onClick={(e) => e.stopPropagation()}>
                       {getCarStatus(car) === 'reauction' ? (
                         <button onClick={() => reAuctionCar(car._id)} className="w-full py-3 bg-red-100 hover:bg-red-600 text-red-700 hover:text-white font-bold rounded-xl transition duration-300">Re-Auction</button>
                       ) : getCarStatus(car) === 'not-started' ? (

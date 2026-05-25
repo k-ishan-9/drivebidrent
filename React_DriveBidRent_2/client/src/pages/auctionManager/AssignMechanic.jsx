@@ -50,6 +50,12 @@ export default function AssignMechanic() {
   const [assigning, setAssigning] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
+  // Reject Modal State
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [rejectError, setRejectError] = useState('');
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -93,6 +99,29 @@ export default function AssignMechanic() {
       alert(err.response?.data?.message || 'Failed to assign mechanic');
     } finally {
       setAssigning(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!rejectReason.trim()) {
+      setRejectError('A rejection reason is required.');
+      return;
+    }
+    setIsRejecting(true);
+    setRejectError('');
+    try {
+      const res = await auctionManagerServices.rejectRequest(id, rejectReason);
+      const responseData = res.data || res;
+      if (responseData.success) {
+        setShowRejectModal(false);
+        navigate('/auctionmanager/requests');
+      } else {
+        setRejectError(responseData.message || 'Failed to reject request');
+      }
+    } catch (err) {
+      setRejectError(err.response?.data?.message || 'Failed to reject request. Please try again.');
+    } finally {
+      setIsRejecting(false);
     }
   };
 
@@ -356,7 +385,7 @@ export default function AssignMechanic() {
                     <svg xmlns="http://www.w3.org/2000/svg" style={{ width: 22, height: 22, color: '#16a34a' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                   </div>
                   <p style={{ fontSize: 15, fontWeight: 700, color: '#15803d', marginBottom: 6 }}>Mechanic Assigned!</p>
-                  <p style={{ fontSize: 13, color: '#166534' }}>Head to Chats to begin the inspection.</p>
+                  <p style={{ fontSize: 13, color: '#4ade80' }}>Head to Chats to begin the inspection.</p>
                 </div>
               ) : (
                 <>
@@ -423,6 +452,21 @@ export default function AssignMechanic() {
                       </span>
                     ) : 'Confirm Assignment'}
                   </button>
+
+                  <div style={{ marginTop: 12, textAlign: 'center' }}>
+                    <button
+                      onClick={() => setShowRejectModal(true)}
+                      style={{
+                        width: '100%', padding: '14px', borderRadius: 12, border: '1px solid #fee2e2',
+                        background: '#fff', color: '#dc2626', fontSize: 14, fontWeight: 700,
+                        cursor: 'pointer', transition: 'all 0.2s', letterSpacing: '0.02em',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
+                    >
+                      Reject Request
+                    </button>
+                  </div>
                 </>
               )}
             </div>
@@ -474,6 +518,74 @@ export default function AssignMechanic() {
 
       {/* Spinner keyframe */}
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      
+      {/* Rejection Modal */}
+      {showRejectModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: '#fff', borderRadius: 24, boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', width: '100%', maxWidth: 450, overflow: 'hidden', transform: 'scale(1)', transition: 'all 0.3s' }}>
+            <div style={{ padding: '16px 24px', borderBottom: '1px solid #fee2e2', background: '#fef2f2', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: '#991b1b', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <svg xmlns="http://www.w3.org/2000/svg" style={{ width: 20, height: 20 }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                Reject Request
+              </h3>
+              <button 
+                onClick={() => { setShowRejectModal(false); setRejectError(''); setRejectReason(''); }}
+                style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: 4 }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" style={{ width: 24, height: 24 }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            
+            <div style={{ padding: 24 }}>
+              <p style={{ fontSize: 13, color: '#475569', marginBottom: 16, lineHeight: 1.5 }}>
+                Please provide a clear reason for rejecting <strong style={{ color: '#0f172a' }}>{request.vehicleName}</strong>. This will be visible to the seller.
+              </p>
+              
+              <textarea
+                value={rejectReason}
+                onChange={(e) => { setRejectReason(e.target.value); setRejectError(''); }}
+                placeholder="Examples: Blurred documentation images, missing RC details, car doesn't meet age criteria..."
+                style={{ width: '100%', height: 120, padding: '12px 16px', borderRadius: 12, border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: 14, color: '#334155', resize: 'none', outline: 'none', transition: 'all 0.2s', boxSizing: 'border-box' }}
+                onFocus={e => { e.target.style.background = '#fff'; e.target.style.borderColor = '#ef4444'; e.target.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.2)'; }}
+                onBlur={e => { e.target.style.background = '#f8fafc'; e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
+              />
+              
+              {rejectError && (
+                <p style={{ marginTop: 8, fontSize: 13, color: '#dc2626', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" style={{ width: 14, height: 14 }} viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                  {rejectError}
+                </p>
+              )}
+            </div>
+            
+            <div style={{ padding: '16px 24px', background: '#f8fafc', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button
+                onClick={() => { setShowRejectModal(false); setRejectError(''); setRejectReason(''); }}
+                disabled={isRejecting}
+                style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: 'transparent', color: '#64748b', fontSize: 14, fontWeight: 600, cursor: isRejecting ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
+                onMouseEnter={e => { if (!isRejecting) e.currentTarget.style.background = '#e2e8f0'; }}
+                onMouseLeave={e => { if (!isRejecting) e.currentTarget.style.background = 'transparent'; }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReject}
+                disabled={isRejecting}
+                style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: '#dc2626', color: '#fff', fontSize: 14, fontWeight: 700, cursor: isRejecting ? 'not-allowed' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', minWidth: 120, justifyContent: 'center' }}
+                onMouseEnter={e => { if (!isRejecting) e.currentTarget.style.background = '#b91c1c'; }}
+                onMouseLeave={e => { if (!isRejecting) e.currentTarget.style.background = '#dc2626'; }}
+              >
+                {isRejecting ? (
+                  <svg style={{ animation: 'spin 0.8s linear infinite', width: 18, height: 18 }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : 'Confirm Reject'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

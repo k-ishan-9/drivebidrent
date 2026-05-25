@@ -50,4 +50,8 @@ notificationSchema.post('save', async function(doc) {
   }
 });
 
+// Indexes for DB optimization
+notificationSchema.index({ userId: 1, createdAt: -1 });
+notificationSchema.index({ userId: 1, isRead: 1 });
+
 export default mongoose.model('Notification', notificationSchema);

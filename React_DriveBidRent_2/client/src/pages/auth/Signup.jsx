@@ -3,12 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
-import { signupUser } from '../../redux/slices/authSlice';
+import { signupUser, verifySignupOtp, cancelSignupOtp, clearError, clearSuccess } from '../../redux/slices/authSlice';
 
 const Signup = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { loading, error, success, message } = useSelector((state) => state.auth);
+  const { loading, error, success, message, requireSignupOtpUI, signupEmail, redirect: authRedirect } = useSelector((state) => state.auth);
+  
+  const [otp, setOtp] = useState("");
 
   const [formData, setFormData] = useState({
     userType: '',
@@ -37,12 +39,14 @@ const Signup = () => {
 
   useEffect(() => {
     if (success) {
-      toast.success(message || 'Account created successfully!');
+      toast.success(message || 'Success!');
       setTimeout(() => {
-        navigate('/login');
+        if (!requireSignupOtpUI) {
+          navigate(authRedirect || '/login');
+        }
       }, 2000);
     }
-  }, [success, message, navigate]);
+  }, [success, message, navigate, authRedirect, requireSignupOtpUI]);
 
   useEffect(() => {
     if (error) {
@@ -150,8 +154,21 @@ const Signup = () => {
     }
 
     // Remove confirmPassword before sending to backend
-    const { confirmPassword, ...signupData } = formData;
+    const { confirmPassword: _confirmPassword, ...signupData } = formData;
+    dispatch(clearError());
+    dispatch(clearSuccess());
     dispatch(signupUser(signupData));
+  };
+
+  const handleOtpSubmit = (e) => {
+    e.preventDefault();
+    if (!otp || otp.length !== 6) {
+      toast.error("Please enter a valid 6-digit OTP");
+      return;
+    }
+    dispatch(clearError());
+    dispatch(clearSuccess());
+    dispatch(verifySignupOtp({ email: signupEmail, otp }));
   };
 
   const getBorderColor = (field) => {
@@ -191,11 +208,62 @@ const Signup = () => {
           >
             <i className="fas fa-times text-gray-600"></i>
           </button>
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mt-10">Create an Account</h1>
-          </div>
 
-          {/* Role Selection Cards */}
+          {requireSignupOtpUI ? (
+            <div className="max-w-md mx-auto mt-8 mb-6">
+              <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Verify Email</h1>
+              <p className="text-center text-gray-600 mb-6">
+                We've sent a 6-digit code to <br/><span className="font-semibold text-gray-800">{signupEmail}</span>
+              </p>
+
+              <form onSubmit={handleOtpSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-gray-700 font-medium mb-1">Enter OTP Code</label>
+                  <div className="relative">
+                    <i className="fas fa-key absolute left-3 top-3 text-gray-500"></i>
+                    <input 
+                      type="text" 
+                      maxLength={6}
+                      className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-500 font-mono text-center tracking-[0.5em] text-lg" 
+                      value={otp} 
+                      onChange={(e) => {
+                        setOtp(e.target.value.replace(/[^0-9]/g, ''));
+                        dispatch(clearError());
+                        dispatch(clearSuccess());
+                      }} 
+                      placeholder="------"
+                      required 
+                      disabled={loading} 
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button 
+                    type="button" 
+                    onClick={() => dispatch(cancelSignupOtp())}
+                    disabled={loading} 
+                    className="w-1/3 py-3 text-gray-700 bg-gray-200 rounded-lg text-lg font-semibold transition hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    disabled={loading || otp.length !== 6} 
+                    className={`w-2/3 py-3 text-white rounded-lg text-lg font-semibold transition ${loading || otp.length !== 6 ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'}`}
+                  >
+                    {loading ? 'Verifying...' : 'Verify'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <>
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gray-800 mt-10">Create an Account</h1>
+              </div>
+
+              {/* Role Selection Cards */}
           {!formData.userType && (
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-gray-700 mb-4">Choose your role:</h3>
@@ -702,6 +770,8 @@ const Signup = () => {
               )}
             </button>
           </form>
+          </>
+          )}
 
           <div className="mt-8 pt-6 border-t text-center">
             <p className="text-gray-600">

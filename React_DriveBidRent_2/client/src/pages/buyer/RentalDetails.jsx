@@ -1,7 +1,7 @@
 // client/src/pages/buyer/RentalDetails.jsx
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { getRentalById, bookRental, createOrGetChatForRental, addReview, getReviews, checkCanReview } from '../../services/buyer.services';
+import { getRentalById, createOrGetChatForRental, addReview, getReviews, checkCanReview, createCheckoutSession } from '../../services/buyer.services';
 import DatePickerModal from './components/modals/DatePickerModal';
 import PaymentModal from './components/modals/PaymentModal';
 import ProcessingModal from './components/modals/ProcessingModal';
@@ -19,7 +19,7 @@ export default function RentalDetails() {
     const [showDateModal, setShowDateModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [showProcessingModal, setShowProcessingModal] = useState(false);
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showSuccessModal, _setShowSuccessModal] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [reviews, setReviews] = useState([]);
     const [canReview, setCanReview] = useState(false);
@@ -34,6 +34,7 @@ export default function RentalDetails() {
         fetchRentalDetails();
         fetchReviews();
         checkReviewEligibility();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     const fetchRentalDetails = async () => {
@@ -112,33 +113,36 @@ export default function RentalDetails() {
         setTimeout(() => setShowPaymentModal(true), 300);
     };
 
-    const handlePayment = async (paymentMethod) => {
+    const handlePayment = async (_paymentMethod) => {
         setShowPaymentModal(false);
         setShowProcessingModal(true);
 
         try {
-            const rentalData = {
-                rentalCarId: id,
-                sellerId: rental.seller._id,
-                pickupDate,
-                dropDate,
-                totalCost,
-                includeDriver,
-            };
+            const sessionData = await createCheckoutSession({
+                amount: totalCost,
+                productName: `Rental: ${rental.vehicleName}`,
+                metadata: {
+                    type: 'rental',
+                    rentalCarId: id,
+                    sellerId: rental.seller._id,
+                    pickupDate: pickupDate,
+                    dropDate: dropDate,
+                    totalCost: totalCost.toString(),
+                    includeDriver: includeDriver ? 'true' : 'false'
+                },
+                successUrl: `${window.location.origin}/buyer/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+                cancelUrl: `${window.location.origin}/buyer/payment-cancel`
+            });
 
-            const result = await bookRental(rentalData);
-
-            if (result.success) {
-                setTimeout(() => {
-                    setShowProcessingModal(false);
-                    setShowSuccessModal(true);
-                }, 2000);
+            if (sessionData.success && sessionData.url) {
+                window.location.href = sessionData.url;
             } else {
-                throw new Error(result.message || "Booking failed");
+                throw new Error(sessionData.message || 'Failed to initialize payment');
             }
         } catch (error) {
+            console.error('Booking/Payment error:', error);
             setShowProcessingModal(false);
-            alert("Booking failed: " + (error.response?.data?.message || error.message));
+            alert('Payment initialization failed. Please try again.');
         }
     };
 

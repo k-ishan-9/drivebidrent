@@ -263,7 +263,7 @@ export default function Dashboard() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {data.assigned.slice(0, 3).map((car) => {
-                const hasReview = !!(car.mechanicReview && (car.mechanicReview.mechanicalCondition || car.mechanicReview.bodyCondition));
+                const hasReview = !!car.multipointInspection || !!(car.mechanicReview && (car.mechanicReview.mechanicalCondition || car.mechanicReview.bodyCondition));
                 return (
                   <div key={car._id} className="bg-white rounded-3xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden flex flex-col h-full group">
                     <div className="relative h-56 overflow-hidden bg-gray-100">
@@ -297,7 +297,7 @@ export default function Dashboard() {
                         <div className="mt-2 mb-6 p-3 bg-green-50 rounded-xl border border-green-100">
                           <p className="text-[10px] text-green-800 uppercase tracking-wider font-bold mb-1">Mechanic's Review</p>
                           <p className="text-xs text-green-700 line-clamp-2 font-medium">
-                            {car.mechanicReview?.mechanicalCondition || car.mechanicReview?.bodyCondition || 'Review submitted successfully'}
+                            {car.multipointInspection?.mechanicSummary || car.mechanicReview?.mechanicalCondition || car.mechanicReview?.bodyCondition || 'Review submitted successfully'}
                           </p>
                         </div>
                       )}

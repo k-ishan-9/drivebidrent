@@ -130,10 +130,13 @@ const Analytics = () => {
   return (
     <>
       <section className="py-8 max-w-7xl mx-auto px-6">
-        <h1 className="text-center text-4xl font-bold text-orange-600 mb-10">
-          <i className="fas fa-chart-line mr-3"></i>
-          Platform Analytics
-        </h1>
+        <div className="admin-page-header">
+          <h1 className="admin-page-title">
+            <i className="fas fa-chart-line"></i>
+            Platform Analytics
+          </h1>
+          <p className="admin-page-subtitle">Deep insights into user behavior and platform performance</p>
+        </div>
 
         {/* Overview Statistics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">

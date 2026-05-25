@@ -4,6 +4,7 @@ import AuctionBid from '../../models/AuctionBid.js';
 import Purchase from '../../models/Purchase.js';
 import User from '../../models/User.js';
 import Notification from '../../models/Notification.js';
+import AuctionManager from '../../models/AuctionManager.js';
 import chatController from '../../controllers/chat.controller.js';
 const { createChatForAuction } = chatController;
 
@@ -76,7 +77,7 @@ export const stopAuction = async (req, res) => {
     auction.auction_stopped = true;
     auction.started_auction = 'ended';
 
-    if (currentBid) {
+    if (currentBid && currentBid.buyerId && currentBid.buyerId._id) {
       auction.winnerId = currentBid.buyerId._id;
       auction.finalPurchasePrice = currentBid.bidAmount;
       
@@ -86,21 +87,31 @@ export const stopAuction = async (req, res) => {
       auction.paymentDeadline = paymentDeadline;
 
       const seller = await User.findById(auction.sellerId);
-      await Purchase.create({
-        auctionId: auction._id,
-        buyerId: currentBid.buyerId._id,
-        sellerId: auction.sellerId,
-        vehicleName: auction.vehicleName,
-        vehicleImage: auction.vehicleImage,
-        year: auction.year,
-        mileage: auction.mileage,
-        carType: auction.carType,
-        purchasePrice: currentBid.bidAmount,
-        sellerName: `${seller.firstName} ${seller.lastName}`,
-        paymentStatus: 'pending'
-      });
+      try {
+        await Purchase.create({
+          auctionId: auction._id,
+          buyerId: currentBid.buyerId._id,
+          sellerId: auction.sellerId,
+          vehicleName: auction.vehicleName || 'Vehicle',
+          // AuctionRequest stores the primary image in mainImage.
+          vehicleImage: auction.mainImage || auction.vehicleImage || auction.additionalImages?.[0] || 'https://dummyimage.com/600x400/cccccc/000000&text=Vehicle',
+          year: Number(auction.year) || new Date().getFullYear(),
+          mileage: Number(auction.mileage) || 0,
+          carType: auction.carType,
+          purchasePrice: currentBid.bidAmount,
+          sellerName: seller ? `${seller.firstName} ${seller.lastName}` : 'Unknown Seller',
+          paymentStatus: 'pending'
+        });
+      } catch (purchaseErr) {
+        console.error('[stopAuction] Purchase create failed:', purchaseErr);
+        return res.json(send(false, `Failed to finalize purchase: ${purchaseErr.message}`));
+      }
 
-      await AuctionBid.notifyAuctionWinner(auction._id, currentBid.buyerId._id);
+      try {
+        await AuctionBid.notifyAuctionWinner(auction._id, currentBid.buyerId._id);
+      } catch (notifyErr) {
+        console.error('[stopAuction] Winner notification failed:', notifyErr);
+      }
 
       // create auction chat (5 days duration) between winner and seller
       try {
@@ -108,6 +119,8 @@ export const stopAuction = async (req, res) => {
       } catch (e) {
         console.error('create auction chat error:', e);
       }
+    } else if (currentBid && (!currentBid.buyerId || !currentBid.buyerId._id)) {
+      console.log('[stopAuction] Current bid has no valid buyer reference; stopping auction without winner.');
     }
 
     await auction.save();
@@ -132,8 +145,24 @@ export const viewBids = async (req, res) => {
       return res.json(send(false, 'Auction not found'));
     }
 
-    // Verify this car is assigned to the auction manager
-    if (!auction.assignedAuctionManager || auction.assignedAuctionManager.toString() !== req.user._id.toString()) {
+    // Verify this car is assigned to the auction manager.
+    // Fallback to auctionManager.auctionCars for older records where assignedAuctionManager is missing.
+    const assignedByField = !!auction.assignedAuctionManager && auction.assignedAuctionManager.toString() === req.user._id.toString();
+
+    let assignedByArray = false;
+    if (!assignedByField) {
+      const manager = await AuctionManager.findById(req.user._id).select('auctionCars').lean();
+      assignedByArray = !!manager?.auctionCars?.some(
+        (carId) => carId.toString() === auction._id.toString()
+      );
+
+      // Auto-heal legacy records so future checks are consistent.
+      if (assignedByArray && !auction.assignedAuctionManager) {
+        await AuctionRequest.findByIdAndUpdate(auction._id, { assignedAuctionManager: req.user._id });
+      }
+    }
+
+    if (!assignedByField && !assignedByArray) {
       console.log('[viewBids] Car not assigned to this auction manager');
       return res.json(send(false, 'You are not authorized to view bids for this auction'));
     }

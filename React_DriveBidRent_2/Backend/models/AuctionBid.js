@@ -1,7 +1,7 @@
 // models/AuctionBid.js
 import mongoose from 'mongoose';
 import Notification from './Notification.js'; // ESM import
-
+// new things
 const auctionBidSchema = new mongoose.Schema({
   auctionId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -140,6 +140,11 @@ auctionBidSchema.statics.notifyAuctionWinner = async function (auctionId, winner
     throw error;
   }
 };
+
+// Add database indexes for query optimization
+auctionBidSchema.index({ auctionId: 1, bidAmount: -1 });
+auctionBidSchema.index({ auctionId: 1, isCurrentBid: 1 });
+auctionBidSchema.index({ buyerId: 1 });
 
 // Export model
 const AuctionBid = mongoose.model('AuctionBid', auctionBidSchema);

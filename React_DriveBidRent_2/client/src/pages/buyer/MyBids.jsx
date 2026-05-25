@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import io from 'socket.io-client';
 import { getMyBids } from '../../services/buyer.services';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Gavel, Clock3, CheckCircle2 } from 'lucide-react';
@@ -13,12 +14,15 @@ export default function MyBids() {
   useEffect(() => {
     fetchMyBids(true);
 
-    // Poll in the background for status/bid updates without flashing loader.
-    const intervalId = setInterval(() => {
-      fetchMyBids(false);
-    }, 5000);
+    // Setup Socket.io for real-time bid updates
+    const backendUrl = import.meta.env.VITE_BACKEND_URL?.replace('/api', '') || 'https://drivebidrent.onrender.com';
+    const socket = io(backendUrl, { withCredentials: true });
 
-    return () => clearInterval(intervalId);
+    socket.on('global_new_bid', () => {
+      fetchMyBids(false);
+    });
+
+    return () => socket.disconnect();
   }, []);
 
   const fetchMyBids = async (isInitial = false) => {

@@ -76,4 +76,10 @@ const RentalRequestSchema = new mongoose.Schema({
   }
 });
 
+// Indexes for DB optimization
+RentalRequestSchema.index({ sellerId: 1 });
+RentalRequestSchema.index({ status: 1 });
+RentalRequestSchema.index({ fuelType: 1, transmission: 1 });
+RentalRequestSchema.index({ vehicleName: 'text' });
+
 export default mongoose.model('RentalRequest', RentalRequestSchema);

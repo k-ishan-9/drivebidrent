@@ -1,7 +1,7 @@
 // client/src/pages/superadmin/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance.util";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../components/LoadingSpinner";
 
@@ -20,7 +20,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('/api/superadmin/profile', { withCredentials: true });
+        const res = await axiosInstance.get('/superadmin/profile');
         if (res.data.success) {
           setProfile(res.data.data);
         } else {
@@ -56,10 +56,10 @@ const Profile = () => {
 
     setUpdating(true);
     try {
-      const res = await axios.post('/api/superadmin/update-password', {
+      const res = await axiosInstance.post('/superadmin/update-password', {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword
-      }, { withCredentials: true });
+      });
 
       if (res.data.success) {
         toast.success("Password updated successfully!");

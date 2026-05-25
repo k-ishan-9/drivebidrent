@@ -1,7 +1,7 @@
 // client/src/pages/superadmin/Revenue.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance.util";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 const Revenue = () => {
@@ -13,12 +13,13 @@ const Revenue = () => {
 
   useEffect(() => {
     fetchRevenue();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
 
   const fetchRevenue = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/superadmin/revenue?period=${period}`, { withCredentials: true });
+      const res = await axiosInstance.get(`/superadmin/revenue?period=${period}`);
       console.log('Revenue API Response:', res.data); // Debug log
       if (res.data.success) {
         setData(res.data.data);

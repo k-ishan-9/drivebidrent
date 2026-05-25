@@ -1,6 +1,7 @@
 // client/src/pages/auctionManager/ViewBids.jsx
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import io from 'socket.io-client';
 import { auctionManagerServices } from '../../services/auctionManager.services';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -13,6 +14,8 @@ export default function ViewBids() {
   const [error, setError] = useState(null);
   const [ending, setEnding] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [poking, setPoking] = useState(false);
+  const [pokeResult, setPokeResult] = useState(null); // { success, message }
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,15 +46,23 @@ export default function ViewBids() {
     // Initial fetch with loading state
     fetchBids(true);
     
-    // Set up polling for real-time bid updates every 1 second (without loading state)
-    const intervalId = setInterval(() => {
-      if (!error) {
-        fetchBids(false);
-      }
-    }, 1000);
+    // Setup Socket.io for real-time bid updates
+    const backendUrl = import.meta.env.VITE_BACKEND_URL?.replace('/api', '') || 'https://drivebidrent.onrender.com';
+    const socket = io(backendUrl, { withCredentials: true });
     
-    return () => clearInterval(intervalId);
-  }, [id]);
+    socket.on('connect', () => {
+      socket.emit('join_auction', id);
+    });
+
+    socket.on('new_bid', () => {
+      if (!error) fetchBids(false);
+    });
+    
+    return () => {
+      socket.emit('leave_auction', id);
+      socket.disconnect();
+    };
+  }, [id, error]);
 
   const endAuction = async () => {
     if (!window.confirm('Are you sure you want to end this auction?')) return;
@@ -72,6 +83,29 @@ export default function ViewBids() {
     } finally {
       setEnding(false);
     }
+  };
+
+  const pokeBuyer = async () => {
+    try {
+      setPoking(true);
+      setPokeResult(null);
+      const res = await auctionManagerServices.pokeBuyer(id);
+      const data = res.data || res;
+      setPokeResult({ success: data.success, message: data.message });
+    } catch (err) {
+      setPokeResult({ success: false, message: err.response?.data?.message || 'Failed to send reminder' });
+    } finally {
+      setPoking(false);
+    }
+  };
+
+  // Check if poke button should be visible:
+  // auction ended + winner exists + 30h passed + not already re-auctioned
+  const canPoke = () => {
+    if (!car?.auction_stopped || !car?.winnerId || car?.paymentFailed) return false;
+    const updatedAt = new Date(car.updatedAt);
+    const hoursSinceEnd = (Date.now() - updatedAt.getTime()) / (1000 * 60 * 60);
+    return hoursSinceEnd >= 0; // TEST: set to 0 for testing, change back to: 30
   };
 
   if (loading) return <LoadingSpinner />;
@@ -245,9 +279,9 @@ export default function ViewBids() {
             {/* Past Bids History */}
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 mt-8">
               <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3">
-                 <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                 <span className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center inline-flex">
                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                 </div>
+                 </span>
                  Bid History
                  <span className="ml-auto text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{pastBids.length} total bids</span>
               </h3>
@@ -301,12 +335,12 @@ export default function ViewBids() {
                     
                     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
                       <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Leading Bidder</p>
-                      <p className="text-white font-bold text-lg truncate flex items-center gap-2">
+                      <div className="text-white font-bold text-lg truncate flex items-center gap-2">
                          <div className="w-6 h-6 rounded-full bg-amber-500 text-amber-950 flex items-center justify-center text-xs font-black">
                            {currentBid.buyerId?.firstName?.charAt(0) || 'U'}
                          </div>
                          {currentBid.buyerId?.firstName || 'Unknown'} {currentBid.buyerId?.lastName || ''}
-                      </p>
+                      </div>
                       <p className="text-gray-300 text-sm mt-1 truncate">{currentBid.buyerId?.email || 'N/A'}</p>
                       <div className="w-full h-px bg-white/10 my-3"></div>
                       <p className="text-gray-400 text-xs flex justify-between items-center">
@@ -326,15 +360,56 @@ export default function ViewBids() {
 
               {/* Action Box */}
               <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-                <h3 className="text-xl font-black text-gray-900 mb-6">Auction Controls</h3>
+                <div className="text-xl font-black text-gray-900 mb-6">Auction Controls</div>
                 
                 {car.auction_stopped ? (
-                  <div className="bg-gray-50 text-gray-700 p-6 rounded-2xl border border-gray-200 text-center shadow-inner">
-                    <div className="bg-gray-200 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-500">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 text-gray-700 p-6 rounded-2xl border border-gray-200 text-center shadow-inner">
+                      <div className="bg-gray-200 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                      </div>
+                      <span className="font-extrabold text-xl block text-gray-800 mb-1">Auction Ended</span>
+                      <span className="text-sm text-gray-500 block">This auction is closed and no longer accepting bids.</span>
                     </div>
-                    <span className="font-extrabold text-xl block text-gray-800 mb-1">Auction Ended</span>
-                    <span className="text-sm text-gray-500 block">This auction is closed and no longer accepting bids.</span>
+
+                    {/* POKE BUTTON — only when 30h passed, winner exists, not re-auctioned */}
+                    {canPoke() && (
+                      <div className="pt-2">
+                        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-3 text-center">
+                          <p className="text-xs text-orange-700 font-semibold">
+                            💤 Winner hasn't paid yet. Send them a payment reminder!
+                          </p>
+                        </div>
+                        <button
+                          onClick={pokeBuyer}
+                          disabled={poking}
+                          className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-base transition-all duration-300 flex justify-center items-center gap-2 shadow-md"
+                        >
+                          {poking ? (
+                            <>
+                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-lg">👉</span>
+                              Poke Buyer
+                            </>
+                          )}
+                        </button>
+
+                        {/* Result feedback */}
+                        {pokeResult && (
+                          <div className={`mt-3 p-3 rounded-xl text-sm font-semibold text-center ${
+                            pokeResult.success
+                              ? 'bg-green-50 text-green-700 border border-green-200'
+                              : 'bg-red-50 text-red-700 border border-red-200'
+                          }`}>
+                            {pokeResult.success ? '✅ ' : '❌ '}{pokeResult.message}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ) : (
                    <div className="space-y-4">

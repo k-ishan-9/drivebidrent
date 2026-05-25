@@ -127,7 +127,7 @@ export const useNotifications = () => {
 
 // Profile Hook (bridged to Redux)
 export const useProfile = () => {
-  const { profile, loading, error, refresh } = useProfileHook();
+  const { profile, loading, error: _error, refresh } = useProfileHook();
 
   const updateProfileData = async (profileData) => {
     try {

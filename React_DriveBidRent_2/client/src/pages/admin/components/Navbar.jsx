@@ -20,49 +20,34 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white shadow-md border-b border-orange-100">
+    <nav className="admin-navbar sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link
               to="/admin/dashboard"
-              className="text-2xl font-bold text-orange-600 tracking-tight hover:text-orange-700 transition-colors"
+              className="admin-logo"
             >
               DriveBidRent
             </Link>
           </div>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link
-              to="/admin/dashboard"
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors"
-            >
+          <div className="hidden md:flex items-center space-x-2">
+            <Link to="/admin/dashboard" className="admin-nav-link">
               Dashboard
             </Link>
-            <Link
-              to="/admin/manage-users"
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors"
-            >
+            <Link to="/admin/manage-users" className="admin-nav-link">
               Manage Users
             </Link>
-            <Link
-              to="/admin/manage-earnings"
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors"
-            >
+            <Link to="/admin/manage-earnings" className="admin-nav-link">
               Earnings
             </Link>
-            <Link
-              to="/admin/analytics"
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors"
-            >
+            <Link to="/admin/analytics" className="admin-nav-link">
               Analytics
             </Link>
-            <Link
-              to="/admin/auction-managers"
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors"
-            >
+            <Link to="/admin/auction-managers" className="admin-nav-link">
               Auction Managers
             </Link>
           </div>
@@ -72,18 +57,18 @@ const Navbar = () => {
             <img
               src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
               alt="Admin"
-              className="h-9 w-9 rounded-full object-cover border-2 border-orange-100"
+              className="h-10 w-10 rounded-full object-cover shadow-sm"
             />
             <Link
               to="/admin/admin-profile"
-              className="text-orange-600 font-semibold uppercase tracking-wide text-sm hover:text-orange-700 transition-colors hidden sm:block"
+              className="admin-nav-link hidden sm:block !text-orange-600 uppercase text-xs tracking-wider"
             >
               My Profile
             </Link>
 
             <button
               onClick={handleLogout}
-              className="bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all shadow-sm hover:shadow"
+              className="admin-btn-primary !px-4 !py-2 !text-sm"
             >
               Logout
             </button>

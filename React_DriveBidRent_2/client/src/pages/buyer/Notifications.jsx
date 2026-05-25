@@ -19,7 +19,10 @@ export default function Notifications() {
       const res = await axiosInstance.get('/buyer/notifications');
       if (res.data.success) {
         // backend returns { success, message, data: { notifications, unreadCount } }
-        setNotifications(res.data.data?.notifications || []);
+        const notifications = res.data.data?.notifications || [];
+        // Map all fetched notifications to read status so UI reflects it immediately
+        setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+        
         // mark the notification-flag as seen for the current user (so badge disappears)
         try {
           await axiosInstance.put('/buyer/notifications/seen');
@@ -45,7 +48,7 @@ export default function Notifications() {
     }, 5000);
   };
 
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   const markAsRead = async (id) => {
     try {

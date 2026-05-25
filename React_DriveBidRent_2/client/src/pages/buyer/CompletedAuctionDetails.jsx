@@ -11,6 +11,7 @@ export default function CompletedAuctionDetails() {
 
   useEffect(() => {
     fetchCompletedAuctionDetails();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchCompletedAuctionDetails = async () => {
@@ -51,7 +52,7 @@ export default function CompletedAuctionDetails() {
     );
   }
 
-  const { auction: auctionData, seller, winner, finalPrice, purchaseDate, bidHistory, mechanicReview } = auction;
+  const { auction: auctionData, seller, winner, finalPrice, purchaseDate, bidHistory, mechanicReview: _mechanicReview } = auction;
 
   // Safety checks
   if (!auctionData || !seller || !winner) {

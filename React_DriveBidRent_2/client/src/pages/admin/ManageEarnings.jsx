@@ -74,7 +74,7 @@ const ManageEarnings = () => {
       },
       tooltip: {
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             return `${context.dataset.label}: ₹${context.parsed.y.toLocaleString('en-IN')}`;
           }
         }
@@ -84,7 +84,7 @@ const ManageEarnings = () => {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: function(value) {
+          callback: function (value) {
             return '₹' + value.toLocaleString('en-IN');
           }
         }
@@ -112,7 +112,7 @@ const ManageEarnings = () => {
       },
       tooltip: {
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             const total = context.dataset.data.reduce((a, b) => a + b, 0);
             const percentage = ((context.parsed / total) * 100).toFixed(1);
             return `${context.label}: ₹${context.parsed.toLocaleString('en-IN')} (${percentage}%)`;
@@ -125,77 +125,78 @@ const ManageEarnings = () => {
   return (
     <>
       <section className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-center text-3xl font-bold text-orange-600 mb-8">
-          <i className="fas fa-chart-line mr-3"></i>
-          Earnings Management & Analytics
-        </h1>
+        <div className="admin-page-header">
+          <h1 className="admin-page-title">
+            <i className="fas fa-chart-line"></i>
+            Earnings Analytics
+          </h1>
+          <p className="admin-page-subtitle">Track and manage your platform revenue from auctions and rentals</p>
+        </div>
 
         {/* Revenue Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500">
+          <div className="admin-stat-card">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-orange-600">Total Revenue</h3>
+              <h3 className="admin-stat-label">Total Revenue</h3>
               <i className="fas fa-rupee-sign text-2xl text-green-500"></i>
             </div>
-            <p className="text-3xl font-bold text-black">₹{data.totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+            <p className="admin-stat-value text-green-500">₹{data.totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             <p className="text-xs mt-2 text-gray-600">{data.stats.totalTransactions} transactions</p>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-orange-500">
+          <div className="admin-stat-card">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-orange-600">Auction Revenue</h3>
+              <h3 className="admin-stat-label">Auction Revenue</h3>
               <i className="fas fa-gavel text-2xl text-orange-500"></i>
             </div>
-            <p className="text-3xl font-bold text-black">₹{data.totalAuctionRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
-            <p className="text-xs mt-2 text-gray-600">{data.stats.totalAuctionTransactions} auctions (Avg: ₹{data.stats.averageAuctionRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })})</p>
+            <p className="admin-stat-value text-orange-500">₹{data.totalAuctionRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+            <p className="text-xs mt-2 text-gray-600">{data.stats.totalAuctionTransactions} auctions</p>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-500">
+          <div className="admin-stat-card">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-orange-600">Rental Revenue</h3>
+              <h3 className="admin-stat-label">Rental Revenue</h3>
               <i className="fas fa-key text-2xl text-purple-500"></i>
             </div>
-            <p className="text-3xl font-bold text-black">₹{data.totalRentalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
-            <p className="text-xs mt-2 text-gray-600">{data.stats.totalRentalTransactions} rentals (Avg: ₹{data.stats.averageRentalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })})</p>
+            <p className="admin-stat-value text-purple-500">₹{data.totalRentalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+            <p className="text-xs mt-2 text-gray-600">{data.stats.totalRentalTransactions} rentals</p>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500">
+          <div className="admin-stat-card">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-orange-600">Avg Transaction</h3>
+              <h3 className="admin-stat-label">Avg Transaction</h3>
               <i className="fas fa-chart-bar text-2xl text-blue-500"></i>
             </div>
-            <p className="text-3xl font-bold text-black">₹{data.stats.averageTransactionValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
-            <p className="text-xs mt-2 text-gray-600">Per transaction revenue</p>
+            <p className="admin-stat-value text-blue-500">₹{data.stats.averageTransactionValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+            <p className="text-xs mt-2 text-gray-600">Per transaction avg</p>
           </div>
         </div>
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Revenue Trend Chart */}
-          <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+          <div className="lg:col-span-2 admin-section mb-0">
+            <div className="admin-section-header">
+              <h2 className="admin-section-title text-xl flex items-center gap-2">
                 <i className="fas fa-chart-line text-orange-600"></i>
                 Revenue Trend
               </h2>
               <div className="flex gap-2">
                 <button
                   onClick={() => setSelectedPeriod('daily')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                    selectedPeriod === 'daily'
-                      ? 'bg-orange-600 text-white'
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${selectedPeriod === 'daily'
+                      ? 'admin-btn-primary'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
+                    }`}
                 >
                   Daily (30 days)
                 </button>
                 <button
                   onClick={() => setSelectedPeriod('monthly')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                    selectedPeriod === 'monthly'
-                      ? 'bg-orange-600 text-white'
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${selectedPeriod === 'monthly'
+                      ? 'admin-btn-primary'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
+                    }`}
                 >
                   Monthly (12 months)
                 </button>
@@ -207,11 +208,13 @@ const ManageEarnings = () => {
           </div>
 
           {/* Revenue Source Pie Chart */}
-          <div className="bg-white p-6 rounded-xl shadow-lg">
-            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <i className="fas fa-chart-pie text-orange-600"></i>
-              Revenue Sources
-            </h2>
+          <div className="admin-section mb-0">
+            <div className="admin-section-header">
+              <h2 className="admin-section-title text-xl flex items-center gap-2">
+                <i className="fas fa-chart-pie text-orange-600"></i>
+                Revenue Sources
+              </h2>
+            </div>
             <div style={{ height: '300px' }}>
               <Pie data={pieData} options={pieOptions} />
             </div>
@@ -219,34 +222,33 @@ const ManageEarnings = () => {
         </div>
 
         {/* Auction Transactions Table */}
-        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <i className="fas fa-gavel text-orange-600"></i>
+        <div className="admin-section mb-8">
+          <div className="admin-section-header">
+            <h2 className="admin-section-title text-xl flex items-center gap-2">
+              <i className="fas fa-gavel mr-3"></i>
               Auction Transactions ({auctionTransactions.length})
             </h2>
-            <div className="text-sm text-gray-600 bg-orange-50 px-4 py-2 rounded-lg border border-orange-200">
-              <i className="fas fa-info-circle text-orange-600 mr-2"></i>
-              Platform Fee: <span className="font-bold text-orange-600">1% of Sale Price</span>
+            <div className="admin-badge admin-badge-primary">
+              Platform Fee: 1%
             </div>
           </div>
 
           {auctionTransactions.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full text-left table-fixed border-collapse">
                 <thead className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
                   <tr>
-                    <th className="p-3 text-left text-xs font-semibold uppercase">Date</th>
-                    <th className="p-3 text-left text-xs font-semibold uppercase">Vehicle</th>
-                    <th className="p-3 text-left text-xs font-semibold uppercase">Seller</th>
-                    <th className="p-3 text-left text-xs font-semibold uppercase">Buyer</th>
-                    <th className="p-3 text-left text-xs font-semibold uppercase">Sale Price</th>
-                    <th className="p-3 text-left text-xs font-semibold uppercase">Platform Fee (1%)</th>
+                    <th className="w-1/6 p-3 text-xs font-semibold uppercase">Date</th>
+                    <th className="w-1/6 p-3 text-xs font-semibold uppercase">Vehicle</th>
+                    <th className="w-1/6 p-3 text-xs font-semibold uppercase">Seller</th>
+                    <th className="w-1/6 p-3 text-xs font-semibold uppercase">Buyer</th>
+                    <th className="w-1/6 p-3 text-xs font-semibold uppercase">Sale Price</th>
+                    <th className="w-1/6 p-3 text-xs font-semibold uppercase">Platform Fee (1%)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {auctionTransactions.map((transaction, i) => (
-                    <tr key={transaction.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-orange-50 transition`}>
+                    <tr key={transaction.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-orange-50 transition before:hidden`}>
                       <td className="p-3 text-sm text-gray-700">
                         {new Date(transaction.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
@@ -265,7 +267,7 @@ const ManageEarnings = () => {
                       <td className="p-3 text-sm font-bold text-gray-900">
                         ₹{transaction.salePrice.toLocaleString('en-IN')}
                       </td>
-                      <td className="p-3 text-sm font-bold text-green-700">
+                      <td className="p-3 text-sm font-bold text-gray-900">
                         ₹{transaction.platformRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                         <span className="text-xs text-gray-500 ml-1">(1%)</span>
                       </td>
@@ -283,33 +285,32 @@ const ManageEarnings = () => {
         </div>
 
         {/* Rental Transactions Table */}
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <i className="fas fa-key text-purple-600"></i>
+        <div className="admin-section mb-8">
+          <div className="admin-section-header">
+            <h2 className="admin-section-title text-xl flex items-center gap-2">
+              <i className="fas fa-key mr-3"></i>
               Rental Transactions ({rentalTransactions.length})
             </h2>
-            <div className="text-sm text-gray-600 bg-purple-50 px-4 py-2 rounded-lg border border-purple-200">
-              <i className="fas fa-info-circle text-purple-600 mr-2"></i>
-              Platform Revenue: <span className="font-bold text-purple-600">Full Rental Cost</span>
+            <div className="admin-badge admin-badge-primary">
+              Platform Revenue: Full Rental Cost
             </div>
           </div>
 
           {rentalTransactions.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+              <table className="w-full text-left table-fixed border-collapse">
+                <thead className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
                   <tr>
-                    <th className="p-3 text-left text-xs font-semibold uppercase">Date</th>
-                    <th className="p-3 text-left text-xs font-semibold uppercase">Vehicle</th>
-                    <th className="p-3 text-left text-xs font-semibold uppercase">Seller</th>
-                    <th className="p-3 text-left text-xs font-semibold uppercase">Renter</th>
-                    <th className="p-3 text-left text-xs font-semibold uppercase">Platform Revenue</th>
+                    <th className="w-1/5 p-3 text-xs font-semibold uppercase">Date</th>
+                    <th className="w-1/5 p-3 text-xs font-semibold uppercase">Vehicle</th>
+                    <th className="w-1/5 p-3 text-xs font-semibold uppercase">Seller</th>
+                    <th className="w-1/5 p-3 text-xs font-semibold uppercase">Renter</th>
+                    <th className="w-1/5 p-3 text-xs font-semibold uppercase">Platform Revenue</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {rentalTransactions.map((transaction, i) => (
-                    <tr key={transaction.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-purple-50 transition`}>
+                    <tr key={transaction.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-orange-50 transition before:hidden`}>
                       <td className="p-3 text-sm text-gray-700">
                         {new Date(transaction.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
@@ -325,7 +326,7 @@ const ManageEarnings = () => {
                         <div className="font-medium text-gray-900">{transaction.buyerName}</div>
                         <div className="text-gray-500 text-xs">{transaction.buyerEmail}</div>
                       </td>
-                      <td className="p-3 text-sm font-bold text-green-700">
+                      <td className="p-3 text-sm font-bold text-gray-900">
                         ₹{transaction.platformRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                       </td>
                     </tr>

@@ -40,33 +40,37 @@ import BidPage from './pages/buyer/BidPage';
 import RentalsList from './pages/buyer/RentalsList';
 import RentalDetails from './pages/buyer/RentalDetails';
 import BookRental from './pages/buyer/BookRental';
+import LiveAuctionRoom from './pages/buyer/LiveAuctionRoom';
 import PurchasesList from './pages/buyer/PurchasesList';
 import PurchaseDetails from './pages/buyer/PurchaseDetails';
 import MyBids from './pages/buyer/MyBids';
 import Wishlist from './pages/buyer/Wishlist';
-import BuyerProfile from './pages/buyer/Profile';          
+import BuyerProfile from './pages/buyer/Profile';
 import Notifications from './pages/buyer/Notifications';
 import AboutUs from './pages/buyer/AboutUs';
 import ChatListBuyer from './pages/buyer/ChatListBuyer';
 import ChatRoomBuyer from './pages/buyer/ChatRoomBuyer';
 import ChatPageBuyer from './pages/buyer/ChatPageBuyer';
+import PaymentSuccess from './pages/buyer/PaymentSuccess';
+import PaymentCancel from './pages/buyer/PaymentCancel';
 
 // === SELLER ===
 import SellerLayout from './pages/seller/SellerLayout';
 import SellerDashboard from './pages/seller/Dashboard';
 import AddAuction from './pages/seller/AddAuction';
 import AddRental from './pages/seller/AddRental';
-import SellerProfile from './pages/seller/Profile';           
+import SellerProfile from './pages/seller/Profile';
 import ViewAuctions from './pages/seller/ViewAuctions';
 import ViewBids from './pages/seller/ViewBids';
 import ViewEarnings from './pages/seller/ViewEarnings';
 import ViewRentals from './pages/seller/ViewRentals';
 import UpdateRental from './pages/seller/UpdateRental';
 import RentalDetailsAlt from './pages/seller/RentalDetailsAlt';
-import AuctionDetailsSeller from './pages/seller/AuctionDetails';  
+import AuctionDetailsSeller from './pages/seller/AuctionDetails';
 import ChatListSeller from './pages/seller/ChatListSeller';
 import ChatRoomSeller from './pages/seller/ChatRoomSeller';
 import ChatPageSeller from './pages/seller/ChatPageSeller';
+import InspectionChatPageSeller from './pages/seller/InspectionChatPageSeller';
 
 // === AUCTION MANAGER ===
 import AuctionManagerLayout from './pages/auctionManager/AuctionManagerLayout';
@@ -101,7 +105,7 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      
+
       {/* === HIDDEN AUCTION MANAGER ROUTES === */}
       <Route path="/secret-signup" element={<AuctionManagerSignup />} />
       <Route path="/secret-login" element={<AuctionManagerLogin />} />
@@ -137,12 +141,15 @@ function App() {
         <Route path="auctions" element={<AuctionsList />} />
         <Route path="auctions/:id" element={<AuctionDetails />} />
         <Route path="auctions/:id/bid" element={<BidPage />} />
+        <Route path="live-auction/:id" element={<LiveAuctionRoom />} />
         <Route path="completed-auction/:id" element={<CompletedAuctionDetails />} />
         <Route path="rentals" element={<RentalsList />} />
         <Route path="rentals/:id" element={<RentalDetails />} />
         <Route path="rentals/:id/book" element={<BookRental />} />
         <Route path="purchases" element={<PurchasesList />} />
         <Route path="purchases/:id" element={<PurchaseDetails />} />
+        <Route path="payment-success" element={<PaymentSuccess />} />
+        <Route path="payment-cancel" element={<PaymentCancel />} />
         <Route path="my-bids" element={<MyBids />} />
         <Route path="wishlist" element={<Wishlist />} />
         <Route path="profile" element={<BuyerProfile />} />
@@ -169,6 +176,7 @@ function App() {
         <Route path="auction-details/:id" element={<AuctionDetailsSeller />} />
         <Route path="chats" element={<ChatPageSeller />} />
         <Route path="chats/:chatId" element={<ChatPageSeller />} />
+        <Route path="inspection-chats/:chatId" element={<InspectionChatPageSeller />} />
         <Route path="*" element={<PageNotFound homeRoute="/seller" />} />
       </Route>
 

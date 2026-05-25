@@ -1,7 +1,7 @@
 // client/src/pages/superadmin/Trends.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance.util";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -14,7 +14,7 @@ const Trends = () => {
   useEffect(() => {
     const fetchTrends = async () => {
       try {
-        const res = await axios.get('/api/superadmin/trends', { withCredentials: true });
+        const res = await axiosInstance.get('/superadmin/trends');
         if (res.data.success) {
           setData(res.data.data);
         } else {
@@ -34,7 +34,7 @@ const Trends = () => {
   if (error) return <div className="text-center text-red-700 mt-8">{error}</div>;
 
   // Prepare growth data for visualization
-  const growthData = [
+  const _growthData = [
     { name: 'User Signups', current: data.growth.signups.current, previous: data.growth.signups.previous, growth: parseFloat(data.growth.signups.growth) },
     { name: 'Auctions', current: data.growth.auctions.current, previous: data.growth.auctions.previous, growth: parseFloat(data.growth.auctions.growth) },
     { name: 'Rentals', current: data.growth.rentals.current, previous: data.growth.rentals.previous, growth: parseFloat(data.growth.rentals.growth) },

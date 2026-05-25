@@ -1,7 +1,7 @@
 // client/src/pages/superadmin/Analytics.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance.util";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -16,7 +16,7 @@ const Analytics = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const res = await axios.get('/api/superadmin/analytics', { withCredentials: true });
+        const res = await axiosInstance.get('/superadmin/analytics');
         if (res.data.success) {
           setData(res.data.data);
         } else {
@@ -160,7 +160,7 @@ const Analytics = () => {
                   tickFormatter={(value) => value ? value.charAt(0).toUpperCase() + value.slice(1) : 'Unknown'}
                 />
                 <Tooltip 
-                  formatter={(value, name, props) => [value, 'Users']}
+                  formatter={(value, _name, props) => [value, 'Users']}
                   labelFormatter={(value) => value ? value.charAt(0).toUpperCase() + value.slice(1) : 'Unknown'}
                 />
                 <Legend />

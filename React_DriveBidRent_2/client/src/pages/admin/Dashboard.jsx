@@ -34,7 +34,13 @@ const Dashboard = () => {
   return (
     <>
       <section className="py-8 max-w-6xl mx-auto px-6">
-        <h1 className="text-center text-3xl font-bold text-orange-600 mb-8">Admin Dashboard</h1>
+        <div className="admin-page-header">
+          <h1 className="admin-page-title">
+            <i className="fas fa-home"></i>
+            Admin Dashboard
+          </h1>
+          <p className="admin-page-subtitle">Overview of platform statistics and recent activity</p>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           {[
@@ -43,20 +49,20 @@ const Dashboard = () => {
             { label: 'Total Sellers', value: data.totalSellers },
             { label: 'Total Mechanics', value: data.totalMechanics },
           ].map((item, i) => (
-            <div key={i} className="bg-white p-5 rounded-lg shadow text-center">
-              <h2 className="text-orange-600">{item.label}</h2>
-              <p className="text-2xl font-bold mt-2">{item.value.toLocaleString()}</p>
+            <div key={i} className="admin-stat-card text-center">
+              <h2 className="admin-stat-label">{item.label}</h2>
+              <p className="admin-stat-value text-orange-500 mt-2">{item.value.toLocaleString()}</p>
             </div>
           ))}
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow mb-6 text-center">
-          <h2 className="text-orange-600">Total Earnings</h2>
-          <div className="text-2xl font-bold text-orange-600 mt-2">₹{data.totalEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+        <div className="admin-section text-center">
+          <h2 className="admin-section-title text-xl mb-2">Total Earnings</h2>
+          <div className="admin-stat-value text-orange-500 mt-2">₹{data.totalEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-orange-600 mb-4">Recent Activity</h2>
+        <div className="admin-section">
+          <h2 className="admin-section-title text-xl mb-4"><i className="fas fa-history mr-2"></i>Recent Activity</h2>
           {data.recentActivity.length > 0 ? (
             <ul className="divide-y">
               {data.recentActivity.map((act, i) => (

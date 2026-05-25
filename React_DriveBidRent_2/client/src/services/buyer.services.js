@@ -22,10 +22,31 @@ export const getAuctions = async (filters = {}) => {
     });
 
     const response = await axios.get(`/buyer/auctions?${queryParams.toString()}`);
-    return response.data.data?.auctions || [];
+    const { cacheStatus, responseTime } = response.data;
+
+    // Log Redis cache status in browser console
+    if (cacheStatus === 'HIT') {
+      console.log(
+        `%c⚡ REDIS HIT %c Auctions fetched from cache in ${responseTime}ms`,
+        'background: #22c55e; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold;',
+        'color: #22c55e; font-weight: bold;'
+      );
+    } else if (cacheStatus === 'MISS') {
+      console.log(
+        `%c🔍 REDIS MISS %c Auctions fetched from MongoDB Atlas in ${responseTime}ms`,
+        'background: #f59e0b; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold;',
+        'color: #f59e0b; font-weight: bold;'
+      );
+    }
+
+    return {
+      auctions: response.data.data?.auctions || [],
+      cacheStatus: cacheStatus || null,
+      responseTime: responseTime || null
+    };
   } catch (error) {
     console.error('Error fetching auctions:', error);
-    return [];
+    return { auctions: [], cacheStatus: null, responseTime: null };
   }
 };
 
@@ -39,10 +60,32 @@ export const getRentals = async (filters = {}) => {
     });
 
     const response = await axios.get(`/buyer/rentals?${queryParams.toString()}`);
-    return response.data.data || { rentals: [], uniqueCities: [] };
+    const { cacheStatus, responseTime } = response.data;
+
+    // Log Redis cache status in browser console
+    if (cacheStatus === 'HIT') {
+      console.log(
+        `%c⚡ REDIS HIT %c Rentals fetched from cache in ${responseTime}ms`,
+        'background: #22c55e; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold;',
+        'color: #22c55e; font-weight: bold;'
+      );
+    } else if (cacheStatus === 'MISS') {
+      console.log(
+        `%c🔍 REDIS MISS %c Rentals fetched from MongoDB Atlas in ${responseTime}ms`,
+        'background: #f59e0b; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold;',
+        'color: #f59e0b; font-weight: bold;'
+      );
+    }
+
+    const data = response.data.data || { rentals: [], uniqueCities: [] };
+    return {
+      ...data,
+      cacheStatus: cacheStatus || null,
+      responseTime: responseTime || null
+    };
   } catch (error) {
     console.error('Error fetching rentals:', error);
-    return { rentals: [], uniqueCities: [] };
+    return { rentals: [], uniqueCities: [], cacheStatus: null, responseTime: null };
   }
 };
 
@@ -179,6 +222,27 @@ export const completeAuctionPayment = async (purchaseId, paymentMethod) => {
     return response.data;
   } catch (error) {
     console.error('Error completing auction payment:', error);
+    throw error;
+  }
+};
+
+// === STRIPE CHECKOUT EXPERIMENTAL ===
+export const createCheckoutSession = async (paymentData) => {
+  try {
+    const response = await axios.post('/buyer/payment/create-checkout-session', paymentData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    throw error;
+  }
+};
+
+export const verifyPaymentSession = async (sessionId) => {
+  try {
+    const response = await axios.get(`/buyer/payment/verify-session?sessionId=${sessionId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error verifying payment session:', error);
     throw error;
   }
 };

@@ -7,7 +7,7 @@ export const addReview = async (req, res) => {
     try {
         const { id: rentalCarId } = req.params;
         const buyerId = req.user._id;
-        const { rating, comment } = req.body;
+        const { rating, comment } = req.body || {};
 
         // Validate input
         if (!rating || !comment) {

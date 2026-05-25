@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import io from 'socket.io-client';
 import {
   getDashboardData,
   getWishlist,
@@ -40,8 +41,16 @@ const Dashboard = () => {
     };
 
     loadData(true);
-    const intervalId = setInterval(() => loadData(false), 5000);
-    return () => clearInterval(intervalId);
+    
+    // Setup Socket.io for real-time bid updates
+    const backendUrl = import.meta.env.VITE_BACKEND_URL?.replace('/api', '') || 'https://drivebidrent.onrender.com';
+    const socket = io(backendUrl, { withCredentials: true });
+    
+    socket.on('global_new_bid', () => {
+      loadData(false);
+    });
+    
+    return () => socket.disconnect();
   }, []);
 
   const handleWishlistToggle = async (id, type) => {

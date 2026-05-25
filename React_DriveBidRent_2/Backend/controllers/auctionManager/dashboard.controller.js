@@ -9,8 +9,8 @@ const send = (success, message, data = null) => ({
 
 export const getDashboard = async (req, res) => {
   try {
-    console.log('📊 [getDashboard] Fetching dashboard for auction manager:', req.user._id);
-    
+    console.log('[getDashboard] Fetching dashboard for auction manager:', req.user._id);
+
     // Get all pending requests (available for assignment)
     const pending = await AuctionRequest.find({ status: 'pending' })
       .populate('sellerId', 'firstName lastName city')
@@ -18,7 +18,7 @@ export const getDashboard = async (req, res) => {
       .limit(3);
 
     // Get only THIS manager's assigned (pending inspection) cars
-    const assigned = await AuctionRequest.find({ 
+    const assigned = await AuctionRequest.find({
       status: 'assignedMechanic',
       assignedAuctionManager: req.user._id
     })
@@ -27,7 +27,7 @@ export const getDashboard = async (req, res) => {
       .limit(3);
 
     // Get only THIS manager's approved cars
-    const approved = await AuctionRequest.find({ 
+    const approved = await AuctionRequest.find({
       status: 'approved',
       assignedAuctionManager: req.user._id
     })
@@ -35,7 +35,7 @@ export const getDashboard = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(3);
 
-    console.log('📊 [getDashboard] Results:', {
+    console.log('[getDashboard] Results:', {
       pending: pending.length,
       assigned: assigned.length,
       approved: approved.length

@@ -9,14 +9,14 @@ import { logoutUser } from '../../../redux/slices/authSlice';
 import '../BuyerDashboard.css';
 
 export default function Navbar() {
-  const [user, setUser] = useState(null);
+  const [_user, setUser] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [chatUnreadCount, setChatUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { profile, loading: profileLoading, error: profileError, refresh } = useProfile();
+  const { profile, loading: _profileLoading, error: _profileError, refresh: _refresh } = useProfile();
 
   useEffect(() => {
     const loadData = async () => {
@@ -38,25 +38,8 @@ export default function Navbar() {
       }
     };
     
-    // Initial load
+    // Initial load only
     loadData();
-    
-    // Set up polling for real-time notification updates every 1 second
-    const intervalId = setInterval(async () => {
-      try {
-        const count = await getUnreadNotificationCount();
-        setUnreadCount(count);
-        
-        // Also refresh profile data
-        if (profile) {
-          setUser(profile);
-        }
-      } catch (err) {
-        // Silently fail during polling
-      }
-    }, 1000);
-    
-    return () => clearInterval(intervalId);
   }, [profile]);
 
   useEffect(() => {
@@ -79,6 +62,7 @@ export default function Navbar() {
 
     window.addEventListener('notificationsSeen', handler);
     return () => window.removeEventListener('notificationsSeen', handler);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // update chat unread badge when a chat is marked read
@@ -153,19 +137,17 @@ export default function Navbar() {
             >
               My Bids
             </Link>
-            <div className="relative">
-              <Link
-                to="/buyer/notifications"
-                className={`buyer-nav-link ${isActive('/buyer/notifications') ? 'active' : ''}`}
-              >
-                Notifications
-              </Link>
+            <Link
+              to="/buyer/notifications"
+              className={`buyer-nav-link ${isActive('/buyer/notifications') ? 'active' : ''}`}
+            >
+              Notifications
               {unreadCount > 0 && (
-                <span className="absolute -top-2 -right-4 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-lg animate-pulse" aria-hidden="true">
+                <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/3 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-lg animate-pulse" aria-hidden="true">
                   {unreadCount}
                 </span>
               )}
-            </div>
+            </Link>
             <Link
               to="/buyer/about"
               className={`buyer-nav-link ${isActive('/buyer/about') ? 'active' : ''}`}
@@ -209,9 +191,8 @@ export default function Navbar() {
           <Link to="/buyer/purchases" className="text-gray-600 hover:text-orange-500 font-medium">Purchases</Link>
           <Link to="/buyer/wishlist" className="text-gray-600 hover:text-orange-500 font-medium">Wishlist</Link>
           <Link to="/buyer/my-bids" className="text-gray-600 hover:text-orange-500 font-medium">My Bids</Link>
-          <Link to="/buyer/notifications" className="text-gray-600 hover:text-orange-500 relative font-medium">
-            Notifications
-            {unreadCount > 0 && <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">{unreadCount}</span>}
+          <Link to="/buyer/notifications" className="text-gray-600 hover:text-orange-500 font-medium">
+            Notifications{unreadCount > 0 && <span className="ml-1 inline-flex items-center justify-center bg-red-500 text-white text-xs rounded-full h-4 w-4">{unreadCount}</span>}
           </Link>
           <Link to="/buyer/chats" className="text-gray-600 hover:text-orange-500 font-medium">
             Chat{chatUnreadCount > 0 && <span className="ml-1 inline-flex items-center justify-center bg-red-500 text-white text-xs rounded-full h-4 w-4">{chatUnreadCount}</span>}

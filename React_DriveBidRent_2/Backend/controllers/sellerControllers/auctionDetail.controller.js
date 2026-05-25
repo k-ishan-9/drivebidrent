@@ -2,6 +2,7 @@
 // controllers/sellerControllers/auctionDetail.controller.js
 import AuctionRequest from '../../models/AuctionRequest.js';
 import AuctionBid from '../../models/AuctionBid.js';
+import InspectionChat from '../../models/InspectionChat.js';
 
 export const getAuctionDetail = async (req, res) => {
   try {
@@ -31,11 +32,15 @@ export const getAuctionDetail = async (req, res) => {
         .lean();
     }
 
+    // Find associated inspection chat
+    const chat = await InspectionChat.findOne({ inspectionTask: auction._id }).lean();
+
     res.json({
       success: true,
       data: {
         ...auction,
-        currentBid: currentBid
+        currentBid: currentBid,
+        chatId: chat ? chat._id : null
       }
     });
   } catch (err) {

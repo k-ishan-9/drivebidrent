@@ -3,6 +3,7 @@ import express from 'express';
 import AuctionRequest from '../models/AuctionRequest.js';
 import User from '../models/User.js';
 import mechanicMiddleware from '../middlewares/mechanic.middleware.js';
+import { scheduleInspection, submitInspection } from '../controllers/mechanic/inspection.controller.js';
 
 const router = express.Router();
 
@@ -133,16 +134,25 @@ router.get('/vehicle-details/:id', mechanicMiddleware, async (req, res) => {
     const vehicle = await AuctionRequest.findById(req.params.id)
       .populate('sellerId', 'firstName lastName phone doorNo street city state googleAddressLink');
     if (!vehicle) return res.status(404).json({ success: false, message: 'Vehicle not found' });
+    
+    // Find associated chat
+    const { default: InspectionChat } = await import('../models/InspectionChat.js');
+    const chat = await InspectionChat.findOne({ inspectionTask: vehicle._id });
+
     res.json({
       success: true,
       message: 'Vehicle details',
-      data: { vehicle, seller: vehicle.sellerId }
+      data: { vehicle, seller: vehicle.sellerId, chatId: chat ? chat._id : null }
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
+
+// New Standardized Multi-Point Inspection Routes
+router.post('/inspection/schedule', mechanicMiddleware, scheduleInspection);
+router.post('/submit-inspection/:auctionId', mechanicMiddleware, submitInspection);
 
 router.post('/submit-review/:id', mechanicMiddleware, async (req, res) => {
   try {

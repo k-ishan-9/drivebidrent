@@ -56,4 +56,9 @@ const purchaseSchema = new mongoose.Schema({
   }
 });
 
+// Indexes for DB optimization
+purchaseSchema.index({ buyerId: 1 });
+purchaseSchema.index({ sellerId: 1 });
+purchaseSchema.index({ auctionId: 1 });
+
 export default mongoose.model('Purchase', purchaseSchema);

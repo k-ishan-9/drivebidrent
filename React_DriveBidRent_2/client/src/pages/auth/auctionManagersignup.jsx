@@ -120,7 +120,7 @@ const AuctionManagerSignup = () => {
 
     try {
       // Remove confirmPassword before sending to backend
-      const { confirmPassword, ...signupData } = formData;
+      const { confirmPassword: _confirmPassword, ...signupData } = formData;
       
       const response = await auctionAuthServices.signup(signupData);
       

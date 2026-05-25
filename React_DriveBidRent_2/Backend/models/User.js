@@ -6,7 +6,18 @@ const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { 
+    type: String, 
+    required: function() {
+      return this.provider !== 'google';
+    }
+  },
+  googleId: { type: String, sparse: true, unique: true },
+  provider: { 
+    type: String, 
+    enum: ['local', 'google'], 
+    default: 'local' 
+  },
   userType: { 
     type: String, 
     required: true, 
@@ -58,7 +69,9 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,
+    required: function() {
+      return this.provider !== 'google';
+    },
     match: [/^\d{10}$/, 'Phone number must be 10 digits']
   },
   assignedRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'AuctionRequest' }],
@@ -92,9 +105,13 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// Hash password before saving
+// Indexes for DB optimization
+userSchema.index({ userType: 1 });
+userSchema.index({ email: 1, userType: 1 });
+
+// Hash password before saving (skip for Google OAuth users who have no password)
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+  if (!this.password || !this.isModified('password')) return next();
 
   try {
     const salt = await bcrypt.genSalt(10);

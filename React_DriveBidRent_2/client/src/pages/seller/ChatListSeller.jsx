@@ -11,17 +11,33 @@ export default function ChatListSeller({ onSelect, selectedId }) {
   const storedUser = (() => {
     try { return JSON.parse(localStorage.getItem('user')); } catch (e) { return null; }
   })();
-  const currentUserId = storedUser?._id || storedUser?.id || null;
+  const _currentUserId = storedUser?._id || storedUser?.id || null;
 
   useEffect(() => {
     const fetchChats = async () => {
       setIsLoading(true);
       try {
-        const res = await axiosInstance.get('/chat/my-chats');
-        // Filter to show rental and auction chats for buyer-seller communication
-        const allChats = res.data.data || [];
-        const sellerChats = allChats.filter(chat => chat.type === 'rental' || chat.type === 'auction');
-        setChats(sellerChats);
+        const [normalRes, inspectionRes] = await Promise.allSettled([
+          axiosInstance.get('/chat/my-chats'),
+          axiosInstance.get('/inspection-chat/my-chats')
+        ]);
+        
+        let allChats = [];
+        
+        if (normalRes.status === 'fulfilled' && normalRes.value.data.data) {
+          const sellerChats = normalRes.value.data.data.filter(chat => chat.type === 'rental' || chat.type === 'auction');
+          allChats = [...allChats, ...sellerChats];
+        }
+
+        if (inspectionRes.status === 'fulfilled' && inspectionRes.value.data.data) {
+          const inspectionChats = inspectionRes.value.data.data.map(chat => ({
+            ...chat,
+            type: 'inspection'
+          }));
+          allChats = [...allChats, ...inspectionChats];
+        }
+
+        setChats(allChats);
       } catch (err) {
         console.error('Error fetching chats:', err);
       } finally {
@@ -86,10 +102,13 @@ export default function ChatListSeller({ onSelect, selectedId }) {
     return 'R';
   };
 
-  // Helper function to get other user (buyer)
   const getOtherUser = (chat) => {
     if (!chat) return null;
-    // For seller, the other user is the buyer
+    if (chat.type === 'inspection') {
+      // For seller, the other user is the mechanic OR auction manager
+      return chat.mechanic || chat.auctionManager || null;
+    }
+    // For regular seller, the other user is the buyer
     return chat.buyer || null;
   };
 
@@ -130,7 +149,7 @@ export default function ChatListSeller({ onSelect, selectedId }) {
     if (firstName) return firstName;
     if (lastName) return lastName;
     
-    return 'Renter';
+    return chat.type === 'inspection' ? 'Inspector' : 'Renter';
   };
 
   // Filter chats based on search
@@ -139,7 +158,7 @@ export default function ChatListSeller({ onSelect, selectedId }) {
     
     const searchLower = searchTerm.toLowerCase();
     const chatterName = getChatterName(chat).toLowerCase();
-    const vehicleName = (chat.rentalRequest?.vehicleName || chat.auctionRequest?.vehicleName || chat.title || '').toLowerCase();
+    const vehicleName = (chat.inspectionTask?.vehicleName || chat.rentalRequest?.vehicleName || chat.auctionRequest?.vehicleName || chat.title || '').toLowerCase();
     
     return chatterName.includes(searchLower) || 
            vehicleName.includes(searchLower);
@@ -162,7 +181,7 @@ export default function ChatListSeller({ onSelect, selectedId }) {
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <h2 className="text-xl font-semibold text-gray-800 mb-1">Messages</h2>
-        <p className="text-sm text-gray-500">Chat with renters</p>
+        <p className="text-sm text-gray-500">Rentals & Inspections</p>
         
         {/* Search */}
         <div className="relative mt-4">
@@ -219,9 +238,9 @@ export default function ChatListSeller({ onSelect, selectedId }) {
               const isUnread = chat.unreadCount > 0;
               const otherUser = getOtherUser(chat);
               const chatterName = getChatterName(chat);
-              const vehicleName = chat.rentalRequest?.vehicleName || chat.auctionRequest?.vehicleName || chat.title || 'Vehicle';
+              const vehicleName = chat.inspectionTask?.vehicleName || chat.rentalRequest?.vehicleName || chat.auctionRequest?.vehicleName || chat.title || 'Vehicle';
               const lastUpdated = chat.updatedAt || chat.createdAt;
-              const lastMessagePreview = getLastMessagePreview(chat);
+              const _lastMessagePreview = getLastMessagePreview(chat);
               
               const ChatItem = ({ children }) => onSelect ? (
                 <div
@@ -232,7 +251,7 @@ export default function ChatListSeller({ onSelect, selectedId }) {
                 </div>
               ) : (
                 <Link 
-                  to={`/seller/chats/${chat._id}`}
+                  to={chat.type === 'inspection' ? `/seller/inspection-chats/${chat._id}` : `/seller/chats/${chat._id}`}
                   className={`block ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
                 >
                   {children}
@@ -259,8 +278,13 @@ export default function ChatListSeller({ onSelect, selectedId }) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-1">
                           <div className="flex-1">
-                            <h3 className="font-medium text-gray-900 truncate text-base">
+                            <h3 className="font-medium text-gray-900 truncate text-base flex items-center gap-2">
                               {vehicleName}
+                              {chat.type === 'inspection' && (
+                                <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded border border-indigo-200 uppercase font-bold tracking-wider">
+                                  Inspection
+                                </span>
+                              )}
                             </h3>
                             <p className="text-sm text-gray-600 truncate">
                               {chatterName}

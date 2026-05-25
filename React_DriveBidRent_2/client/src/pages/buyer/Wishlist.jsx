@@ -61,7 +61,7 @@ function AnimatedCounter({ value }) {
 }
 
 /* ─── Empty State ───────────────────────────────────────────────────────── */
-const EmptyState = ({ message, icon: Icon, type }) => (
+const EmptyState = ({ message, icon: _Icon, type }) => (
   <div style={{
     display: 'flex',
     flexDirection: 'column',
@@ -87,7 +87,7 @@ const EmptyState = ({ message, icon: Icon, type }) => (
       marginBottom: 20,
       color: type === 'auction' ? '#fb923c' : '#818cf8',
     }}>
-      <Icon size={28} strokeWidth={1.5} />
+      <_Icon size={28} strokeWidth={1.5} />
     </div>
     <h3 style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 8, letterSpacing: '-0.3px' }}>
       Nothing here yet
@@ -112,7 +112,7 @@ const AnimatedCard = ({ children, isRemoving }) => (
 );
 
 /* ─── Section Header ────────────────────────────────────────────────────── */
-const SectionHeader = ({ icon: Icon, title, accent, accentColor, linkTo, linkLabel, linkHoverColor }) => (
+const SectionHeader = ({ icon: Icon, title, accent, accentColor, linkTo, linkLabel, _linkHoverColor }) => (
   <div style={{
     display: 'flex',
     alignItems: 'center',

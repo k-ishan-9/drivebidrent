@@ -154,30 +154,7 @@ const AuctionManagerLogin = () => {
               {loading ? 'Logging in...' : 'Login'}
             </button>
 
-            <div className="flex items-center mt-4 mb-2">
-              <div className="flex-grow border-t border-gray-300"></div>
-              <span className="mx-3 text-gray-500">OR</span>
-              <div className="flex-grow border-t border-gray-300"></div>
-            </div>
 
-            <div className="space-y-3">
-              <button
-                type="button"
-                className="w-full py-2 bg-gray-100 border rounded-lg flex items-center justify-center gap-2 hover:bg-gray-200 transition"
-                disabled={loading}
-              >
-                <i className="fab fa-google text-red-500"></i>
-                Login with Google
-              </button>
-              <button
-                type="button"
-                className="w-full py-2 bg-gray-100 border rounded-lg flex items-center justify-center gap-2 hover:bg-gray-200 transition"
-                disabled={loading}
-              >
-                <i className="fab fa-facebook text-blue-600"></i>
-                Login with Facebook
-              </button>
-            </div>
 
             <p className="text-center text-sm text-gray-600 mt-6">
               Don't have an account?{' '}

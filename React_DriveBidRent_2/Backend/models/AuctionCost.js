@@ -35,4 +35,9 @@ const auctionCostSchema = new mongoose.Schema({
   }
 });
 
+// Indexes for DB optimization
+auctionCostSchema.index({ buyerId: 1 });
+auctionCostSchema.index({ sellerId: 1 });
+auctionCostSchema.index({ auctionId: 1 });
+
 export default mongoose.model('AuctionCost', auctionCostSchema);

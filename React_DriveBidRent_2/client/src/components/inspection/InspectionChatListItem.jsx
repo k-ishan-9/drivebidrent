@@ -1,6 +1,6 @@
 import React from 'react';
 
-const InspectionChatListItem = ({ chat, onClick, isSelected, viewerIsBuyer, currentUserId }) => {
+const InspectionChatListItem = ({ chat, onClick, isSelected, viewerIsBuyer: _viewerIsBuyer, currentUserId }) => {
   const getOtherUser = () => {
     if (!chat) return null;
     
@@ -9,7 +9,7 @@ const InspectionChatListItem = ({ chat, onClick, isSelected, viewerIsBuyer, curr
     const storedUser = (() => { 
       try { 
         return JSON.parse(localStorage.getItem('user')); 
-      } catch (e) { 
+      } catch (_e) { 
         return null; 
       } 
     })();

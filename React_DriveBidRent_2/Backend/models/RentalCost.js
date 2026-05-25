@@ -27,4 +27,9 @@ const RentalCostSchema = new mongoose.Schema({
   }
 });
 
+// Indexes for DB optimization
+RentalCostSchema.index({ buyerId: 1 });
+RentalCostSchema.index({ sellerId: 1 });
+RentalCostSchema.index({ rentalCarId: 1 });
+
 export default mongoose.model('RentalCost', RentalCostSchema);

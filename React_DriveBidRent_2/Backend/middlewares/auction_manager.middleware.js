@@ -2,16 +2,18 @@
 import jwt from 'jsonwebtoken';
 import AuctionManager from '../models/AuctionManager.js';
 
+
+
 const auctionManagerMiddleware = async (req, res, next) => {
-  let token = req.cookies.jwt;
+  let token = req.cookies.jwt || (req.headers.authorization && req.headers.authorization.startsWith('Bearer ') ? req.headers.authorization.split(' ')[1] : null);
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_for_dev');
       req.user = await AuctionManager.findById(decoded.id).select("-password");
 
-      if (!req.user || 
-          decoded.userType !== "auction_manager" || 
-          decoded.email !== req.user.email) {
+      if (!req.user ||
+        decoded.userType !== "auction_manager" ||
+        decoded.email !== req.user.email) {
         return res.status(401).json({
           success: false,
           message: 'Access denied. Auction Manager authentication required.',

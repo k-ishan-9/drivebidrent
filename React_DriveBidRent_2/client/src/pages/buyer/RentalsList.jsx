@@ -32,13 +32,7 @@ export default function RentalsList() {
   useEffect(() => {
     fetchRentals();
     fetchWishlist();
-    
-    // Set up polling for real-time rental updates every 2 seconds
-    const intervalId = setInterval(() => {
-      fetchRentals();
-    }, 2000);
-    
-    return () => clearInterval(intervalId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, fuelType, transmission, capacity, city]);
 
   const fetchRentals = async () => {
@@ -51,9 +45,9 @@ export default function RentalsList() {
         city
       };
 
-      const data = await getRentals(filters);
-      setRentals(data.rentals || []);
-      setUniqueCities(data.uniqueCities || []);
+      const result = await getRentals(filters);
+      setRentals(result.rentals || []);
+      setUniqueCities(result.uniqueCities || []);
     } catch (error) {
       console.error('Error fetching rentals:', error);
     } finally {
@@ -90,13 +84,13 @@ export default function RentalsList() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     const newParams = new URLSearchParams(searchParams);
-    
+
     if (value) {
       newParams.set(name, value);
     } else {
       newParams.delete(name);
     }
-    
+
     setSearchParams(newParams);
   };
 
@@ -134,7 +128,7 @@ export default function RentalsList() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl border border-orange-100 p-8 sticky top-24">
               <h3 className="text-2xl font-bold text-orange-600 mb-6">Filter Rentals</h3>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Search Vehicle</label>

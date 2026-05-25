@@ -25,7 +25,7 @@ const InspectionChatHeader = ({ otherUser, carName, currentUserId, chat, onDelet
         
         // Fallback to user key
         return JSON.parse(localStorage.getItem('user')); 
-      } catch (e) { 
+      } catch (_e) { 
         return null; 
       } 
     })();
@@ -203,7 +203,7 @@ const InspectionChatHeader = ({ otherUser, carName, currentUserId, chat, onDelet
         
         // Fallback to user key
         return JSON.parse(localStorage.getItem('user')); 
-      } catch (e) { 
+      } catch (_e) { 
         return null; 
       } 
     })();

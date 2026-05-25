@@ -13,6 +13,16 @@ export const authServices = {
     return res.data;
   },
 
+  googleLogin: async (credential) => {
+    const res = await axiosInstance.post('/auth/google', { credential });
+    return res.data;
+  },
+
+  verifySignupOtp: async (data) => {
+    const res = await axiosInstance.post('/auth/verify-signup-otp', data);
+    return res.data;
+  },
+
   logout: async () => {
     const res = await axiosInstance.get('/auth/logout');
     return res.data;

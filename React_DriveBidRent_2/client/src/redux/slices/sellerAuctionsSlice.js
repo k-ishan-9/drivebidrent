@@ -119,7 +119,7 @@ const sellerAuctionsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createAuction.fulfilled, (state, action) => {
+      .addCase(createAuction.fulfilled, (state, _action) => {
         state.loading = false;
         // Refetch auctions recommended after create
       })

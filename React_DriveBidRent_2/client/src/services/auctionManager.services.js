@@ -8,6 +8,7 @@ export const auctionManagerServices = {
 
   // Requests
   getRequests: () => axiosInstance.get('/auctionmanager/requests'),
+  rejectRequest: (id, rejectionReason) => axiosInstance.post(`/auctionmanager/reject-request/${id}`, { rejectionReason }),
 
   // Pending Cars
   getPending: () => axiosInstance.get('/auctionmanager/pending'),
@@ -26,6 +27,7 @@ export const auctionManagerServices = {
   startAuction: (id) => axiosInstance.post(`/auctionmanager/start-auction/${id}`),
   stopAuction: (id) => axiosInstance.post(`/auctionmanager/stop-auction/${id}`),
   reAuction: (id) => axiosInstance.post(`/auctionmanager/re-auction/${id}`),
+  pokeBuyer: (id) => axiosInstance.post(`/auctionmanager/poke-buyer/${id}`),
 
   // View Bids
   viewBids: (id) => axiosInstance.get(`/auctionmanager/view-bids/${id}`),

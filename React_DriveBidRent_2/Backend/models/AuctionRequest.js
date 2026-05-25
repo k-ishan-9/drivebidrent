@@ -23,6 +23,11 @@ const auctionRequestSchema = new mongoose.Schema({
     default: 'pending', 
     enum: ['pending', 'approved', 'rejected', 'assignedMechanic'] 
   },
+  rejectionReason: { type: String },
+  rejectedBy: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'AuctionManager' 
+  },
   started_auction: { 
     type: String, 
     default: 'no', 
@@ -78,7 +83,34 @@ const auctionRequestSchema = new mongoose.Schema({
     recommendations: String,
     conditionRating: String
   },
+  multipointInspection: {
+    exterior: {
+      paintCondition: Number, scratches: Boolean, dents: Boolean, rust: Boolean, tiresCondition: String, notes: String
+    },
+    interior: {
+      seatsCondition: String, dashboardCondition: String, acWorks: Boolean, electronicsWork: Boolean, notes: String
+    },
+    engine: {
+      fluidLeaks: Boolean, abnormalNoise: Boolean, startupSmoothness: String, batteryHealth: String, notes: String
+    },
+    testDrive: {
+      brakesCondition: String, steeringFeel: String, suspension: String, transmissionShift: String, notes: String
+    },
+    overallRating: Number,
+    isApprovedForAuction: Boolean,
+    mechanicSummary: String
+  },
   
+  // === INSPECTION & SCHEDULING SCHEMAS ===
+  inspectionDate: { type: Date },
+  inspectionTime: { type: String }, // e.g. "10:00 AM - 11:30 AM"
+  inspectionStatus: { 
+    type: String, 
+    default: 'pending_negotiation',
+    enum: ['pending_negotiation', 'scheduled', 'completed', 'cancelled']
+  },
+  inspectionReportPdf: { type: String }, // URL to generated Cloudinary PDF
+
   // === VEHICLE VERIFICATION & DOCUMENTATION ===
   vehicleDocumentation: {
     // Registration & Ownership
@@ -179,5 +211,14 @@ const auctionRequestSchema = new mongoose.Schema({
 }, { 
   timestamps: true 
 });
+
+// Create text index for search functionality on vehicles
+auctionRequestSchema.index({ vehicleName: 'text', condition: 'text', 'vehicleDocumentation.registrationState': 'text' });
+
+// Create compound and single indexes for fast filtering and query planning
+auctionRequestSchema.index({ status: 1 });
+auctionRequestSchema.index({ carType: 1, fuelType: 1, transmission: 1 });
+auctionRequestSchema.index({ started_auction: 1 });
+auctionRequestSchema.index({ sellerId: 1 });
 
 export default mongoose.model('AuctionRequest', auctionRequestSchema);

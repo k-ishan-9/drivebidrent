@@ -142,7 +142,10 @@ export default function PendingCarDetails() {
     );
   }
 
-  const hasFullReview = car.mechanicReview?.mechanicalCondition && car.mechanicReview?.bodyCondition;
+  const hasMultipoint = !!car.multipointInspection;
+  const hasOldReview = car.mechanicReview?.mechanicalCondition && car.mechanicReview?.bodyCondition;
+  const hasFullReview = hasMultipoint || hasOldReview;
+
   const doc = car.vehicleDocumentation || {};
 
   const allImages = (() => {
@@ -172,7 +175,7 @@ export default function PendingCarDetails() {
     pending: { label: 'Pending Review', bg: '#fef9c3', color: '#92400e' },
     assignedMechanic: { label: 'Under Inspection', bg: '#e0f2fe', color: '#0369a1' },
   };
-  const badge = statusBadge[status] || statusBadge.pending;
+  const _badge = statusBadge[status] || statusBadge.pending;
 
   return (
     <div className="font-montserrat" style={{ minHeight: '100vh', background: '#f8fafc' }}>
@@ -240,7 +243,46 @@ export default function PendingCarDetails() {
               <span style={{ fontSize: 12, fontWeight: 700, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Mechanic Inspection Report</span>
             </div>
             <div style={{ padding: '20px 24px' }}>
-              {hasFullReview ? (
+              {hasMultipoint ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {/* Rating & Verdict */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: car.multipointInspection.isApprovedForAuction ? '#dcfce7' : '#fee2e2', padding: 16, borderRadius: 14 }}>
+                    <div>
+                         <p style={{ fontSize: 13, fontWeight: 700, color: car.multipointInspection.isApprovedForAuction ? '#15803d' : '#b91c1c' }}>{car.multipointInspection.isApprovedForAuction ? 'APPROVED FOR AUCTION' : 'REJECTED'}</p>
+                    </div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#0f172a' }}>
+                        {car.multipointInspection.overallRating} / 10
+                    </div>
+                  </div>
+                  {/* Grid of Sections */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div style={{ padding: 12, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 10 }}>
+                       <p style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: 4 }}>Exterior</p>
+                       <p style={{ fontSize: 12, color: '#374151' }}>Paint: {car.multipointInspection.exterior?.paintCondition}/10</p>
+                       <p style={{ fontSize: 12, color: '#374151' }}>Tires: {car.multipointInspection.exterior?.tiresCondition}</p>
+                    </div>
+                    <div style={{ padding: 12, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 10 }}>
+                       <p style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: 4 }}>Interior</p>
+                       <p style={{ fontSize: 12, color: '#374151' }}>Seats: {car.multipointInspection.interior?.seatsCondition}</p>
+                       <p style={{ fontSize: 12, color: '#374151' }}>Dashboard: {car.multipointInspection.interior?.dashboardCondition}</p>
+                    </div>
+                    <div style={{ padding: 12, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 10 }}>
+                       <p style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: 4 }}>Engine</p>
+                       <p style={{ fontSize: 12, color: '#374151' }}>Startup: {car.multipointInspection.engine?.startupSmoothness}</p>
+                       <p style={{ fontSize: 12, color: '#374151' }}>Battery: {car.multipointInspection.engine?.batteryHealth}</p>
+                    </div>
+                    <div style={{ padding: 12, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 10 }}>
+                       <p style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: 4 }}>Test Drive</p>
+                       <p style={{ fontSize: 12, color: '#374151' }}>Brakes: {car.multipointInspection.testDrive?.brakesCondition}</p>
+                       <p style={{ fontSize: 12, color: '#374151' }}>Steering: {car.multipointInspection.testDrive?.steeringFeel}</p>
+                    </div>
+                  </div>
+                  <div style={{ padding: 16, background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 12 }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Mechanic Summary</p>
+                    <p style={{ fontSize: 13, color: '#7c2d12', lineHeight: 1.6 }}>{car.multipointInspection.mechanicSummary}</p>
+                  </div>
+                </div>
+              ) : hasOldReview ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {[
                     { label: 'Mechanical Condition', value: car.mechanicReview.mechanicalCondition },

@@ -4,7 +4,11 @@ import { Link } from 'react-router-dom';
 import { auctionManagerServices } from '../../services/auctionManager.services';
 import LoadingSpinner from '../components/LoadingSpinner';
 
-function RequestCard({ req }) {
+function RequestCard({ req, onReject }) {
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [rejectError, setRejectError] = useState('');
   const allImages = (() => {
     const imgs = [];
     if (req.mainImage) imgs.push(req.mainImage);
@@ -94,16 +98,97 @@ function RequestCard({ req }) {
         )}
 
         {/* Action Button */}
-        <div className="mt-auto pt-4 border-t border-gray-100">
+        <div className="mt-auto pt-4 border-t border-gray-100 flex gap-2">
+          <button
+            onClick={() => setShowRejectModal(true)}
+            className="flex-1 inline-flex justify-center items-center px-4 py-3 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 font-bold rounded-xl transition duration-300 shadow-sm hover:shadow-md border border-red-200"
+          >
+            Reject
+          </button>
           <Link
             to={`/auctionmanager/assign-mechanic/${req._id}`}
-            className="w-full inline-flex justify-center items-center px-6 py-3 bg-gray-900 hover:bg-amber-500 text-white font-bold rounded-xl transition duration-300 shadow-sm hover:shadow-md"
+            className="flex-[2] inline-flex justify-center items-center px-4 py-3 bg-gray-900 hover:bg-amber-500 text-white font-bold rounded-xl transition duration-300 shadow-sm hover:shadow-md"
           >
             Assign Mechanic
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
           </Link>
         </div>
       </div>
+
+      {/* Rejection Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+            <div className="px-6 py-4 border-b border-gray-100 bg-red-50 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-red-800 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Reject Request
+              </h3>
+              <button 
+                onClick={() => { setShowRejectModal(false); setRejectError(''); setRejectReason(''); }}
+                className="text-red-400 hover:text-red-600 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-sm text-gray-600 mb-4">
+                Please provide a clear reason for rejecting <span className="font-bold text-gray-900">{req.vehicleName}</span>. This will be visible to the seller.
+              </p>
+              
+              <textarea
+                value={rejectReason}
+                onChange={(e) => { setRejectReason(e.target.value); setRejectError(''); }}
+                placeholder="Examples: Blurred documentation images, missing RC details, car doesn't meet age criteria..."
+                className="w-full h-32 px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all resize-none text-gray-700"
+              />
+              
+              {rejectError && (
+                <p className="mt-2 text-sm text-red-600 font-medium flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                  {rejectError}
+                </p>
+              )}
+            </div>
+            
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+              <button
+                onClick={() => { setShowRejectModal(false); setRejectError(''); setRejectReason(''); }}
+                className="px-5 py-2.5 rounded-xl font-semibold text-gray-600 hover:bg-gray-200 transition-colors"
+                disabled={isRejecting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (!rejectReason.trim()) {
+                    setRejectError('A rejection reason is required.');
+                    return;
+                  }
+                  setIsRejecting(true);
+                  try {
+                    await onReject(req._id, rejectReason);
+                    setShowRejectModal(false);
+                  } catch (err) {
+                    setRejectError(err.message || 'Failed to reject request. Please try again.');
+                  } finally {
+                    setIsRejecting(false);
+                  }
+                }}
+                disabled={isRejecting}
+                className="px-5 py-2.5 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm disabled:opacity-70 flex items-center justify-center min-w-[100px]"
+              >
+                {isRejecting ? (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                ) : 'Confirm Reject'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -113,26 +198,38 @@ export default function Requests() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        setLoading(true);
-        const res = await auctionManagerServices.getRequests();
-        const responseData = res.data || res;
-        
-        if (responseData.success) {
-          setRequests(responseData.data || []);
-        } else {
-          setError(responseData.message || 'Failed to load requests');
-        }
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load requests');
-      } finally {
-        setLoading(false);
+  const fetchRequests = async () => {
+    try {
+      setLoading(true);
+      const res = await auctionManagerServices.getRequests();
+      const responseData = res.data || res;
+      
+      if (responseData.success) {
+        setRequests(responseData.data || []);
+      } else {
+        setError(responseData.message || 'Failed to load requests');
       }
-    };
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to load requests');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchRequests();
   }, []);
+
+  const handleReject = async (id, reason) => {
+    const res = await auctionManagerServices.rejectRequest(id, reason);
+    const responseData = res.data || res;
+    if (responseData.success) {
+      setRequests(currentReqs => currentReqs.filter(r => r._id !== id));
+      return true;
+    } else {
+      throw new Error(responseData.message || 'Failed to reject request');
+    }
+  };
 
   if (loading) return <LoadingSpinner />;
 
@@ -203,7 +300,7 @@ export default function Requests() {
         {requests.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {requests.map((req) => (
-              <RequestCard key={req._id} req={req} />
+              <RequestCard key={req._id} req={req} onReject={handleReject} />
             ))}
           </div>
         ) : (

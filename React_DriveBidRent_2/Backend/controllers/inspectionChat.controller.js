@@ -13,11 +13,12 @@ export const getMyInspectionChats = async (req, res) => {
     const chats = await InspectionChat.find({
       $and: [
         { expiresAt: { $gt: now } },
-        { $or: [{ mechanic: uid }, { auctionManager: uid }] }
+        { $or: [{ mechanic: uid }, { auctionManager: uid }, { seller: uid }] }
       ]
     })
       .populate('mechanic', 'firstName lastName profileImage _id')
       .populate('auctionManager', 'firstName lastName profileImage _id')
+      .populate('seller', 'firstName lastName profileImage _id')
       .populate({ path: 'inspectionTask', select: 'vehicleName vehicleImage make model year _id' })
       .sort({ lastMessageAt: -1, createdAt: -1 })
       .lean();
@@ -40,13 +41,14 @@ export const getInspectionChatById = async (req, res) => {
     const chat = await InspectionChat.findById(chatId)
       .populate('mechanic', 'firstName lastName profileImage _id')
       .populate('auctionManager', 'firstName lastName profileImage _id')
+      .populate('seller', 'firstName lastName profileImage _id')
       .populate({ path: 'inspectionTask', select: 'vehicleName vehicleImage make model year _id' })
       .lean();
 
     if (!chat) return res.status(404).json({ success: false, message: 'Chat not found' });
 
     const uid = getUserId(req);
-    const allowed = [String(chat.mechanic?._id || ''), String(chat.auctionManager?._id || '')].some(id => id === String(uid));
+    const allowed = [String(chat.mechanic?._id || ''), String(chat.auctionManager?._id || ''), String(chat.seller?._id || '')].some(id => id === String(uid));
     if (!allowed) return res.status(403).json({ success: false, message: 'Access denied' });
 
     res.json({ success: true, data: { chat, myUserId: uid } });
@@ -65,7 +67,7 @@ export const getInspectionMessages = async (req, res) => {
     if (!chat) return res.status(404).json({ success: false, message: 'Chat not found' });
 
     const uid = String(getUserId(req));
-    const allowed = [String(chat.mechanic || ''), String(chat.auctionManager || '')].some(id => id === uid);
+    const allowed = [String(chat.mechanic || ''), String(chat.auctionManager || ''), String(chat.seller || '')].some(id => id === uid);
     if (!allowed) return res.status(403).json({ success: false, message: 'Access denied' });
 
     const query = { chat: chatId };
@@ -109,7 +111,7 @@ export const sendInspectionMessage = async (req, res) => {
     if (!chat) return res.status(404).json({ success: false, message: 'Chat not found' });
 
     const uid = String(getUserId(req));
-    const allowed = [String(chat.mechanic || ''), String(chat.auctionManager || '')].some(id => id === uid);
+    const allowed = [String(chat.mechanic || ''), String(chat.auctionManager || ''), String(chat.seller || '')].some(id => id === uid);
     if (!allowed) return res.status(403).json({ success: false, message: 'Access denied' });
 
     if (new Date() > new Date(chat.expiresAt)) return res.status(403).json({ success: false, message: 'Chat expired and read-only' });
@@ -136,7 +138,7 @@ export const markInspectionMessagesRead = async (req, res) => {
     if (!chat) return res.status(404).json({ success: false, message: 'Chat not found' });
 
     const uid = String(getUserId(req));
-    const allowed = [String(chat.mechanic || ''), String(chat.auctionManager || '')].some(id => id === uid);
+    const allowed = [String(chat.mechanic || ''), String(chat.auctionManager || ''), String(chat.seller || '')].some(id => id === uid);
     if (!allowed) return res.status(403).json({ success: false, message: 'Access denied' });
 
     const result = await InspectionMessage.updateMany({ chat: chatId, sender: { $ne: req.user._id }, read: false }, { $set: { read: true, updatedAt: new Date() } });

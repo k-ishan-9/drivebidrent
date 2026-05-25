@@ -77,9 +77,9 @@ const ViewAuctions = () => {
                 onClick={() => navigate(`/seller/auction-details/${auction._id}`)}
               >
                 <img
-                  src={auction.vehicleImage}
+                  src={auction.mainImage || auction.vehicleImage || 'https://via.placeholder.com/600x400?text=No+Image'}
                   alt={auction.vehicleName}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-48 object-cover bg-gray-100"
                 />
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-3">
@@ -146,6 +146,20 @@ const ViewAuctions = () => {
                       </button>
                     )}
                   </div>
+                  
+                  {auction.status === 'rejected' && auction.rejectionReason && (
+                    <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
+                      <p className="text-xs font-bold text-red-800 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        Rejection Reason
+                      </p>
+                      <p className="text-sm text-red-700 line-clamp-2">
+                        {auction.rejectionReason}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -167,14 +181,14 @@ const ViewAuctions = () => {
 
         {/* Stats Section */}
         {auctions.length > 0 && (
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="bg-white rounded-lg shadow p-4 text-center">
               <div className="text-2xl font-bold text-orange-600">{auctions.length}</div>
               <div className="text-gray-600 text-sm">Total Auctions</div>
             </div>
             <div className="bg-white rounded-lg shadow p-4 text-center">
               <div className="text-2xl font-bold text-green-600">
-                {auctions.filter(a => a.status === 'approved').length}
+                {auctions.filter(a => a.status === 'approved' || a.started_auction === 'yes' || a.started_auction === 'ended').length}
               </div>
               <div className="text-gray-600 text-sm">Approved</div>
             </div>
@@ -189,6 +203,12 @@ const ViewAuctions = () => {
                 {auctions.filter(a => a.status === 'assignedMechanic').length}
               </div>
               <div className="text-gray-600 text-sm">In Progress</div>
+            </div>
+            <div className="bg-white rounded-lg shadow p-4 text-center">
+              <div className="text-2xl font-bold text-red-600">
+                {auctions.filter(a => a.status === 'rejected').length}
+              </div>
+              <div className="text-gray-600 text-sm">Rejected</div>
             </div>
           </div>
         )}

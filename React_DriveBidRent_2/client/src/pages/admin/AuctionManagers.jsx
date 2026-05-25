@@ -21,6 +21,7 @@ const AuctionManagers = () => {
 
   useEffect(() => {
     fetchAuctionManagers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchAuctionManagers = async () => {
@@ -145,13 +146,17 @@ const AuctionManagers = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        <div className="admin-page-header">
+          <h1 className="admin-page-title">
+            <i className="fas fa-gavel"></i>
+            Auction Managers
+          </h1>
+          <p className="admin-page-subtitle">Review and manage auction manager registrations</p>
+        </div>
+
         {/* Header & Stats */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Auction Managers</h1>
-              <p className="mt-1 text-gray-600">Review and manage auction manager registrations</p>
-            </div>
             <div className="flex items-center gap-8">
               <div className="text-right">
                 <div className="text-sm text-gray-500">Total</div>

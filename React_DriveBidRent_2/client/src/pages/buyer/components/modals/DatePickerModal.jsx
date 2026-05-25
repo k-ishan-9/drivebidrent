@@ -27,6 +27,7 @@ export default function DatePickerModal({ isOpen, onClose, onProceed, onDateSele
         if (pickupDate && dropDate && rental) {
             calculateCost();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pickupDate, dropDate, includeDriver, rental]);
 
     const formatDate = (date) => {

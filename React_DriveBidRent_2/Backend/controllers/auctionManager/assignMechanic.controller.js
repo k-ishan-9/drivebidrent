@@ -2,6 +2,7 @@
 import AuctionRequest from '../../models/AuctionRequest.js';
 import User from '../../models/User.js';
 import InspectionChat from '../../models/InspectionChat.js';
+import mongoose from 'mongoose';
 
 const send = (success, message, data = null) => ({
   success,
@@ -54,6 +55,33 @@ export const assignMechanic = async (req, res) => {
   try {
     const { mechanicId, mechanicName } = req.body;
 
+    if (!mechanicId || !mongoose.Types.ObjectId.isValid(mechanicId)) {
+      return res.status(400).json(send(false, 'Valid mechanicId is required'));
+    }
+
+    const mechanic = await User.findOne({
+      _id: mechanicId,
+      userType: 'mechanic',
+      approved_status: 'Yes'
+    }).select('_id firstName lastName city');
+
+    if (!mechanic) {
+      return res.status(404).json(send(false, 'Approved mechanic not found'));
+    }
+
+    const requestDoc = await AuctionRequest.findById(req.params.id)
+      .populate('sellerId', 'city')
+      .select('_id sellerId');
+
+    if (!requestDoc) {
+      return res.status(404).json(send(false, 'Request not found'));
+    }
+
+    const sellerCity = requestDoc.sellerId?.city;
+    if (sellerCity && mechanic.city && mechanic.city !== sellerCity) {
+      return res.status(400).json(send(false, 'Mechanic city does not match seller city'));
+    }
+
     console.log('🔧 [assignMechanic] Starting assignment process:', {
       carId: req.params.id,
       mechanicId,
@@ -66,7 +94,7 @@ export const assignMechanic = async (req, res) => {
       {
         status: 'assignedMechanic',
         assignedMechanic: mechanicId,
-        mechanicName,
+        mechanicName: mechanicName || `${mechanic.firstName} ${mechanic.lastName}`,
         assignedAuctionManager: req.user._id  // Track which auction manager assigned this
       },
       { new: true }
@@ -125,6 +153,7 @@ export const assignMechanic = async (req, res) => {
         const created = await InspectionChat.create({
           mechanic: mechanicId,
           auctionManager: req.user._id,
+          seller: updated.sellerId,
           inspectionTask: updated._id,
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
           title: `Inspection: ${updated.vehicleName}`
@@ -150,6 +179,6 @@ export const assignMechanic = async (req, res) => {
     res.json(send(true, 'Mechanic assigned successfully', { chat: chatDoc }));
   } catch (err) {
     console.error('Assign mechanic save error:', err);
-    res.json(send(false, 'Failed to assign mechanic'));
+    res.status(500).json(send(false, 'Failed to assign mechanic'));
   }
 };

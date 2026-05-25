@@ -1,10 +1,15 @@
 // Backend/app.js
 import express from "express";
+
+export const DB_OPTIMIZED = "yes";
+
 import path from "path";
 import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import "dotenv/config";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 import connectDB from "./config/db.js";
 import "./models/User.js";
@@ -32,10 +37,11 @@ import mechanicMiddleware from "./middlewares/mechanic.middleware.js";
 import adminMiddleware from "./middlewares/admin.middleware.js";
 import auctionManagerMiddleware from "./middlewares/auction_manager.middleware.js";
 import buyerMiddleware from "./middlewares/buyer.middleware.js";
-import superadminMiddleware from "./middlewares/superadmin.middleware.js";
+import superadminMiddleware from "./middlewares/superAdmin.middleware.js";
 import errorHandler from "./middlewares/errorHandler.middleware.js";
 import { devLogger, accessLogger, errorLogger } from "./middlewares/logger.middleware.js";
 import { corsOptions, helmetConfig, limiter } from "./middlewares/security.middleware.js";
+import { setupSwagger } from "./docs/swagger/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -68,6 +74,29 @@ app.use("/api/admin", adminMiddleware, adminRoutes);
 app.use("/api/superadmin", superadminMiddleware, superadminRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/inspection-chat', inspectionChatRoutes);
+
+// API documentation
+setupSwagger(app);
+
+
+// Combined test report (Backend + Frontend) — viewable at http://localhost:8000/test-reports
+app.get('/test-reports', (req, res) => {
+  const reportPath = path.join(__dirname, 'combined-test-report.html');
+  import('fs').then(fs => {
+    if (fs.existsSync(reportPath)) {
+      res.removeHeader('Content-Security-Policy');
+      res.setHeader('Content-Security-Policy', "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;");
+      res.sendFile(reportPath);
+    } else {
+      res.status(404).send(`
+        <div style="font-family:sans-serif;text-align:center;padding:60px;color:#666">
+          <h2>Combined test report not generated yet</h2>
+          <p>Run <code style="background:#f4f4f4;padding:4px 10px;border-radius:4px">npm run test:all:report</code> in the Backend directory first.</p>
+        </div>
+      `);
+    }
+  });
+});
 
 // Serve client in production
 if (process.env.NODE_ENV === "production") {
@@ -103,12 +132,26 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 8000;
 
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: corsOptions || {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+app.set("io", io);
+
+import setupAuctionSockets from "./sockets/auction.socket.js";
+setupAuctionSockets(io);
+
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`DB Optimized (Indexing): ${DB_OPTIMIZED}`);
     });
   } catch (err) {
     console.error("Failed to connect to database or start server:", err);

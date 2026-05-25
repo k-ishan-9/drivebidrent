@@ -4,18 +4,43 @@ import AuctionBid from '../../models/AuctionBid.js';
 import Purchase from '../../models/Purchase.js';
 import AuctionCost from '../../models/AuctionCost.js';
 
+import redisClient from '../../utils/redisClient.js';
+
 // Controller for all auctions page with search/filter
 export const getAuctions = async (req, res) => {
   try {
     const { search, condition, fuelType, transmission, minPrice, maxPrice } = req.query;
+
+    // Build a unique cache key based on query params
+    const cacheKey = `auctions:${JSON.stringify(req.query)}`;
+    const startTime = Date.now();
+
+    // Check Redis Cache first
+    if (redisClient.isReady) {
+      const cachedData = await redisClient.get(cacheKey);
+      if (cachedData) {
+        const responseTime = Date.now() - startTime;
+        console.log(`\x1b[32m[REDIS HIT]\x1b[0m  Key: ${cacheKey} | Time: ${responseTime}ms (served from Redis cache)\x1b[0m`);
+        return res.json({
+          success: true,
+          message: 'Auctions fetched successfully (Cached)',
+          cacheStatus: 'HIT',
+          responseTime: responseTime,
+          data: JSON.parse(cachedData)
+        });
+      }
+    }
+
+    // CACHE MISS — fetch from MongoDB Atlas
     const query = {
       status: 'approved',
       started_auction: 'yes',
       auction_stopped: false  // Only show ongoing auctions
     };
 
+    // Optimize user search experience utilizing MongoDB text indexes instead of regex
     if (search) {
-      query.vehicleName = { $regex: search, $options: 'i' };
+      query.$text = { $search: search };
     }
     if (condition) query.condition = condition;
     if (fuelType) query.fuelType = fuelType;
@@ -53,13 +78,25 @@ export const getAuctions = async (req, res) => {
       }));
     }
 
+    const responseData = {
+      auctions: auctionsWithBids,
+      filters: { search, condition, fuelType, transmission, minPrice, maxPrice }
+    };
+
+    // Save to Redis Cache with 90 second TTL
+    if (redisClient.isReady) {
+      await redisClient.setEx(cacheKey, 90, JSON.stringify(responseData));
+    }
+
+    const responseTime = Date.now() - startTime;
+    console.log(`\x1b[33m[REDIS MISS]\x1b[0m Key: ${cacheKey} | Time: ${responseTime}ms (fetched from MongoDB Atlas)\x1b[0m`);
+
     res.json({
       success: true,
-      message: 'Auctions fetched successfully',
-      data: {
-        auctions: auctionsWithBids,
-        filters: { search, condition, fuelType, transmission, minPrice, maxPrice }
-      }
+      message: 'Auctions fetched successfully (from Atlas)',
+      cacheStatus: 'MISS',
+      responseTime: responseTime,
+      data: responseData
     });
   } catch (err) {
     console.error('Error fetching auctions:', err);
@@ -178,6 +215,29 @@ export const placeBid = async (req, res) => {
     });
 
     await newBid.save();
+
+    // Emit real-time WebSocket event
+    const io = req.app.get('io');
+    if (io) {
+      try {
+        const User = (await import('../../models/User.js')).default;
+        const bidder = await User.findById(buyerId).select('firstName lastName -_id').lean();
+        const payload = {
+          bidAmount: bidValue,
+          auctionId: auctionId.toString(),
+          buyerId: buyerId.toString(),
+          bidderName: bidder ? `${bidder.firstName} ${bidder.lastName.charAt(0)}.` : 'Anonymous'
+        };
+
+        // Emit to specific auction room
+        io.to(auctionId.toString()).emit('new_bid', payload);
+
+        // Emit globally for dashboard lists
+        io.emit('global_new_bid', payload);
+      } catch (err) {
+        console.error('Socket.io error emitting new_bid:', err);
+      }
+    }
 
     res.json({
       success: true,

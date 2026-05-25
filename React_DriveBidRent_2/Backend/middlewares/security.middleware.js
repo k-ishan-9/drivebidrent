@@ -7,9 +7,8 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     const allowedOrigins = [
       process.env.CLIENT_URL,
-      "http://localhost:3000",
       "http://localhost:5173",
-      "http://localhost:5174",
+      "http://localhost",
     ].filter(Boolean);
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
@@ -32,11 +31,11 @@ const helmetConfig = helmet({
 });
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
+  windowMs: 15 * 60 * 1000,
   max: 500,
   message: 'Too many requests from this IP, please try again later.',
-  standardHeaders: true, 
-  legacyHeaders: false, 
+  standardHeaders: true,
+  legacyHeaders: false,
   skip: (req) => (
     req.url.includes('/notifications') ||
     req.url.includes('/auction/') ||
@@ -46,7 +45,7 @@ const limiter = rateLimit({
     req.url.includes('/auctionmanager/dashboard') ||
     req.url.includes('/wishlist') ||
     req.url.includes('/api/chat') ||
-    req.url.includes('/api/inspection-chat')||
+    req.url.includes('/api/inspection-chat') ||
     req.url.includes('/api/buyer/')
   )
 });

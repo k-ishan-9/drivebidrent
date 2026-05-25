@@ -21,7 +21,7 @@ export default function PaymentModal({
         };
     }, [isOpen]);
 
-    const handlePaymentMethodSelect = (method) => {
+    const _handlePaymentMethodSelect = (method) => {
         setPaymentMethod(method);
         onPaymentMethodSelect(method);
     };
@@ -49,68 +49,13 @@ export default function PaymentModal({
                         <h3 className="text-2xl font-bold text-orange-600 mt-1">₹{totalCost.toLocaleString()}</h3>
                     </div>
 
-                    {/* Payment Methods */}
+                    {/* Payment Info */}
                     <div className="mb-6">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-4">Select Payment Method</h4>
-                        <div className="space-y-3">
-                            {/* UPI Option */}
-                            <div
-                                className={`cursor-pointer p-4 rounded-lg border transition-all ${paymentMethod === 'upi'
-                                    ? 'border-orange-500 bg-orange-50 shadow-sm'
-                                    : 'border-gray-200 bg-white hover:border-orange-300'
-                                    }`}
-                                onClick={() => handlePaymentMethodSelect('upi')}
-                            >
-                                <div className="flex items-center">
-                                    <div className="text-2xl mr-3">📱</div>
-                                    <div className="flex-1">
-                                        <h4 className="text-sm font-semibold text-gray-900">Pay with UPI</h4>
-                                        <p className="text-gray-600 text-xs mt-1">Instant payment using any UPI app</p>
-                                    </div>
-                                    {paymentMethod === 'upi' && (
-                                        <div className="text-orange-500 text-xl">✓</div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Card Option */}
-                            <div
-                                className={`cursor-pointer p-4 rounded-lg border transition-all ${paymentMethod === 'card'
-                                    ? 'border-orange-500 bg-orange-50 shadow-sm'
-                                    : 'border-gray-200 bg-white hover:border-orange-300'
-                                    }`}
-                                onClick={() => handlePaymentMethodSelect('card')}
-                            >
-                                <div className="flex items-center">
-                                    <div className="text-2xl mr-3">💳</div>
-                                    <div className="flex-1">
-                                        <h4 className="text-sm font-semibold text-gray-900">Credit/Debit Card</h4>
-                                        <p className="text-gray-600 text-xs mt-1">Pay using your card</p>
-                                    </div>
-                                    {paymentMethod === 'card' && (
-                                        <div className="text-orange-500 text-xl">✓</div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Net Banking Option */}
-                            <div
-                                className={`cursor-pointer p-4 rounded-lg border transition-all ${paymentMethod === 'netbanking'
-                                    ? 'border-orange-500 bg-orange-50 shadow-sm'
-                                    : 'border-gray-200 bg-white hover:border-orange-300'
-                                    }`}
-                                onClick={() => handlePaymentMethodSelect('netbanking')}
-                            >
-                                <div className="flex items-center">
-                                    <div className="text-2xl mr-3">🏦</div>
-                                    <div className="flex-1">
-                                        <h4 className="text-sm font-semibold text-gray-900">Net Banking</h4>
-                                        <p className="text-gray-600 text-xs mt-1">Pay using net banking</p>
-                                    </div>
-                                    {paymentMethod === 'netbanking' && (
-                                        <div className="text-orange-500 text-xl">✓</div>
-                                    )}
-                                </div>
+                        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg flex items-center gap-3">
+                            <div className="text-blue-500 text-2xl">🔒</div>
+                            <div>
+                                <h4 className="text-sm font-semibold text-gray-900">Secure Payment</h4>
+                                <p className="text-gray-600 text-xs mt-1">You will be securely redirected to Stripe for completing this payment.</p>
                             </div>
                         </div>
                     </div>

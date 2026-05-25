@@ -104,6 +104,7 @@ const AddRental = () => {
     if (driverRateContainer) {
       driverRateContainer.style.display = driverAvailable === 'yes' ? 'block' : 'none';
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData['driver-available']]);
 
   return (

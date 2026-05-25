@@ -8,7 +8,8 @@ const router = express.Router();
 // Regular user routes
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
-
+router.post('/google', authController.googleLogin);
+router.post('/verify-signup-otp', authController.verifySignupOtp);
 // Auction Manager routes
 router.post('/auctionmanager/signup', auctionManagerAuthController.signup);
 router.post('/auctionmanager/login', auctionManagerAuthController.login);

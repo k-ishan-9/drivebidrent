@@ -1,7 +1,7 @@
 // client/src/pages/superadmin/Dashboard.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance.util";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -16,7 +16,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await axios.get('/api/superadmin/dashboard', { withCredentials: true });
+        const res = await axiosInstance.get('/superadmin/dashboard');
         if (res.data.success) {
           setData(res.data.data);
         } else {

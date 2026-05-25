@@ -1,6 +1,11 @@
 // controllers/auth.controller.js
 import User from '../models/User.js';
+import OTP from '../models/OTP.js';
 import generateToken from '../utils/generateToken.js';
+import { OAuth2Client } from 'google-auth-library';
+import { sendOTPEmail } from '../utils/email.service.js';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authController = {
   // === SIGNUP ===
@@ -79,6 +84,9 @@ const authController = {
         return res.status(409).json({ success: false, message: "Email or phone already exists" });
       }
 
+      // Check if OTP is globally enabled
+      const otpEnabled = process.env.ENABLE_OTP_VERIFICATION === 'true';
+
       // Build user data
       const userData = {
         firstName,
@@ -98,22 +106,49 @@ const authController = {
         repairBikes: isBikeRepair,
         repairCars: isCarRepair,
         googleAddressLink: mechanicGoogleLink,
+        isVerified: !otpEnabled, // verified automatically if OTP is turned off
       };
 
+      if (otpEnabled) {
+        // Generate a 6-digit OTP
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Delete any pending OTP registration attempts for this email
+        await OTP.deleteMany({ email });
+
+        // Temporarily store signup data with the code
+        await OTP.create({
+          email,
+          otp: otpCode,
+          userData
+        });
+
+        // Send Email
+        const emailSent = await sendOTPEmail(email, otpCode);
+        if (!emailSent) {
+          return res.status(500).json({ success: false, message: "Failed to send verification email" });
+        }
+
+        return res.status(200).json({
+          success: true,
+          otpRequired: true,
+          email,
+          message: "A verification code has been sent to your email.",
+        });
+      }
+
+      // No OTP required, create account but redirect to login
       const user = new User(userData);
       await user.save();
 
-      const token = generateToken(user);
-      res.cookie("jwt", token, { httpOnly: true, sameSite: "strict" });
+      const successMessage = user.userType === 'mechanic'
+        ? "Account created! Your details are under admin review. You'll be notified once approved."
+        : "Account created successfully! Please login to continue.";
 
       return res.status(201).json({
         success: true,
-        message: "User registered successfully",
-        user: {
-          id: user._id,
-          userType: user.userType,
-          firstName: user.firstName,
-        }
+        message: successMessage,
+        redirect: '/login'
       });
 
     } catch (err) {
@@ -133,41 +168,37 @@ const authController = {
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
-      console.log('Login attempt for email:', email);
-
       const user = await User.findOne({ email });
-      console.log('User found:', user ? 'YES' : 'NO');
-      if (user) {
-        console.log('User data:', {
-          id: user._id,
-          userType: user.userType,
-          firstName: user.firstName,
-          email: user.email,
-          approved_status: user.approved_status
-        });
-      }
 
       if (!user || !(await user.comparePassword(password))) {
         return res.status(401).json({ success: false, message: "Invalid email or password" });
       }
 
-      const token = generateToken(user);
-      res.cookie("jwt", token, { httpOnly: true, sameSite: "strict", maxAge: 30 * 24 * 60 * 60 * 1000 });
+      if (user.isBlocked) {
+        return res.status(403).json({ success: false, message: 'Your account has been blocked by the admin' });
+      }
 
-      // CRITICAL FIX: These now match your current frontend routes (from App.jsx)
+      const token = generateToken(user);
+      const isProd = process.env.NODE_ENV === "production";
+      res.cookie("jwt", token, { 
+        httpOnly: true, 
+        sameSite: isProd ? "none" : "strict", 
+        secure: isProd,
+        maxAge: 30 * 24 * 60 * 60 * 1000 
+      });
+
       const redirectMap = {
-        buyer: "/buyer",                    // Updated: now uses BuyerLayout
-        seller: "/seller",                  // Correct
-        driver: "/driver-dashboard",        // Adjust if you have a driver layout
-        mechanic: "/mechanic/dashboard",    // Correct
-        admin: "/admin",                    // Updated: now uses /admin base
-        auction_manager: "/auctionmanager", // Updated to match frontend
-        superadmin: "/superadmin"          // Super Admin route
+        buyer: "/buyer",
+        seller: "/seller",
+        driver: "/driver-dashboard",
+        mechanic: "/mechanic/dashboard",
+        admin: "/admin",
+        auction_manager: "/auctionmanager",
+        superadmin: "/superadmin"
       };
 
       const redirectUrl = redirectMap[user.userType] || "/";
 
-      // Include notification flag in response so frontend can show badge immediately
       const responseUser = {
         _id: user._id,
         id: user._id,
@@ -184,13 +215,12 @@ const authController = {
         state: user.state || ''
       };
 
-      console.log('Sending response with user:', responseUser);
-
       return res.json({
         success: true,
         message: "Login successful",
         redirect: redirectUrl,
-        user: responseUser
+        user: responseUser,
+        token
       });
 
     } catch (err) {
@@ -199,10 +229,153 @@ const authController = {
     }
   },
 
-  // === LOGOUT ===
   logout: (req, res) => {
-    res.clearCookie("jwt");
+    const isProd = process.env.NODE_ENV === "production";
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      sameSite: isProd ? "none" : "strict",
+      secure: isProd
+    });
     return res.json({ success: true, message: "Logged out successfully" });
+  },
+
+  // === GOOGLE OAUTH LOGIN ===
+  googleLogin: async (req, res) => {
+    try {
+      const { credential } = req.body;
+
+      if (!credential) {
+        return res.status(400).json({ success: false, message: "Google credential is required" });
+      }
+
+      // Verify the Google ID token
+      const ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+      const { sub: googleId, email, given_name, family_name, name } = payload;
+
+      if (!email) {
+        return res.status(400).json({ success: false, message: "Could not get email from Google account" });
+      }
+
+      // Check if user already exists by email
+      let user = await User.findOne({ email });
+
+      if (user) {
+        // Existing user — update googleId if not set
+        if (!user.googleId) {
+          user.googleId = googleId;
+          user.provider = user.provider || 'google';
+          await user.save();
+        }
+      } else {
+        // No account exists — require proper signup first
+        return res.status(401).json({
+          success: false,
+          message: "No account found for this email. Please sign up first."
+        });
+      }
+
+      // Direct login path for Google users
+      const token = generateToken(user);
+      const isProd = process.env.NODE_ENV === "production";
+      res.cookie("jwt", token, { 
+        httpOnly: true, 
+        sameSite: isProd ? "none" : "strict", 
+        secure: isProd,
+        maxAge: 30 * 24 * 60 * 60 * 1000 
+      });
+
+      const redirectMap = {
+        buyer: "/buyer",
+        seller: "/seller",
+        driver: "/driver-dashboard",
+        mechanic: "/mechanic/dashboard",
+        admin: "/admin",
+        auction_manager: "/auctionmanager",
+        superadmin: "/superadmin"
+      };
+
+      const redirectUrl = redirectMap[user.userType] || "/";
+
+      const responseUser = {
+        _id: user._id,
+        id: user._id,
+        userType: user.userType,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone || '',
+        approved_status: user.approved_status,
+        provider: user.provider,
+        notificationFlag: !!user.notificationFlag,
+        doorNo: user.doorNo || '',
+        street: user.street || '',
+        city: user.city || '',
+        state: user.state || ''
+      };
+
+      return res.json({
+        success: true,
+        message: "Google login successful",
+        redirect: redirectUrl,
+        user: responseUser,
+        token
+      });
+
+    } catch (err) {
+      console.error("Google login error:", err);
+
+      if (err.message?.includes('Token used too late') || err.message?.includes('Invalid token')) {
+        return res.status(401).json({ success: false, message: "Google token expired or invalid. Please try again." });
+      }
+
+      return res.status(500).json({ success: false, message: "Google login failed" });
+    }
+  },
+
+  // === VERIFY SIGNUP OTP ===
+  verifySignupOtp: async (req, res) => {
+    try {
+      const { email, otp } = req.body;
+
+      if (!email || !otp) {
+        return res.status(400).json({ success: false, message: "Email and OTP are required" });
+      }
+
+      // Check the temporary OTP collection instead of User
+      const otpRecord = await OTP.findOne({ email });
+      if (!otpRecord) {
+        return res.status(404).json({ success: false, message: "OTP session expired or not found. Please sign up again." });
+      }
+
+      if (otpRecord.otp !== otp) {
+        return res.status(400).json({ success: false, message: "Invalid OTP code" });
+      }
+
+      // Valid OTP -> Create the actual user now!
+      const user = new User(otpRecord.userData);
+      await user.save();
+
+      // Clear the OTP record so it can't be reused
+      await OTP.deleteMany({ email });
+
+      const successMessage = user.userType === 'mechanic'
+        ? "Email verified & account created! Your details are under admin review. You'll be notified once approved."
+        : "Email verified & account created successfully! Please login to continue.";
+
+      return res.status(200).json({
+        success: true,
+        message: successMessage,
+        redirect: '/login'
+      });
+    } catch (err) {
+      console.error("Signup OTP verification error:", err);
+      return res.status(500).json({ success: false, message: "OTP verification failed" });
+    }
   }
 };
 

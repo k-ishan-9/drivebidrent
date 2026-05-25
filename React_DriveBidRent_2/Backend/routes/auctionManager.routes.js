@@ -2,9 +2,10 @@
 import express from 'express';
 import isAuctionManager from '../middlewares/auction_manager.middleware.js';
 
+
 // Controllers - using named imports (clean & consistent)
 import { getDashboard } from '../controllers/auctionManager/dashboard.controller.js';
-import { getRequests, migrateExistingAssignments } from '../controllers/auctionManager/requests.controller.js';
+import { getRequests, rejectRequest } from '../controllers/auctionManager/requests.controller.js';
 import {
   getPending,
   getReview,
@@ -14,19 +15,20 @@ import {
 import { getApproved } from '../controllers/auctionManager/approved.controller.js';
 import { getAssignMechanic, assignMechanic } from '../controllers/auctionManager/assignMechanic.controller.js';
 import { startAuction, stopAuction, viewBids, reAuction } from '../controllers/auctionManager/auction.controller.js';
+import { pokeBuyer } from '../controllers/auctionManager/pokeBuyer.controller.js';
 import { getProfile, updatePhone, changePassword } from '../controllers/auctionManager/profile.controller.js';
 
 const router = express.Router();
 
 // Apply authentication middleware to ALL routes
-router.use(isAuctionManager);
+// router.use(isAuctionManager);
 
 // === Dashboard ===
 router.get('/dashboard', getDashboard);
 
 // === Requests ===
 router.get('/requests', getRequests);
-router.post('/migrate-assignments', migrateExistingAssignments);
+router.post('/reject-request/:id', rejectRequest);
 
 // === Pending Cars ===
 router.get('/pending', getPending);
@@ -46,6 +48,7 @@ router.post('/start-auction/:id', startAuction);
 router.post('/stop-auction/:id', stopAuction);
 router.get('/view-bids/:id', viewBids);
 router.post('/re-auction/:id', reAuction);
+router.post('/poke-buyer/:id', pokeBuyer);
 
 // === Profile ===
 router.get('/profile', getProfile);

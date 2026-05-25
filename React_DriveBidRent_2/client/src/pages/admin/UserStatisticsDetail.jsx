@@ -220,8 +220,8 @@ const UserStatisticsDetail = ({ userType, statistics, expandedSections, toggleSe
                       <div className="flex-1">
                         <p className="font-semibold text-gray-900">{car.vehicleName} ({car.year})</p>
                         <p className="text-gray-600">{car.mileage?.toLocaleString()} km</p>
-                        {car.mechanicReview?.conditionRating && (
-                          <p className="text-green-700 font-medium mt-0.5">Rating: {car.mechanicReview.conditionRating}</p>
+                        {(car.multipointInspection?.overallRating || car.mechanicReview?.conditionRating) && (
+                          <p className="text-green-700 font-medium mt-0.5">Rating: {car.multipointInspection?.overallRating ? `${car.multipointInspection.overallRating}/10` : car.mechanicReview.conditionRating}</p>
                         )}
                         {car.sellerId && <p className="text-gray-500 text-xs mt-0.5">Seller: {car.sellerId.firstName} {car.sellerId.lastName}</p>}
                       </div>

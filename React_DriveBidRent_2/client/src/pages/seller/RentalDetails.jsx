@@ -5,7 +5,7 @@ import useSellerRentals from '../../hooks/useSellerRentals';
 
 const RentalDetails = () => {
   const { id } = useParams();
-  const { currentRental: rental, reviews, loading: rentalLoading, loadRentalById, loadReviews, markRentalAsReturned } = useSellerRentals();
+  const { currentRental: rental, reviews, loading: _rentalLoading, loadRentalById, loadReviews, markRentalAsReturned } = useSellerRentals();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(null);

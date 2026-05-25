@@ -11,7 +11,7 @@ export default function ChatListBuyer({ onSelect, selectedId }) {
   const storedUser = (() => {
     try { return JSON.parse(localStorage.getItem('user')); } catch (e) { return null; }
   })();
-  const currentUserId = storedUser?._id || storedUser?.id || null;
+  const _currentUserId = storedUser?._id || storedUser?.id || null;
 
   useEffect(() => {
     const fetchChats = async () => {

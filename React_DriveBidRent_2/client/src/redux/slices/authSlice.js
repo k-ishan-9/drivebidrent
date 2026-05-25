@@ -23,6 +23,7 @@ export const loginUser = createAsyncThunk(
       if (response.success) {
         // Save auth state to localStorage
         saveAuthState(response.user);
+        if (response.token) localStorage.setItem('token', response.token);
         return {
           user: response.user,
           redirect: response.redirect,
@@ -37,18 +38,78 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const googleLogin = createAsyncThunk(
+  'auth/googleLogin',
+  async (credential, { rejectWithValue }) => {
+    try {
+      const response = await authServices.googleLogin(credential);
+      if (response.success) {
+        // If OTP is required, return the OTP flag without saving auth state
+        if (response.otpRequired) {
+          return {
+            otpRequired: true,
+            message: response.message,
+            email: response.email,
+          };
+        }
+        // Save auth state to localStorage
+        saveAuthState(response.user);
+        if (response.token) localStorage.setItem('token', response.token);
+        return {
+          user: response.user,
+          redirect: response.redirect,
+          message: response.message
+        };
+      } else {
+        return rejectWithValue(response.message || 'Google login failed');
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Google login error');
+    }
+  }
+);
+
+export const verifySignupOtp = createAsyncThunk(
+  'auth/verifySignupOtp',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await authServices.verifySignupOtp(data);
+      if (response.success) {
+        saveAuthState(response.user);
+        return {
+          user: response.user,
+          redirect: response.redirect,
+          message: response.message
+        };
+      } else {
+        return rejectWithValue(response.message || 'OTP verification failed');
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'OTP verification error');
+    }
+  }
+);
+
 export const signupUser = createAsyncThunk(
   'auth/signupUser',
   async (data, { rejectWithValue }) => {
     try {
       const response = await authServices.signup(data);
       if (response.success) {
+        if (response.otpRequired) {
+          return {
+            otpRequired: true,
+            email: response.email,
+            message: response.message
+          };
+        }
+        
         const user = response.data?.user || response.user;
-        // Save auth state to localStorage
         saveAuthState(user);
         return {
           user,
-          message: response.message
+          message: response.message,
+          redirect: response.redirect
         };
       } else {
         return rejectWithValue(response.message || 'Signup failed');
@@ -66,6 +127,7 @@ export const logoutUser = createAsyncThunk(
       await authServices.logout();
       // Clear auth state from localStorage
       localStorage.removeItem('authState');
+      localStorage.removeItem('token');
       return { message: 'Logged out successfully' };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Logout error');
@@ -81,7 +143,9 @@ const initialState = {
   success: null,
   redirect: null,
   userType: null,
-  approved_status: null
+  approved_status: null,
+  requireSignupOtpUI: false,
+  signupEmail: null,
 };
 
 const authSlice = createSlice({
@@ -118,8 +182,15 @@ const authSlice = createSlice({
       state.userType = null;
       state.approved_status = null;
       state.redirect = null;
+      state.requireSignupOtpUI = false;
+      state.signupEmail = null;
       // Clear from localStorage
       localStorage.removeItem('authState');
+      localStorage.removeItem('token');
+    },
+    cancelSignupOtp: (state) => {
+      state.requireSignupOtpUI = false;
+      state.signupEmail = null;
     }
   },
   extraReducers: (builder) => {
@@ -152,10 +223,34 @@ const authSlice = createSlice({
       })
       .addCase(signupUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
-        state.success = action.payload.message;
+        if (action.payload.otpRequired) {
+          state.success = action.payload.message;
+          state.requireSignupOtpUI = true;
+          state.signupEmail = action.payload.email;
+        } else {
+          state.success = action.payload.message;
+          state.redirect = action.payload.redirect || '/login';
+        }
       })
       .addCase(signupUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // Verify Signup OTP
+    builder
+      .addCase(verifySignupOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifySignupOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = action.payload.message;
+        state.redirect = action.payload.redirect || '/login';
+        state.requireSignupOtpUI = false;
+        state.signupEmail = null;
+      })
+      .addCase(verifySignupOtp.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
@@ -178,8 +273,29 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       });
+
+    // Google Login
+    builder
+      .addCase(googleLogin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.userType = action.payload.user?.userType;
+        state.approved_status = action.payload.user?.approved_status;
+        state.redirect = action.payload.redirect;
+        state.success = action.payload.message;
+      })
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.isAuthenticated = false;
+      });
   }
 });
 
-export const { clearError, clearSuccess, clearRedirect, setUser, clearAuth } = authSlice.actions;
+export const { clearError, clearSuccess, clearRedirect, setUser, clearAuth, cancelSignupOtp } = authSlice.actions;
 export default authSlice.reducer;
